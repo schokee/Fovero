@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2F75B101-F7EE-4059-B4EC-2C05AF8784D7}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fovero", "Fovero\Fovero.csproj", "{2C90A8F9-D63E-4C9F-ADA7-07DBDE3A6152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fovero.Tests", "Fovero.Tests\Fovero.Tests.csproj", "{2CF64FD1-976B-4DFF-883B-D93743C72475}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C90A8F9-D63E-4C9F-ADA7-07DBDE3A6152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C90A8F9-D63E-4C9F-ADA7-07DBDE3A6152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C90A8F9-D63E-4C9F-ADA7-07DBDE3A6152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C90A8F9-D63E-4C9F-ADA7-07DBDE3A6152}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CF64FD1-976B-4DFF-883B-D93743C72475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CF64FD1-976B-4DFF-883B-D93743C72475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CF64FD1-976B-4DFF-883B-D93743C72475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CF64FD1-976B-4DFF-883B-D93743C72475}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E5CB7193-D38E-4C31-B4E7-DAA7A330A85F}
+	EndGlobalSection
+EndGlobal

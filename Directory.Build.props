@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <Company>Fovero</Company>
+    <Product>Fovero</Product>
+    <RepositoryUrl>https://github.com/schokee/Fovero</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/schokee/Fovero</PackageProjectUrl>
+    <Copyright>Copyright © $([System.DateTime]::Now.Year) $(Company)</Copyright>
+    <TargetFramework>net80</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>1701;1702;NU1702;IDE0290</NoWarn>
+    <WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+      <PropertyGroup>
+        <IsPackable>false</IsPackable>
+      </PropertyGroup>
+
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="GitVersion.MsBuild" PrivateAssets="All" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+</Project>

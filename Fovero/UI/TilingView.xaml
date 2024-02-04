@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="Fovero.UI.TilingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Fovero.UI"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
+    <DockPanel Margin="10">
+        <StackPanel  DockPanel.Dock="Top" Orientation="Horizontal">
+            <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,4,0" />
+            <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <!--<Button x:Name="Clear" Content="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="4" MinWidth="80" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}" />-->
+            <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" Margin="4" IsEnabled="{Binding IsIdle}" />
+            <Button x:Name="Reset" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" />
+        </StackPanel>
+        <Grid>
+            <ItemsControl ItemsSource="{Binding Walls}" Margin="10" UseLayoutRounding="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:Wall}">
+                        <Path Data="{Binding Geometry, Mode=OneTime}">
+                            <Path.Style>
+                                <Style TargetType="{x:Type Path}">
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                    <Setter Property="Stroke" Value="DodgerBlue" />
+                                    <Setter Property="StrokeStartLineCap" Value="Round" />
+                                    <Setter Property="StrokeEndLineCap" Value="Round" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsShared}" Value="False">
+                                            <Setter Property="Stroke" Value="DimGray" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                                            <Setter Property="Stroke" Value="DarkOrange" />
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard Name="FadeEffect">
+                                                    <Storyboard>
+                                                        <DoubleAnimation BeginTime="0:0:0.5" Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.7"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <StopStoryboard BeginStoryboardName="FadeEffect"/>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!--
+            <ItemsControl ItemsSource="{Binding Tiles}" Visibility="Collapsed">
+                <ItemsControl.Resources>
+                    <local:CoordinateScaling x:Key="CoordinateScaling"/>
+                </ItemsControl.Resources>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type ContentPresenter}">
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Center.X, Mode=OneTime, Converter={StaticResource CoordinateScaling}}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Center.Y, Mode=OneTime, Converter={StaticResource CoordinateScaling}}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+            -->
+        </Grid>
+    </DockPanel>
+</UserControl>
