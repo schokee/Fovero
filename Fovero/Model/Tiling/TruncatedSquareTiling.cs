@@ -32,8 +32,8 @@ public class TruncatedSquareTiling(int columns, int rows) : RegularTiling("Trunc
         {
             get
             {
-                var c = (_column >> 1) * 4f;
-                var r = (_row >> 1) * 4f;
+                var c = (_column >> 1) * 4M;
+                var r = (_row >> 1) * 4M;
 
                 return _isSquare
                     ? new(c + (_column % 2 == 0 ? 1 : 3), r + (_row % 2 == 0 ? 1 : 3), 1, 1)

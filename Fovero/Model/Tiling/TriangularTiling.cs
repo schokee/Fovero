@@ -5,7 +5,7 @@ namespace Fovero.Model.Tiling;
 // Rectangular Delta (Hexagonal Delta, Triangular Delta)
 public sealed class TriangularTiling(int columns, int rows) : RegularTiling("Triangular", columns, rows)
 {
-    private static float CellHeight { get; } = (float)Math.Sqrt(3) / 2;
+    private static decimal CellHeight { get; } = (decimal)Math.Sqrt(3) / 2M;
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -31,7 +31,7 @@ public sealed class TriangularTiling(int columns, int rows) : RegularTiling("Tri
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new(_column / 2f, _row * CellHeight, 1, CellHeight);
+        public Rectangle Bounds => new(_column / 2M, _row * CellHeight, 1, CellHeight);
 
         private IEnumerable<Point2D> CornerPoints
         {

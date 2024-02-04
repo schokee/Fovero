@@ -4,7 +4,7 @@ using Fovero.Model.Tiling;
 
 namespace Fovero.UI;
 
-public sealed class Wall(IEdge edge, double scaling) : PropertyChangedBase, IWall
+public sealed class Wall(IEdge edge, decimal scaling) : PropertyChangedBase, IWall
 {
     private bool _isOpen;
 
@@ -12,13 +12,13 @@ public sealed class Wall(IEdge edge, double scaling) : PropertyChangedBase, IWal
 
     public bool IsShared => Edge is SharedEdge;
 
-    public double X1 => Edge.Start.X * scaling;
+    public decimal X1 => Edge.Start.X * scaling;
 
-    public double Y1 => Edge.Start.Y * scaling;
+    public decimal Y1 => Edge.Start.Y * scaling;
 
-    public double X2 => Edge.End.X * scaling;
+    public decimal X2 => Edge.End.X * scaling;
 
-    public double Y2 => Edge.End.Y * scaling;
+    public decimal Y2 => Edge.End.Y * scaling;
 
     public string Geometry => $"M {X1},{Y1} {X2},{Y2}";
 

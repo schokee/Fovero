@@ -4,7 +4,7 @@ namespace Fovero.Model.Tiling;
 
 public class PyramidTiling(int height) : ITiling
 {
-    private static float CellHeight { get; } = (float)Math.Sqrt(3) / 2;
+    private static decimal CellHeight { get; } = (decimal)Math.Sqrt(3) / 2;
 
     public int Height { get; } = height;
 
@@ -63,7 +63,7 @@ public class PyramidTiling(int height) : ITiling
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new((_format.Height - _row + _column) / 2f, _row * CellHeight, 1, CellHeight);
+        public Rectangle Bounds => new((_format.Height - _row + _column) / 2M, _row * CellHeight, 1, CellHeight);
 
         private IEnumerable<Point2D> CornerPoints
         {

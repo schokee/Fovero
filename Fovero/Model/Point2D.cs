@@ -1,6 +1,6 @@
 ﻿namespace Fovero.Model;
 
-public record Point2D(double X, double Y) : IComparable<Point2D>
+public record Point2D(decimal X, decimal Y) : IComparable<Point2D>
 {
     public Point2D MidpointTo(Point2D endPoint)
     {

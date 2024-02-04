@@ -4,7 +4,7 @@ namespace Fovero.Model.Tiling;
 
 public class HexagonalTiling(int columns, int rows) : RegularTiling("Hexagonal", columns, rows)
 {
-    private static float CellHeight { get; } = (float)Math.Sqrt(3);
+    private static decimal CellHeight { get; } = (decimal)Math.Sqrt(3);
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -30,7 +30,7 @@ public class HexagonalTiling(int columns, int rows) : RegularTiling("Hexagonal",
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new(_column * 1.5f, _row * CellHeight + (_isEvenColumn ? 0 : CellHeight / 2f), 2, CellHeight);
+        public Rectangle Bounds => new(_column * 1.5M, _row * CellHeight + (_isEvenColumn ? 0 : CellHeight / 2M), 2, CellHeight);
 
         private IEnumerable<Point2D> CornerPoints
         {
@@ -38,11 +38,11 @@ public class HexagonalTiling(int columns, int rows) : RegularTiling("Hexagonal",
             {
                 var bounds = Bounds;
 
-                yield return new Point2D(bounds.Left + 0.5f, bounds.Top);
-                yield return new Point2D(bounds.Right - 0.5f, bounds.Top);
+                yield return new Point2D(bounds.Left + 0.5M, bounds.Top);
+                yield return new Point2D(bounds.Right - 0.5M, bounds.Top);
                 yield return bounds.Center with { X = bounds.Right };
-                yield return new Point2D(bounds.Right - 0.5f, bounds.Bottom);
-                yield return new Point2D(bounds.Left + 0.5f, bounds.Bottom);
+                yield return new Point2D(bounds.Right - 0.5M, bounds.Bottom);
+                yield return new Point2D(bounds.Left + 0.5M, bounds.Bottom);
                 yield return bounds.Center with { X = bounds.Left };
             }
         }

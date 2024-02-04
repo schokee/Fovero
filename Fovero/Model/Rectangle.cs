@@ -1,6 +1,6 @@
 ﻿namespace Fovero.Model;
 
-public record Rectangle(double X, double Y, double Width, double Height)
+public record Rectangle(decimal X, decimal Y, decimal Width, decimal Height)
 {
     public Rectangle(Point2D topLeft, Point2D bottomRight) : this(topLeft.X, topLeft.Y, bottomRight.X - topLeft.X, bottomRight.Y - topLeft.Y)
     {
@@ -8,9 +8,9 @@ public record Rectangle(double X, double Y, double Width, double Height)
 
     public Point2D Center => new(X + Width / 2, Y + Height / 2);
 
-    public double Left => X;
-    public double Top => Y;
+    public decimal Left => X;
+    public decimal Top => Y;
 
-    public double Right => X + Width;
-    public double Bottom => Y + Height;
+    public decimal Right => X + Width;
+    public decimal Bottom => Y + Height;
 }
