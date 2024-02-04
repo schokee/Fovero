@@ -52,8 +52,7 @@ public sealed class DisjointSet<T> : IEnumerable<T> where T : IEquatable<T>
 
         if (representativeA.Height < representativeB.Height)
         {
-            representativeA.Representative = representativeB;
-            return true;
+            (representativeA, representativeB) = (representativeB, representativeA);
         }
 
         representativeB.Representative = representativeA;
