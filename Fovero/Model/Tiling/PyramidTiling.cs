@@ -59,7 +59,7 @@ public class PyramidTiling(int height) : ITiling
             _pointingUp = _column % 2 == 0;
         }
 
-        public int Ordinal => TriangularSum(_row) + _column - 1;
+        public int Ordinal => TriangularSum(_row) + _column;
 
         public Point2D Center => Bounds.Center;
 
@@ -102,7 +102,7 @@ public class PyramidTiling(int height) : ITiling
                             ? n switch
                             {
                                 0 => location with { Column = _column + 1 },
-                                1 => location with { Row = _row + 1 },
+                                1 => location with { Row = _row + 1, Column = _column + 1},
                                 2 => location with { Column = _column - 1 },
                                 _ => location
                             }
