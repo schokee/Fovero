@@ -128,7 +128,7 @@ public sealed class TilingViewModel : Screen
 
         using (BeginWork())
         {
-            foreach (var wall in SelectedBuilder.SelectWallsToBeOpened(SharedWalls).TakeWhile(_ => IsBusy))
+            foreach (var wall in SelectedBuilder.SelectWallsToBeOpened(SharedWalls.ToList(), new Random()).TakeWhile(_ => IsBusy))
             {
                 wall.IsOpen = true;
                 await Task.Delay(TimeSpan.FromMilliseconds(40));

@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Generators;
 
-public record BuildingStrategy<T>(string Name, Func<IEnumerable<T>, IEnumerable<T>> SelectWallsToBeOpened) where T : IWall
+public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IEnumerable<T>> SelectWallsToBeOpened) where T : IWall
 {
     public override string ToString()
     {
@@ -15,9 +15,9 @@ public record BuildingStrategy<T>(string Name, Func<IEnumerable<T>, IEnumerable<
         {
             return new BuildingStrategy<T>("Kruskal's Algorithm", Build);
 
-            IEnumerable<T> Build(IEnumerable<T> allWalls)
+            IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
             {
-                var shuffledWalls = allWalls.Shuffle().ToList();
+                var shuffledWalls = allWalls.Shuffle(random).ToList();
                 var sets = new DisjointSet<int>(shuffledWalls.SelectMany(wall => (IEnumerable<int>) [wall.NeighborA, wall.NeighborB]));
 
                 foreach (var wall in shuffledWalls.Where(x => sets.AreDisjoint(x.NeighborA, x.NeighborB)))
