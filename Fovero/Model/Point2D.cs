@@ -1,10 +1,15 @@
 ﻿namespace Fovero.Model;
 
-public record Point2D(double X, double Y) : IComparable<Point2D>
+public record Point2D(float X, float Y) : IComparable<Point2D>
 {
-    public Point2D MidpointTo(Point2D endPoint)
+    public float DistanceTo(Point2D other)
     {
-        return new Point2D((X + endPoint.X) / 2, (Y + endPoint.Y) / 2);
+        return MathF.Sqrt(X * other.X + Y * other.Y);
+    }
+
+    public Point2D MidPointTo(Point2D b)
+    {
+        return new Point2D((X + b.X) / 2, (Y + b.Y) / 2);
     }
 
     public int CompareTo(Point2D other)

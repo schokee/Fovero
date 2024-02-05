@@ -2,7 +2,7 @@
 
 public interface IEdge
 {
-    public int Ordinal { get; }
+    public int Id { get; }
 
     Point2D Start { get; }
 

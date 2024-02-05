@@ -8,22 +8,11 @@ public class Edge : IEdge, IEquatable<Edge>
         Start = start;
         End = end;
 
-        //if (start < end)
-        //{
-        //    Start = start;
-        //    End = end;
-        //}
-        //else
-        //{
-        //    Start = end;
-        //    End = start;
-        //}
-
-        var midPoint = new Rectangle(start, end).Center;
-        Ordinal = (int)Math.Round((midPoint.Y * 1000 + midPoint.X) * 1000);
+        var midPoint = start.MidPointTo(end);
+        Id = (int)Math.Round(midPoint.Y * 10) * 1000 + (int)Math.Round(midPoint.X * 10);
     }
 
-    public int Ordinal { get; }
+    public int Id { get; }
 
     public ITile Origin { get; }
 
@@ -33,7 +22,7 @@ public class Edge : IEdge, IEquatable<Edge>
 
     public bool Equals(Edge other)
     {
-        return other is not null && (ReferenceEquals(this, other) || Ordinal == other.Ordinal);
+        return other is not null && (ReferenceEquals(this, other) || Id == other.Id);
     }
 
     public override bool Equals(object obj)
@@ -43,11 +32,11 @@ public class Edge : IEdge, IEquatable<Edge>
 
     public override int GetHashCode()
     {
-        return Ordinal;
+        return Id;
     }
 
     public override string ToString()
     {
-        return Ordinal.ToString();
+        return Id.ToString();
     }
 }

@@ -72,7 +72,7 @@ public sealed class TilingViewModel : Screen
                 Walls.Clear();
                 Walls.AddRange(Tiles
                     .SelectMany(x => x.Edges)
-                    .DistinctBy(x => x.Ordinal)
+                    .DistinctBy(x => x.Id)
                     .Select(x => new Wall(x, 22))
                     .OrderByDescending(x => x.IsShared));
             }
