@@ -14,6 +14,9 @@
             <!--<Button x:Name="Clear" Content="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="4" MinWidth="80" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}" />-->
             <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" Margin="4" IsEnabled="{Binding IsIdle}" />
             <Button x:Name="Reset" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" />
+            <Rectangle Width="1" Margin="8" Stroke="{StaticResource MahApps.Brushes.Control.Border}" />
+            <Label Content="Zoom" VerticalAlignment="Center"/>
+            <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
         </StackPanel>
         <Grid>
             <ItemsControl ItemsSource="{Binding Walls}" Margin="10" UseLayoutRounding="False">
@@ -25,9 +28,12 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:Wall}">
                         <Path Data="{Binding Geometry, Mode=OneTime}">
+                            <Path.LayoutTransform>
+                                <ScaleTransform ScaleX="{Binding Path=Canvas.Scaling}" ScaleY="{Binding Path=Canvas.Scaling}" />
+                            </Path.LayoutTransform>
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
-                                    <Setter Property="StrokeThickness" Value="2" />
+                                    <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
                                     <Setter Property="Stroke" Value="DodgerBlue" />
                                     <Setter Property="StrokeStartLineCap" Value="Round" />
                                     <Setter Property="StrokeEndLineCap" Value="Round" />

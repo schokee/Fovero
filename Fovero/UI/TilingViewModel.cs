@@ -8,11 +8,12 @@ namespace Fovero.UI;
 
 using MoreLinq;
 
-public sealed class TilingViewModel : Screen
+public sealed class TilingViewModel : Screen, ICanvas
 {
     private BuildingStrategy<Wall> _selectedBuilder;
     private ITiling _selectedTiling;
     private bool _isBusy;
+    private int _zoom = 22;
 
     public TilingViewModel()
     {
@@ -51,6 +52,27 @@ public sealed class TilingViewModel : Screen
         }
     }
 
+    public int Zoom
+    {
+        get => _zoom;
+        set
+        {
+            if (Set(ref _zoom, value))
+            {
+                NotifyOfPropertyChange(nameof(Scaling));
+                NotifyOfPropertyChange(nameof(StrokeThickness));
+            }
+        }
+    }
+
+    #region ICanvas
+
+    public double Scaling => Zoom;
+
+    public double StrokeThickness => Math.Max(0.001, 2 / Scaling);
+
+    #endregion
+
     public IObservableCollection<ITile> Tiles { get; } = new BindableCollection<ITile>();
 
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
@@ -73,7 +95,7 @@ public sealed class TilingViewModel : Screen
                 Walls.AddRange(Tiles
                     .SelectMany(x => x.Edges)
                     .DistinctBy(x => x.Id)
-                    .Select(x => new Wall(x, 22))
+                    .Select(x => new Wall(this, x))
                     .OrderByDescending(x => x.IsShared));
             }
         }
