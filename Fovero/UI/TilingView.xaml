@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
              xmlns:local="clr-namespace:Fovero.UI"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
@@ -17,21 +18,29 @@
             <Rectangle Width="1" Margin="8" Stroke="{StaticResource MahApps.Brushes.Control.Border}" />
             <Label Content="Zoom" VerticalAlignment="Center"/>
             <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
+            <CheckBox x:Name="ShowCells" Content="Show Cells" Margin="6" />
         </StackPanel>
         <Grid>
-            <ItemsControl ItemsSource="{Binding Walls}" Margin="10" UseLayoutRounding="False">
-                <ItemsControl.LayoutTransform>
-                    <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
-                </ItemsControl.LayoutTransform>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas IsItemsHost="True" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <Grid.Resources>
+                <Style TargetType="{x:Type ItemsControl}">
+                    <Setter Property="LayoutTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="ItemsPanel">
+                        <Setter.Value>
+                            <ItemsPanelTemplate>
+                                <Canvas IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
+            <ItemsControl ItemsSource="{Binding Walls}" UseLayoutRounding="False">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:Wall}">
                         <Path Data="{Binding Geometry, Mode=OneTime}">
-
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
@@ -63,24 +72,23 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!--<ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.6" Visibility="Collapsed">
-                <ItemsControl.LayoutTransform>
-                    <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
-                </ItemsControl.LayoutTransform>
-
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas IsItemsHost="True" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+            <ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.35"
+                          Visibility="{Binding IsChecked, ElementName=ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
                 <ItemsControl.ItemContainerStyle>
                     <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Center.X, Mode=OneTime}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Center.Y, Mode=OneTime}"/>
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Bounds.Top, Mode=OneTime}"/>
                     </Style>
                 </ItemsControl.ItemContainerStyle>
-            </ItemsControl>-->
-
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type tiling:ITile}">
+                        <Grid Width="{Binding Path=Bounds.Width, Mode=OneTime}" Height="{Binding Path=Bounds.Height, Mode=OneTime}">
+                            <Rectangle StrokeThickness="0.01" Stroke="Crimson"/>
+                            <TextBlock Text="{Binding Ordinal}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="0.35" Foreground="Gainsboro"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Grid>
     </DockPanel>
 </UserControl>
