@@ -27,7 +27,7 @@ public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTilin
             _pointingUp = (column + row) % 2 == 0;
         }
 
-        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
+        public ushort Ordinal => (ushort)(_row * _format.Columns + _column);
 
         public Point2D Center => Bounds.Center;
 
