@@ -1,3 +1,4 @@
+using Fovero.Model;
 using Fovero.Model.Tiling;
 using MoreLinq;
 
@@ -5,17 +6,18 @@ namespace Fovero.Tests;
 
 public sealed class TilingFixture
 {
-    [TestCaseSource(nameof(Tilings))]
-    public void EdgeIdsShouldBeDistinct(ITiling tiling)
+    [Test]
+    public void TestEdgeCreation()
     {
-        var unexpected = tiling
+        var hexagonalTiling = new HexagonalTiling(3, 3);
+
+        var distinctEdges = hexagonalTiling
             .Generate()
             .SelectMany(x => x.Edges)
-            .OrderBy(x => x.Id)
-            .Pairwise((a, b) => (Edge: a, Diff: b.Id - a.Id))
-            .Where(x => x.Diff is > 0 and < 3);
+            .Distinct()
+            .Count();
 
-        Assert.That(unexpected, Is.Empty);
+        Assert.That(distinctEdges, Is.EqualTo(38));
     }
 
     [TestCaseSource(nameof(Tilings))]
@@ -37,7 +39,7 @@ public sealed class TilingFixture
     {
         get
         {
-            const int size = 20;
+            const int size = 32;
 
             yield return new TestCaseData(new PyramidTiling(size));
             yield return new TestCaseData(new SquareTiling(size, size));

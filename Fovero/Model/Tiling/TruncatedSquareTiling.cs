@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Tiling;
 
-public class TruncatedSquareTiling(int columns, int rows) : RegularTiling("Truncated Square Tile", columns, rows)
+public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling("Truncated Square Tile", columns, rows)
 {
     protected override ITile CreateTile(int col, int row)
     {
@@ -24,7 +24,7 @@ public class TruncatedSquareTiling(int columns, int rows) : RegularTiling("Trunc
             _isSquare = (column + row) % 2 == 1;
         }
 
-        public int Ordinal => _row * _format.Rows + _column;
+        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
 
         public Point2D Center => Bounds.Center;
 
@@ -102,8 +102,8 @@ public class TruncatedSquareTiling(int columns, int rows) : RegularTiling("Trunc
                             };
 
                         return _format.Contains(neighbor)
-                            ? new SharedEdge(this, segment.Start, segment.End, Create(neighbor))
-                            : new Edge(this, segment.Start, segment.End);
+                            ? Edge.CreateShared(segment.Start, segment.End, this, Create(neighbor))
+                            : Edge.CreateBorder(segment.Start, segment.End, this);
                     });
             }
         }

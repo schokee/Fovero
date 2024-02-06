@@ -20,6 +20,9 @@
         </StackPanel>
         <Grid>
             <ItemsControl ItemsSource="{Binding Walls}" Margin="10" UseLayoutRounding="False">
+                <ItemsControl.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
+                </ItemsControl.LayoutTransform>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas IsItemsHost="True" />
@@ -28,13 +31,11 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:Wall}">
                         <Path Data="{Binding Geometry, Mode=OneTime}">
-                            <Path.LayoutTransform>
-                                <ScaleTransform ScaleX="{Binding Path=Canvas.Scaling}" ScaleY="{Binding Path=Canvas.Scaling}" />
-                            </Path.LayoutTransform>
+
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
-                                    <Setter Property="Stroke" Value="DodgerBlue" />
+                                    <Setter Property="Stroke" Value="#401E90FF" />
                                     <Setter Property="StrokeStartLineCap" Value="Round" />
                                     <Setter Property="StrokeEndLineCap" Value="Round" />
                                     <Style.Triggers>
@@ -61,11 +62,12 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <!--
-            <ItemsControl ItemsSource="{Binding Tiles}" Visibility="Collapsed">
-                <ItemsControl.Resources>
-                    <local:CoordinateScaling x:Key="CoordinateScaling"/>
-                </ItemsControl.Resources>
+
+            <!--<ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.6" Visibility="Collapsed">
+                <ItemsControl.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
+                </ItemsControl.LayoutTransform>
+
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas IsItemsHost="True" />
@@ -73,12 +75,12 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemContainerStyle>
                     <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Center.X, Mode=OneTime, Converter={StaticResource CoordinateScaling}}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Center.Y, Mode=OneTime, Converter={StaticResource CoordinateScaling}}"/>
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Center.X, Mode=OneTime}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Center.Y, Mode=OneTime}"/>
                     </Style>
                 </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
-            -->
+            </ItemsControl>-->
+
         </Grid>
     </DockPanel>
 </UserControl>

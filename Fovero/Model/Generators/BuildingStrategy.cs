@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Generators;
 
-public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IEnumerable<T>> SelectWallsToBeOpened) where T : IWall
+public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IEnumerable<T>> SelectWallsToBeOpened) where T : ISharedWall
 {
     public override string ToString()
     {
@@ -18,7 +18,7 @@ public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IE
             IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
             {
                 var shuffledWalls = allWalls.Shuffle(random).ToList();
-                var sets = new DisjointSet<int>(shuffledWalls.SelectMany(wall => (IEnumerable<int>) [wall.NeighborA, wall.NeighborB]));
+                var sets = new DisjointSet<ushort>(shuffledWalls.SelectMany(wall => wall.Neighbors));
 
                 foreach (var wall in shuffledWalls.Where(x => sets.AreDisjoint(x.NeighborA, x.NeighborB)))
                 {

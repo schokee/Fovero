@@ -4,7 +4,7 @@ using Fovero.Model.Tiling;
 
 namespace Fovero.UI;
 
-public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, IWall
+public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISharedWall
 {
     private bool _isOpen;
 
@@ -12,15 +12,15 @@ public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, IWal
 
     public IEdge Edge { get; } = edge;
 
-    public bool IsShared => Edge is SharedEdge;
+    public bool IsShared => Edge.IsShared;
 
-    public double X1 => Edge.Start.X;
+    public float X1 => Edge.Start.X;
 
-    public double Y1 => Edge.Start.Y;
+    public float Y1 => Edge.Start.Y;
 
-    public double X2 => Edge.End.X;
+    public float X2 => Edge.End.X;
 
-    public double Y2 => Edge.End.Y;
+    public float Y2 => Edge.End.Y;
 
     public string Geometry => $"M {X1},{Y1} {X2},{Y2}";
 
@@ -30,11 +30,9 @@ public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, IWal
         set => Set(ref _isOpen, value);
     }
 
-    #region IWall
+    #region ISharedWall
 
-    public int NeighborA => Edge.Origin.Ordinal;
-
-    public int NeighborB => (Edge as SharedEdge)?.OpposingTile.Ordinal ?? -1;
+    public IEnumerable<ushort> Neighbors => Edge.Neighbors.Select(x => x.Ordinal);
 
     #endregion
 }

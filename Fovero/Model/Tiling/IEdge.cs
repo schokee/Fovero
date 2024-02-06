@@ -2,11 +2,11 @@
 
 public interface IEdge
 {
-    public int Id { get; }
-
     Point2D Start { get; }
 
     Point2D End { get; }
 
-    ITile Origin { get; }
+    IReadOnlyList<ITile> Neighbors { get; }
+
+    bool IsShared => Neighbors.Count > 1;
 }

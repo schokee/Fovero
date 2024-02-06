@@ -3,9 +3,9 @@
 namespace Fovero.Model.Tiling;
 
 // Rectangular Delta (Hexagonal Delta, Triangular Delta)
-public sealed class TriangularTiling(int columns, int rows) : RegularTiling("Triangular", columns, rows)
+public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTiling("Triangular", columns, rows)
 {
-    private static float CellHeight { get; } = (float)Math.Sqrt(3) / 2;
+    private static float CellHeight { get; } = MathF.Sqrt(3) / 2;
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -27,7 +27,7 @@ public sealed class TriangularTiling(int columns, int rows) : RegularTiling("Tri
             _pointingUp = (column + row) % 2 == 0;
         }
 
-        public int Ordinal => _row * _format.Rows + _column;
+        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
 
         public Point2D Center => Bounds.Center;
 
@@ -83,8 +83,8 @@ public sealed class TriangularTiling(int columns, int rows) : RegularTiling("Tri
                             };
 
                         return _format.Contains(neighbor)
-                            ? new SharedEdge(this, segment.Start, segment.End, new TriangleTile(_format, neighbor.Column, neighbor.Row))
-                            : new Edge(this, segment.Start, segment.End);
+                            ? Edge.CreateShared(segment.Start, segment.End, this, new TriangleTile(_format, neighbor.Column, neighbor.Row))
+                            : Edge.CreateBorder(segment.Start, segment.End, this);
                     });
             }
         }

@@ -1,19 +1,19 @@
 ﻿namespace Fovero.Model.Tiling;
 
-public abstract class RegularTiling(string title, int columns, int rows) : ITiling
+public abstract class RegularTiling(string title, ushort columns, ushort rows) : ITiling
 {
     public string Title { get; } = title;
 
-    public int Columns { get; } = columns;
+    public ushort Columns { get; } = columns;
 
-    public int Rows { get; } = rows;
+    public ushort Rows { get; } = rows;
 
     public IEnumerable<ITile> Generate()
     {
         return Enumerable
-            .Range(0, Rows)
+            .Range(0, (int)Rows)
             .SelectMany(r => Enumerable
-                .Range(0, Columns)
+                .Range(0, (int)Columns)
                 .Select(c => CreateTile(c, r)));
     }
 

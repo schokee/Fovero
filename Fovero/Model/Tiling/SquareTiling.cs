@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Tiling;
 
-public class SquareTiling(int columns, int rows) : RegularTiling("Square", columns, rows)
+public class SquareTiling(ushort columns, ushort rows) : RegularTiling("Square", columns, rows)
 {
     protected override ITile CreateTile(int col, int row)
     {
@@ -22,7 +22,7 @@ public class SquareTiling(int columns, int rows) : RegularTiling("Square", colum
             _row = row;
         }
 
-        public int Ordinal => _row * _format.Rows + _column;
+        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
 
         public Point2D Center => Bounds.Center;
 
@@ -62,8 +62,8 @@ public class SquareTiling(int columns, int rows) : RegularTiling("Square", colum
                         };
 
                         return _format.Contains(neighbor)
-                            ? new SharedEdge(this, segment.Start, segment.End, new SquareTile(_format, neighbor.Column, neighbor.Row))
-                            : new Edge(this, segment.Start, segment.End);
+                            ? Edge.CreateShared(segment.Start, segment.End, this, new SquareTile(_format, neighbor.Column, neighbor.Row))
+                            : Edge.CreateBorder(segment.Start, segment.End, this);
                     });
             }
         }

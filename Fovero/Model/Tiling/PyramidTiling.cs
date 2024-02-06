@@ -2,11 +2,11 @@
 
 namespace Fovero.Model.Tiling;
 
-public class PyramidTiling(int height) : ITiling
+public class PyramidTiling(ushort height) : ITiling
 {
-    private static float CellHeight { get; } = (float)Math.Sqrt(3) / 2;
+    private static float CellHeight { get; } = MathF.Sqrt(3) / 2;
 
-    public int Height { get; } = height;
+    public ushort Height { get; } = height;
 
     public IEnumerable<ITile> Generate()
     {
@@ -59,7 +59,7 @@ public class PyramidTiling(int height) : ITiling
             _pointingUp = _column % 2 == 0;
         }
 
-        public int Ordinal => TriangularSum(_row) + _column;
+        public ushort Ordinal => (ushort)(TriangularSum(_row) + _column);
 
         public Point2D Center => Bounds.Center;
 
@@ -117,8 +117,8 @@ public class PyramidTiling(int height) : ITiling
                         var isSharedEdge = _format.Contains(neighbor);
 
                         return isSharedEdge
-                            ? new SharedEdge(this, segment.Start, segment.End, new TriangleTile(_format, neighbor.Column, neighbor.Row))
-                            : new Edge(this, segment.Start, segment.End);
+                            ? Edge.CreateShared(segment.Start, segment.End, this, new TriangleTile(_format, neighbor.Column, neighbor.Row))
+                            : Edge.CreateBorder(segment.Start, segment.End, this);
                     });
             }
         }

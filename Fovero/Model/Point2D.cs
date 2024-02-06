@@ -1,48 +1,31 @@
 ﻿namespace Fovero.Model;
 
-public record Point2D(float X, float Y) : IComparable<Point2D>
+public readonly struct Point2D(float x, float y)
 {
-    public float DistanceTo(Point2D other)
+    public float X { get; init; } = x;
+
+    public float Y { get; init; } = y;
+
+    public float SquaredDistanceTo(Point2D other)
     {
-        return MathF.Sqrt(X * other.X + Y * other.Y);
+        var dx = X - other.X;
+        var dy = Y - other.Y;
+
+        return dx * dx + dy * dy;
     }
 
-    public Point2D MidPointTo(Point2D b)
+    public Point2D MidPointTo(Point2D other)
     {
-        return new Point2D((X + b.X) / 2, (Y + b.Y) / 2);
+        return new Point2D((X + other.X) / 2, (Y + other.Y) / 2);
     }
 
-    public int CompareTo(Point2D other)
+    public Point2D ScaledBy(float factor)
     {
-        if (ReferenceEquals(this, other)) return 0;
-        if (ReferenceEquals(null, other)) return 1;
-
-        var diff = Y.CompareTo(other.Y);
-        return diff != 0 ? diff : X.CompareTo(other.X);
+        return new Point2D(X * factor, Y * factor);
     }
 
     public override string ToString()
     {
         return $"({X}, {Y})";
-    }
-
-    public static bool operator <(Point2D left, Point2D right)
-    {
-        return Comparer<Point2D>.Default.Compare(left, right) < 0;
-    }
-
-    public static bool operator >(Point2D left, Point2D right)
-    {
-        return Comparer<Point2D>.Default.Compare(left, right) > 0;
-    }
-
-    public static bool operator <=(Point2D left, Point2D right)
-    {
-        return Comparer<Point2D>.Default.Compare(left, right) <= 0;
-    }
-
-    public static bool operator >=(Point2D left, Point2D right)
-    {
-        return Comparer<Point2D>.Default.Compare(left, right) >= 0;
     }
 }

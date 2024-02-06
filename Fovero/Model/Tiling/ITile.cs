@@ -2,7 +2,7 @@
 
 public interface ITile
 {
-    int Ordinal { get; }
+    ushort Ordinal { get; }
 
     Point2D Center { get; }
 

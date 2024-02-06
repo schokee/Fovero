@@ -1,28 +1,34 @@
 ﻿namespace Fovero.Model.Tiling;
 
-public class Edge : IEdge, IEquatable<Edge>
+public sealed class Edge : IEdge
 {
-    public Edge(ITile origin, Point2D start, Point2D end)
+    private record DiscretePoint(int X, int Y)
     {
-        Origin = origin;
-        Start = start;
-        End = end;
-
-        var midPoint = start.MidPointTo(end);
-        Id = (int)Math.Round(midPoint.Y * 10) * 1000 + (int)Math.Round(midPoint.X * 10);
+        public static implicit operator DiscretePoint(Point2D point)
+        {
+            return new DiscretePoint((int)point.X, (int)point.Y);
+        }
     }
 
-    public int Id { get; }
+    private Edge(Point2D start, Point2D end, params ITile[] neighbors)
+    {
+        Id = start.MidPointTo(end).ScaledBy(1000);
+        Start = start;
+        End = end;
+        Neighbors = neighbors;
+    }
 
-    public ITile Origin { get; }
+    private DiscretePoint Id { get; }
 
     public Point2D Start { get; }
 
     public Point2D End { get; }
 
+    public IReadOnlyList<ITile> Neighbors { get; }
+
     public bool Equals(Edge other)
     {
-        return other is not null && (ReferenceEquals(this, other) || Id == other.Id);
+        return Id == other?.Id;
     }
 
     public override bool Equals(object obj)
@@ -32,11 +38,41 @@ public class Edge : IEdge, IEquatable<Edge>
 
     public override int GetHashCode()
     {
-        return Id;
+        return Id.GetHashCode();
     }
 
     public override string ToString()
     {
-        return Id.ToString();
+        return $"{Start} - {End} ({Id})";
     }
+
+    public static Edge CreateBorder(Point2D start, Point2D end, ITile relativeTo)
+    {
+        return new Edge(start, end, relativeTo);
+    }
+
+    public static Edge CreateShared(Point2D start, Point2D end, ITile neighborA, ITile neighborB)
+    {
+        if (neighborA.Ordinal == neighborB.Ordinal)
+        {
+            throw new InvalidOperationException("Neighbors must be different");
+        }
+
+        return new Edge(start, end, neighborA, neighborB);
+    }
+
+    //private sealed class TileComparer : IEqualityComparer<ITile>
+    //{
+    //    public static TileComparer Instance { get; } = new();
+
+    //    public bool Equals(ITile x, ITile y)
+    //    {
+    //        return x!.Ordinal == y!.Ordinal;
+    //    }
+
+    //    public int GetHashCode(ITile obj)
+    //    {
+    //        return obj.Ordinal;
+    //    }
+    //}
 }

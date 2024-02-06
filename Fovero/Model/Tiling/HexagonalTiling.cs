@@ -2,9 +2,9 @@
 
 namespace Fovero.Model.Tiling;
 
-public class HexagonalTiling(int columns, int rows) : RegularTiling("Hexagonal", columns, rows)
+public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling("Hexagonal", columns, rows)
 {
-    private static float CellHeight { get; } = (float)Math.Sqrt(3);
+    private static float CellHeight { get; } = MathF.Sqrt(3);
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -26,7 +26,7 @@ public class HexagonalTiling(int columns, int rows) : RegularTiling("Hexagonal",
             _isEvenColumn = _column % 2 == 0;
         }
 
-        public int Ordinal => _row * _format.Rows + _column;
+        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
 
         public Point2D Center => Bounds.Center;
 
@@ -75,8 +75,8 @@ public class HexagonalTiling(int columns, int rows) : RegularTiling("Hexagonal",
                         };
 
                         return _format.Contains(neighbor)
-                            ? new SharedEdge(this, x.Start, x.End, new HexagonalTile(_format, neighbor.Column, neighbor.Row))
-                            : new Edge(this, x.Start, x.End);
+                            ? Edge.CreateShared(x.Start, x.End, this, new HexagonalTile(_format, neighbor.Column, neighbor.Row))
+                            : Edge.CreateBorder(x.Start, x.End, this);
                     });
             }
         }

@@ -23,9 +23,9 @@ public sealed class TilingViewModel : Screen, ICanvas
         [
             new SquareTiling(16, 16),
             new TruncatedSquareTiling(17, 17),
-            new HexagonalTiling(8, 8),
-            new PyramidTiling(16),
-            new TriangularTiling(8, 8)
+            new HexagonalTiling(23, 23),
+            new PyramidTiling(22),
+            new TriangularTiling(35, 20)
         ];
 
         SelectedTiling = AvailableTilings[0];
@@ -69,7 +69,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public double Scaling => Zoom;
 
-    public double StrokeThickness => Math.Max(0.001, 2 / Scaling);
+    public double StrokeThickness => Math.Max(0.001, 3 / Scaling);
 
     #endregion
 
@@ -94,9 +94,9 @@ public sealed class TilingViewModel : Screen, ICanvas
                 Walls.Clear();
                 Walls.AddRange(Tiles
                     .SelectMany(x => x.Edges)
-                    .DistinctBy(x => x.Id)
+                    .Distinct()
                     .Select(x => new Wall(this, x))
-                    .OrderByDescending(x => x.IsShared));
+                    .OrderBy(x => x.IsShared));
             }
         }
     }
@@ -158,7 +158,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
-    private IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared);
+    private IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared).Distinct();
 
     private IDisposable BeginWork()
     {
