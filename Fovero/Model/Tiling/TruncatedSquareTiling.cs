@@ -32,11 +32,11 @@ public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(
         {
             get
             {
-                var c = (_column >> 1) * 4f;
-                var r = (_row >> 1) * 4f;
+                var c = (_column >> 1) * 4f + (_column % 2 == 0 ? 0 : 2);
+                var r = (_row >> 1) * 4f + (_row % 2 == 0 ? 0 : 2);
 
                 return _isSquare
-                    ? new(c + (_column % 2 == 0 ? 1 : 3), r + (_row % 2 == 0 ? 1 : 3), 1, 1)
+                    ? new(c + 1, r + 1, 1, 1)
                     : new(c, r, 3, 3);
             }
         }
