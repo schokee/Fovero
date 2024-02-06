@@ -63,18 +63,18 @@ public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTilin
                     .Repeat()
                     .Pairwise((start, end) => (Start: start, End: end))
                     .Take(3)
-                    .Select((segment, n) =>
+                    .Select((segment, edge) =>
                     {
                         var location = new Location(_column, _row);
                         var neighbor = _pointingUp
-                            ? n switch
+                            ? edge switch
                             {
                                 0 => location with { Column = _column + 1 },
                                 1 => location with { Row = _row + 1 },
                                 2 => location with { Column = _column - 1 },
                                 _ => location
                             }
-                            : n switch
+                            : edge switch
                             {
                                 0 => location with { Row = _row - 1 },
                                 1 => location with { Column = _column + 1 },

@@ -49,10 +49,10 @@ public class SquareTiling(ushort columns, ushort rows) : RegularTiling("Square",
                     .Repeat()
                     .Pairwise((start, end) => (Start: start, End: end))
                     .Take(4)
-                    .Select((segment, n) =>
+                    .Select((segment, edge) =>
                     {
                         var location = new Location(_column, _row);
-                        var neighbor = n switch
+                        var neighbor = edge switch
                         {
                             0 => location with { Row = _row - 1 },
                             1 => location with { Column = _column + 1 },
