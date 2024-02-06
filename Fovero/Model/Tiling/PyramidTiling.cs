@@ -38,12 +38,6 @@ public class PyramidTiling(ushort height) : ITiling
         return row * 2 + 1;
     }
 
-    // Source: https://math.stackexchange.com/questions/2435816/a-formula-for-the-sum-of-the-triangular-numbers
-    private static int TriangularSum(int row)
-    {
-        return row * (row + 1) * (row + 2) / 6;
-    }
-
     private record TriangleTile : ITile
     {
         private readonly PyramidTiling _format;
@@ -59,7 +53,7 @@ public class PyramidTiling(ushort height) : ITiling
             _pointingUp = _column % 2 == 0;
         }
 
-        public ushort Ordinal => (ushort)(TriangularSum(_row) + _column);
+        public ushort Ordinal => (ushort)(_row * _row + _column);
 
         public Point2D Center => Bounds.Center;
 

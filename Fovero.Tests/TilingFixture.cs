@@ -1,4 +1,3 @@
-using Fovero.Model;
 using Fovero.Model.Tiling;
 using MoreLinq;
 
@@ -25,6 +24,18 @@ public sealed class TilingFixture
     {
         var duplicates = SelectNonUnique(tiling.Generate().Select(x => x.Ordinal));
         Assert.That(duplicates, Is.Empty);
+    }
+
+    [TestCaseSource(nameof(Tilings))]
+    public void TileOrdinalsShouldBeConsecutive(ITiling tiling)
+    {
+        var nonConsecutive = tiling
+            .Generate()
+            .Select(x => x.Ordinal)
+            .Pairwise((a, b) => (At: a, Diff: b - a))
+            .Where(x => x.Diff != 1);
+
+        Assert.That(nonConsecutive, Is.Empty);
     }
 
     private static IEnumerable<T> SelectNonUnique<T>(IEnumerable<T> source)
