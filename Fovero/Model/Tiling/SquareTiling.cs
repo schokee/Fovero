@@ -22,7 +22,7 @@ public class SquareTiling(ushort columns, ushort rows) : RegularTiling("Square",
             _row = row;
         }
 
-        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
+        public ushort Ordinal => (ushort)(_row * _format.Columns + _column);
 
         public Point2D Center => Bounds.Center;
 

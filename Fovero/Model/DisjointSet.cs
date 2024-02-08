@@ -39,11 +39,11 @@ public sealed class DisjointSet<T> : IEnumerable<T> where T : IEquatable<T>
     {
         var representativeA = _nodes.TryGetValue(itemA, out NodeInfo nodeA)
             ? nodeA.Representative
-            : throw new KeyNotFoundException($"Key {itemA} is not found");
+            : throw new KeyNotFoundException($"Key {itemA} not found");
 
         var representativeB = _nodes.TryGetValue(itemB, out NodeInfo nodeB)
             ? nodeB.Representative
-            : throw new KeyNotFoundException($"Key {itemB} is not found");
+            : throw new KeyNotFoundException($"Key {itemB} not found");
 
         if (ReferenceEquals(representativeA, representativeB))
         {
