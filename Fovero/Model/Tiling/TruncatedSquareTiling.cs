@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Tiling;
 
-public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling("Truncated Square Tile", columns, rows)
+public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
     protected override ITile CreateTile(int col, int row)
     {
@@ -24,7 +24,7 @@ public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(
             _isSquare = (column + row) % 2 == 1;
         }
 
-        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
+        public ushort Ordinal => (ushort)(_row * _format.Columns + _column);
 
         public Point2D Center => Bounds.Center;
 
