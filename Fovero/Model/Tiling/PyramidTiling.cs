@@ -17,11 +17,6 @@ public class PyramidTiling(ushort height) : ITiling
                 .Select(c => new TriangleTile(this, c, r)));
     }
 
-    public override string ToString()
-    {
-        return $"Pyramid ({Height} levels)";
-    }
-
     protected bool Contains(Location location)
     {
         return location.Row >= 0 && location.Row < Height && location.Column >= 0 && location.Column < ColumnsInRow(location.Row);

@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Tiling;
 
-public class SquareTiling(ushort columns, ushort rows) : RegularTiling("Square", columns, rows)
+public class SquareTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
     protected override ITile CreateTile(int col, int row)
     {

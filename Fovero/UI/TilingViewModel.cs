@@ -2,6 +2,7 @@
 using Caliburn.Micro;
 using Fovero.Model.Generators;
 using Fovero.Model.Tiling;
+using Fovero.UI.Editors;
 using JetBrains.Annotations;
 
 namespace Fovero.UI;
@@ -11,21 +12,24 @@ using MoreLinq;
 public sealed class TilingViewModel : Screen, ICanvas
 {
     private BuildingStrategy<Wall> _selectedBuilder;
-    private ITiling _selectedTiling;
+    private ITilingEditor _selectedTiling;
     private bool _isBusy;
     private int _zoom = 22;
+    private int _seed;
 
     public TilingViewModel()
     {
+        _seed = Random.Shared.Next();
+
         DisplayName = "Tiling";
 
         AvailableTilings =
         [
-            new SquareTiling(16, 16),
-            new TruncatedSquareTiling(17, 17),
-            new HexagonalTiling(23, 23),
-            new PyramidTiling(22),
-            new TriangularTiling(35, 20)
+            new RegularTilingEditor("Square", (c, r) => new SquareTiling(c, r)) { Columns = 32, Rows = 16 },
+            new RegularTilingEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
+            new RegularTilingEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
+            new PyramidTilingEditor(),
+            new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 }
         ];
 
         SelectedTiling = AvailableTilings[0];
@@ -52,6 +56,20 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
+    public int Seed
+    {
+        get => _seed;
+        set
+        {
+            if (Set(ref _seed, value))
+            {
+                OnFormatChanged();
+            }
+        }
+    }
+
+    public bool IsSeedLocked { get; set; }
+
     public int Zoom
     {
         get => _zoom;
@@ -77,27 +95,47 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
 
-    public IReadOnlyList<ITiling> AvailableTilings { get; }
+    public IReadOnlyList<ITilingEditor> AvailableTilings { get; }
 
-    public ITiling SelectedTiling
+    public ITilingEditor SelectedTiling
     {
         get => _selectedTiling;
         set
         {
             if (Set(ref _selectedTiling, value))
             {
-                IsBusy = false;
+                if (_selectedTiling is not null)
+                {
+                    _selectedTiling.FormatChanged -= OnFormatChanged;
+                }
 
-                Tiles.Clear();
-                Tiles.AddRange(SelectedTiling.Generate());
+                _selectedTiling = value;
 
-                Walls.Clear();
-                Walls.AddRange(Tiles
-                    .SelectMany(x => x.Edges)
-                    .Distinct()
-                    .Select(x => new Wall(this, x))
-                    .OrderBy(x => x.IsShared));
+                if (_selectedTiling is not null)
+                {
+                    _selectedTiling.FormatChanged += OnFormatChanged;
+                }
+
+                OnFormatChanged();
             }
+        }
+    }
+
+    private void OnFormatChanged()
+    {
+        IsBusy = false;
+
+        Tiles.Clear();
+        Walls.Clear();
+
+        if (SelectedTiling is not null)
+        {
+            Tiles.AddRange(SelectedTiling.CreateTiling().Generate());
+
+            Walls.AddRange(Tiles
+                .SelectMany(x => x.Edges)
+                .Distinct()
+                .Select(x => new Wall(this, x)));
         }
     }
 
@@ -150,10 +188,18 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         using (BeginWork())
         {
-            foreach (var wall in SelectedBuilder.SelectWallsToBeOpened(SharedWalls.ToList(), new Random()).TakeWhile(_ => IsBusy))
+            var random = new Random(Seed);
+
+            foreach (var wall in SelectedBuilder.SelectWallsToBeOpened(SharedWalls.ToList(), random).TakeWhile(_ => IsBusy))
             {
                 wall.IsOpen = true;
                 await Task.Delay(TimeSpan.FromMilliseconds(40));
+            }
+
+            if (!IsSeedLocked)
+            {
+                _seed = random.Next();
+                NotifyOfPropertyChange(nameof(Seed));
             }
         }
     }

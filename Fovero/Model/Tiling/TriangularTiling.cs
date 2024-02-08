@@ -3,7 +3,7 @@
 namespace Fovero.Model.Tiling;
 
 // Rectangular Delta (Hexagonal Delta, Triangular Delta)
-public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTiling("Triangular", columns, rows)
+public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
     private static float CellHeight { get; } = MathF.Sqrt(3) / 2;
 

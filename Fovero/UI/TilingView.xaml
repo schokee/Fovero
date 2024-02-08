@@ -3,24 +3,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
              xmlns:local="clr-namespace:Fovero.UI"
+             xmlns:editors="clr-namespace:Fovero.UI.Editors"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
+    <UserControl.Resources>
+        <Style TargetType="{x:Type mah:NumericUpDown}" BasedOn="{StaticResource {x:Type mah:NumericUpDown}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="MinWidth" Value="90"/>
+        </Style>
+        <DataTemplate DataType="{x:Type editors:RegularTilingEditor}">
+            <StackPanel Orientation="Horizontal" Margin="6,4,6,5">
+                <Label Content="Columns" VerticalAlignment="Center" />
+                <mah:NumericUpDown Value="{Binding Columns, Delay=200}" Minimum="2" Maximum="40" />
+                <Label Content="Rows" VerticalAlignment="Center"/>
+                <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
+            <StackPanel Orientation="Horizontal" Margin="6,4,6,5">
+                <Label Content="Rows" VerticalAlignment="Center"/>
+                <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
     <DockPanel Margin="10">
         <StackPanel  DockPanel.Dock="Top" Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Separator}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Separator}">
+                                <Rectangle Width="1" Margin="8" Stroke="{StaticResource MahApps.Brushes.Control.Border}" />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+            </StackPanel.Resources>
             <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,4,0" />
-            <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" DisplayMemberPath="Name"
+                      Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <!--<Button x:Name="Clear" Content="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="4" MinWidth="80" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}" />-->
-            <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" Margin="4" IsEnabled="{Binding IsIdle}" />
-            <Button x:Name="Reset" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" />
-            <Rectangle Width="1" Margin="8" Stroke="{StaticResource MahApps.Brushes.Control.Border}" />
+
+            <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center" />
+            <Separator />
+            <Label Content="Seed" VerticalAlignment="Center"/>
+            <mah:NumericUpDown Value="{Binding Seed, Delay=200, Mode=TwoWay}" MinWidth="100" />
+            <CheckBox IsChecked="{Binding IsSeedLocked}" Content="Lock" VerticalAlignment="Center" Margin="8,0,0,0"/>
+            <Separator />
+            <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}" />
+            <Button x:Name="Reset" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" Margin="4,0,0,0" />
+            <Separator />
             <Label Content="Zoom" VerticalAlignment="Center"/>
             <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
             <CheckBox x:Name="ShowCells" Content="Show Cells" Margin="6" />
         </StackPanel>
-        <Grid>
+        <Grid Margin="10">
             <Grid.Resources>
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="LayoutTransform">
@@ -44,19 +87,20 @@
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
-                                    <Setter Property="Stroke" Value="#401E90FF" />
+                                    <Setter Property="Stroke" Value="#F01E90FF" />
                                     <Setter Property="StrokeStartLineCap" Value="Round" />
                                     <Setter Property="StrokeEndLineCap" Value="Round" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsShared}" Value="False">
+                                        <DataTrigger Binding="{Binding IsShared, Mode=OneTime}" Value="False">
                                             <Setter Property="Stroke" Value="DimGray" />
+                                            <Setter Property="Canvas.ZIndex" Value="10" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding IsOpen}" Value="True">
                                             <Setter Property="Stroke" Value="DarkOrange" />
                                             <DataTrigger.EnterActions>
                                                 <BeginStoryboard Name="FadeEffect">
                                                     <Storyboard>
-                                                        <DoubleAnimation BeginTime="0:0:0.5" Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.7"/>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.7"/>
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </DataTrigger.EnterActions>

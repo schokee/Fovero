@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Tiling;
 
-public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling("Hexagonal", columns, rows)
+public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
     private static float CellHeight { get; } = MathF.Sqrt(3);
 
