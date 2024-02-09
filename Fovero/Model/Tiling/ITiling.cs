@@ -2,5 +2,7 @@
 
 public interface ITiling
 {
+    Rectangle Bounds { get; }
+
     IEnumerable<ITile> Generate();
 }

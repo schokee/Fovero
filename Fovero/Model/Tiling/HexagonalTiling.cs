@@ -6,6 +6,8 @@ public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling(column
 {
     private static float CellHeight { get; } = MathF.Sqrt(3);
 
+    public override Rectangle Bounds => new(0, 0, 3 * (Columns + 0.5f) / 2f, Rows * CellHeight);
+
     protected override ITile CreateTile(int col, int row)
     {
         return new HexagonalTile(this, col, row);
@@ -26,7 +28,7 @@ public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling(column
             _isEvenColumn = _column % 2 == 0;
         }
 
-        public ushort Ordinal => (ushort)(_row * _format.Rows + _column);
+        public ushort Ordinal => (ushort)(_row * _format.Columns + _column);
 
         public Point2D Center => Bounds.Center;
 

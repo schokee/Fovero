@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Disposables;
 using Caliburn.Micro;
+using Fovero.Model;
 using Fovero.Model.Generators;
 using Fovero.Model.Tiling;
 using Fovero.UI.Editors;
@@ -16,6 +17,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private bool _isBusy;
     private int _zoom = 22;
     private int _seed;
+    private Rectangle _bounds;
 
     public TilingViewModel()
     {
@@ -83,6 +85,12 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
+    public Rectangle Bounds
+    {
+        get => _bounds;
+        set => Set(ref _bounds, value);
+    }
+
     #region ICanvas
 
     public double Scaling => Zoom;
@@ -130,7 +138,11 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         if (SelectedTiling is not null)
         {
-            Tiles.AddRange(SelectedTiling.CreateTiling().Generate());
+            var tiling = SelectedTiling.CreateTiling();
+
+            Bounds = tiling.Bounds;
+
+            Tiles.AddRange(tiling.Generate());
 
             Walls.AddRange(Tiles
                 .SelectMany(x => x.Edges)

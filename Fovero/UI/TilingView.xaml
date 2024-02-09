@@ -11,61 +11,122 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
-        <Style TargetType="{x:Type mah:NumericUpDown}" BasedOn="{StaticResource {x:Type mah:NumericUpDown}}">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,3"/>
-            <Setter Property="MinWidth" Value="90"/>
-        </Style>
-        <DataTemplate DataType="{x:Type editors:RegularTilingEditor}">
-            <StackPanel Orientation="Horizontal" Margin="6,4,6,5">
-                <Label Content="Columns" VerticalAlignment="Center" />
-                <mah:NumericUpDown Value="{Binding Columns, Delay=200}" Minimum="2" Maximum="40" />
-                <Label Content="Rows" VerticalAlignment="Center"/>
-                <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" />
-            </StackPanel>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
-            <StackPanel Orientation="Horizontal" Margin="6,4,6,5">
-                <Label Content="Rows" VerticalAlignment="Center"/>
-                <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" />
-            </StackPanel>
-        </DataTemplate>
     </UserControl.Resources>
     <DockPanel Margin="10">
-        <StackPanel  DockPanel.Dock="Top" Orientation="Horizontal">
+        <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
             <StackPanel.Resources>
                 <Style TargetType="{x:Type Separator}">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type Separator}">
-                                <Rectangle Width="1" Margin="8" Stroke="{StaticResource MahApps.Brushes.Control.Border}" />
+                                <Rectangle Height="1" Margin="0,4" Stroke="{StaticResource MahApps.Brushes.Accent2}" />
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
                 </Style>
 
-            </StackPanel.Resources>
-            <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,4,0" />
-            <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" DisplayMemberPath="Name"
-                      Width="200" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <!--<Button x:Name="Clear" Content="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="4" MinWidth="80" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}" />-->
+                <Style TargetType="{x:Type mah:NumericUpDown}" BasedOn="{StaticResource {x:Type mah:NumericUpDown}}">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="MinWidth" Value="90"/>
+                </Style>
 
-            <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center" />
+                <Style TargetType="{x:Type HeaderedContentControl}">
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="IsTabStop" Value="False"/>
+                    <Setter Property="Margin" Value="0,0,0,8"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
+                                <DockPanel>
+                                    <ContentPresenter DockPanel.Dock="Top" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" >
+                                        <ContentPresenter.Resources>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="FontWeight" Value="DemiBold" />
+                                                <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
+                                                <Setter Property="Margin" Value="0,0,0,2" />
+                                            </Style>
+                                        </ContentPresenter.Resources>
+                                    </ContentPresenter>
+                                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                                </DockPanel>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <DataTemplate DataType="{x:Type editors:RegularTilingEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Columns" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Columns, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
+                    <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
+                        <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                    </HeaderedContentControl>
+                </DataTemplate>
+            </StackPanel.Resources>
+
+            <HeaderedContentControl>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="80" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition MinWidth="80" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding IsIdle}" />
+                    <Button x:Name="Reset" Grid.Column="2" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" />
+                </Grid>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Algorithm">
+                <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Seed" IsEnabled="{Binding IsIdle}">
+                <StackPanel Orientation="Vertical">
+                    <mah:NumericUpDown Value="{Binding Seed, Delay=200, Mode=TwoWay}" />
+                    <CheckBox IsChecked="{Binding IsSeedLocked}" Content="Lock" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
+            </HeaderedContentControl>
+
             <Separator />
-            <Label Content="Seed" VerticalAlignment="Center"/>
-            <mah:NumericUpDown Value="{Binding Seed, Delay=200, Mode=TwoWay}" MinWidth="100" />
-            <CheckBox IsChecked="{Binding IsSeedLocked}" Content="Lock" VerticalAlignment="Center" Margin="8,0,0,0"/>
+
+            <HeaderedContentControl>
+                <DockPanel>
+                    <Label Content="Zoom" />
+                    <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" />
+                </DockPanel>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <CheckBox x:Name="ShowCells" Content="Show Cells" />
+            </HeaderedContentControl>
+
             <Separator />
-            <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}" />
-            <Button x:Name="Reset" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" MinWidth="80" VerticalAlignment="Center" Margin="4,0,0,0" />
-            <Separator />
-            <Label Content="Zoom" VerticalAlignment="Center"/>
-            <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" Width="100" VerticalAlignment="Center" />
-            <CheckBox x:Name="ShowCells" Content="Show Cells" Margin="6" />
+
+            <HeaderedContentControl Header="Format">
+                <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" DisplayMemberPath="Name" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center" />
+            </HeaderedContentControl>
+
         </StackPanel>
         <Grid Margin="10">
             <Grid.Resources>
                 <Style TargetType="{x:Type ItemsControl}">
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Height" Value="{Binding Path=Bounds.Height}" />
+                    <Setter Property="Width" Value="{Binding Path=Bounds.Width}" />
                     <Setter Property="LayoutTransform">
                         <Setter.Value>
                             <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />

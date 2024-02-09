@@ -4,6 +4,8 @@ namespace Fovero.Model.Tiling;
 
 public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
+    public override Rectangle Bounds => new(0, 0, 2 * Columns, 2 * Rows);
+
     protected override ITile CreateTile(int col, int row)
     {
         return new Tile(this, col, row);

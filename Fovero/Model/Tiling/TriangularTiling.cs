@@ -7,6 +7,8 @@ public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTilin
 {
     private static float CellHeight { get; } = MathF.Sqrt(3) / 2;
 
+    public override Rectangle Bounds => new(0, 0, Columns / 2f, Rows * CellHeight);
+
     protected override ITile CreateTile(int col, int row)
     {
         return new TriangleTile(this, col, row);

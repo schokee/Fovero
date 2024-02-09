@@ -8,6 +8,8 @@ public class PyramidTiling(ushort height) : ITiling
 
     public ushort Height { get; } = height;
 
+    public Rectangle Bounds => new(0, 0, Height, CellHeight * Height);
+
     public IEnumerable<ITile> Generate()
     {
         return Enumerable

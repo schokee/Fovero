@@ -1,10 +1,14 @@
-﻿namespace Fovero.Model.Tiling;
+﻿using System.Windows.Media.Media3D;
+
+namespace Fovero.Model.Tiling;
 
 public abstract class RegularTiling(ushort columns, ushort rows) : ITiling
 {
     public ushort Columns { get; } = columns;
 
     public ushort Rows { get; } = rows;
+
+    public virtual Rectangle Bounds => new(0, 0, Columns, Rows);
 
     public IEnumerable<ITile> Generate()
     {
