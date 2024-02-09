@@ -1,10 +1,11 @@
 ﻿using Caliburn.Micro;
 using Fovero.Model.Generators;
+using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 
 namespace Fovero.UI;
 
-public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISharedWall
+public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISharedWall, IWall
 {
     private bool _isOpen;
 

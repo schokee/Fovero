@@ -43,7 +43,7 @@ public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(
             }
         }
 
-        private IEnumerable<Point2D> CornerPoints
+        public IEnumerable<Point2D> CornerPoints
         {
             get
             {

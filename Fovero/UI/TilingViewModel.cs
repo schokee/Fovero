@@ -2,6 +2,7 @@
 using Caliburn.Micro;
 using Fovero.Model;
 using Fovero.Model.Generators;
+using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using Fovero.UI.Editors;
 using JetBrains.Annotations;
@@ -13,8 +14,10 @@ using MoreLinq;
 public sealed class TilingViewModel : Screen, ICanvas
 {
     private BuildingStrategy<Wall> _selectedBuilder;
+    private SolvingStrategy _selectedSolver;
     private ITilingEditor _selectedTiling;
     private bool _isBusy;
+    private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
     private Rectangle _bounds;
@@ -33,15 +36,18 @@ public sealed class TilingViewModel : Screen, ICanvas
             new PyramidTilingEditor(),
             new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 }
         ];
-
         SelectedTiling = AvailableTilings[0];
 
-        Builders = new []
-        {
-            BuildingStrategy<Wall>.Kruskal
-        };
-
+        Builders = [BuildingStrategy<Wall>.Kruskal];
         SelectedBuilder = Builders[0];
+
+        Solvers =
+        [
+            SolvingStrategy.AStarEuclidean,
+            SolvingStrategy.AStarManhattan,
+            SolvingStrategy.BreadthFirstSearch
+        ];
+        SelectedSolver = Solvers[0];
     }
 
     public bool IsIdle => !IsBusy;
@@ -54,6 +60,21 @@ public sealed class TilingViewModel : Screen, ICanvas
             if (Set(ref _isBusy, value))
             {
                 NotifyOfPropertyChange(nameof(IsIdle));
+                NotifyOfPropertyChange(nameof(CanSolve));
+            }
+        }
+    }
+
+    public bool CanSolve => IsIdle && HasGenerated;
+
+    public bool HasGenerated
+    {
+        get => _hasGenerated;
+        private set
+        {
+            if (Set(ref _hasGenerated, value))
+            {
+                NotifyOfPropertyChange(nameof(CanSolve));
             }
         }
     }
@@ -103,6 +124,8 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
 
+    public IObservableCollection<ITile> VisitedTiles { get; } = new BindableCollection<ITile>();
+
     public IReadOnlyList<ITilingEditor> AvailableTilings { get; }
 
     public ITilingEditor SelectedTiling
@@ -129,12 +152,36 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
+    public IReadOnlyList<BuildingStrategy<Wall>> Builders { get; }
+
+    public BuildingStrategy<Wall> SelectedBuilder
+    {
+        get => _selectedBuilder;
+        set => Set(ref _selectedBuilder, value);
+    }
+
+    public IReadOnlyList<SolvingStrategy> Solvers { get; }
+
+    public SolvingStrategy SelectedSolver
+    {
+        get => _selectedSolver;
+        set => Set(ref _selectedSolver, value);
+    }
+
     private void OnFormatChanged()
     {
+        Reset();
+    }
+
+    [UsedImplicitly]
+    public void Reset()
+    {
         IsBusy = false;
+        HasGenerated = false;
 
         Tiles.Clear();
         Walls.Clear();
+        VisitedTiles.Clear();
 
         if (SelectedTiling is not null)
         {
@@ -148,25 +195,6 @@ public sealed class TilingViewModel : Screen, ICanvas
                 .SelectMany(x => x.Edges)
                 .Distinct()
                 .Select(x => new Wall(this, x)));
-        }
-    }
-
-    public IReadOnlyList<BuildingStrategy<Wall>> Builders { get; }
-
-    public BuildingStrategy<Wall> SelectedBuilder
-    {
-        get => _selectedBuilder;
-        set => Set(ref _selectedBuilder, value);
-    }
-
-    [UsedImplicitly]
-    public void Reset()
-    {
-        IsBusy = false;
-
-        foreach (Wall wall in SharedWalls.ToList())
-        {
-            wall.IsOpen = false;
         }
     }
 
@@ -212,6 +240,23 @@ public sealed class TilingViewModel : Screen, ICanvas
             {
                 _seed = random.Next();
                 NotifyOfPropertyChange(nameof(Seed));
+            }
+
+            HasGenerated = true;
+        }
+    }
+
+    [UsedImplicitly]
+    public async Task Solve()
+    {
+        VisitedTiles.Clear();
+
+        using (BeginWork())
+        {
+            foreach (ITile tile in SelectedSolver.Solve(Tiles[0], Tiles[^1], Walls.ToList()).TakeWhile(_ => IsBusy))
+            {
+                VisitedTiles.Add(tile);
+                await Task.Delay(TimeSpan.FromMilliseconds(40));
             }
         }
     }
