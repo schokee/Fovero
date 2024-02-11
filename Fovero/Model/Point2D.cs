@@ -6,6 +6,19 @@ public readonly struct Point2D(float x, float y)
 
     public float Y { get; init; } = y;
 
+    public float ManhattanDistanceTo(Point2D other)
+    {
+        var dx = X - other.X;
+        var dy = Y - other.Y;
+
+        return Math.Abs(dx) + Math.Abs(dy);
+    }
+
+    public float EuclidianDistanceTo(Point2D other)
+    {
+        return MathF.Sqrt(SquaredDistanceTo(other));
+    }
+
     public float SquaredDistanceTo(Point2D other)
     {
         var dx = X - other.X;

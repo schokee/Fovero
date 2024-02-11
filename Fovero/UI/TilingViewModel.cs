@@ -6,21 +6,21 @@ using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using Fovero.UI.Editors;
 using JetBrains.Annotations;
+using MoreLinq;
 
 namespace Fovero.UI;
-
-using MoreLinq;
 
 public sealed class TilingViewModel : Screen, ICanvas
 {
     private BuildingStrategy<Wall> _selectedBuilder;
     private SolvingStrategy _selectedSolver;
     private ITilingEditor _selectedTiling;
+    private Rectangle _bounds;
     private bool _isBusy;
     private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
-    private Rectangle _bounds;
+
 
     public TilingViewModel()
     {
@@ -93,6 +93,8 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public bool IsSeedLocked { get; set; }
 
+    public int AnimationSpeed { get; set; } = 90;
+
     public int Zoom
     {
         get => _zoom;
@@ -124,7 +126,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
 
-    public IObservableCollection<ITile> VisitedTiles { get; } = new BindableCollection<ITile>();
+    public IObservableCollection<ICell> VisitedCells { get; } = new BindableCollection<ICell>();
 
     public IReadOnlyList<ITilingEditor> AvailableTilings { get; }
 
@@ -181,7 +183,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         Tiles.Clear();
         Walls.Clear();
-        VisitedTiles.Clear();
+        VisitedCells.Clear();
 
         if (SelectedTiling is not null)
         {
@@ -230,11 +232,9 @@ public sealed class TilingViewModel : Screen, ICanvas
         {
             var random = new Random(Seed);
 
-            foreach (var wall in SelectedBuilder.SelectWallsToBeOpened(SharedWalls.ToList(), random).TakeWhile(_ => IsBusy))
-            {
-                wall.IsOpen = true;
-                await Task.Delay(TimeSpan.FromMilliseconds(40));
-            }
+            await ForEachAsync(SelectedBuilder
+                .SelectWallsToBeOpened(SharedWalls.ToList(), random)
+                .TakeWhile(_ => IsBusy), x => x.IsOpen = true);
 
             if (!IsSeedLocked)
             {
@@ -249,15 +249,25 @@ public sealed class TilingViewModel : Screen, ICanvas
     [UsedImplicitly]
     public async Task Solve()
     {
-        VisitedTiles.Clear();
+        VisitedCells.Clear();
 
         using (BeginWork())
         {
-            foreach (ITile tile in SelectedSolver.Solve(Tiles[0], Tiles[^1], Walls.ToList()).TakeWhile(_ => IsBusy))
-            {
-                VisitedTiles.Add(tile);
-                await Task.Delay(TimeSpan.FromMilliseconds(40));
-            }
+            var tileLookup = Tiles.ToDictionary(x => x.Ordinal);
+
+            var pathways = Walls
+                .Where(x => x.IsOpen)
+                .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
+                .ToLookup(x => x.From, x => x.To);
+
+            var origin = new Cell(Tiles.First(), pathways);
+            var goal = new Cell(Tiles.Last(), pathways);
+
+            var solution = SelectedSolver
+                .FindPath(origin, goal)
+                .TakeWhile(_ => IsBusy);
+
+            await ForEachAsync(solution, VisitedCells.Add);
         }
     }
 
@@ -267,5 +277,38 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         IsBusy = true;
         return Disposable.Create(() => IsBusy = false);
+    }
+
+    private async Task ForEachAsync<T>(IEnumerable<T> source, Action<T> doWork)
+    {
+        foreach (T item in source)
+        {
+            doWork(item);
+
+            // REVISIT: figure out a power series for calculating the delay
+            var delay = TimeSpan.FromMilliseconds((100 - AnimationSpeed) * 10);
+            await Task.Delay(delay);
+        }
+    }
+
+    private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
+    {
+        private readonly ITile _tile = tile;
+
+        public Point2D Location => _tile.Center;
+
+        public IEnumerable<Point2D> CornerPoints => _tile.CornerPoints;
+
+        public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
+
+        public override bool Equals(object obj)
+        {
+            return obj is Cell cell && ReferenceEquals(_tile, cell._tile);
+        }
+
+        public override int GetHashCode()
+        {
+            return _tile.GetHashCode();
+        }
     }
 }
