@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-using Fovero.Model;
+using Fovero.Model.Geometry;
 
 namespace Fovero.UI.Converters;
 

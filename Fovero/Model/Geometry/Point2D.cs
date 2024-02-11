@@ -1,7 +1,11 @@
-﻿namespace Fovero.Model;
+﻿namespace Fovero.Model.Geometry;
 
 public readonly struct Point2D(float x, float y)
 {
+    public Point2D() : this(0, 0)
+    {
+    }
+
     public float X { get; init; } = x;
 
     public float Y { get; init; } = y;
@@ -40,5 +44,25 @@ public readonly struct Point2D(float x, float y)
     public override string ToString()
     {
         return $"({X}, {Y})";
+    }
+
+    public static Point2D operator -(Point2D p)
+    {
+        return new Point2D(-p.X, -p.Y);
+    }
+
+    public static Point2D operator +(Point2D p, Size2D o)
+    {
+        return new Point2D(p.X + o.Width, p.Y + o.Height);
+    }
+
+    public static Point2D operator -(Point2D p, Size2D o)
+    {
+        return new Point2D(p.X - o.Width, p.Y - o.Height);
+    }
+
+    public static implicit operator Size2D(Point2D p)
+    {
+        return new Size2D(p.X, p.Y);
     }
 }

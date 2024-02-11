@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using Fovero.Model.Geometry;
+using MoreLinq;
 
 namespace Fovero.Model.Tiling;
 

@@ -1,4 +1,4 @@
-﻿namespace Fovero.Model;
+﻿namespace Fovero.Model.Geometry;
 
 public record Rectangle(float X, float Y, float Width, float Height)
 {
@@ -17,4 +17,7 @@ public record Rectangle(float X, float Y, float Width, float Height)
 
     public float Right => X + Width;
     public float Bottom => Y + Height;
+
+    public Point2D TopLeft => new(Left, Top);
+    public Point2D BottomRight => new(Right, Bottom);
 }
