@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Disposables;
 using Caliburn.Micro;
-using Fovero.Model;
 using Fovero.Model.Generators;
+using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using Fovero.UI.Editors;
@@ -34,7 +34,8 @@ public sealed class TilingViewModel : Screen, ICanvas
             new RegularTilingEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
             new RegularTilingEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
             new PyramidTilingEditor(),
-            new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 }
+            new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 },
+            new CircularTilingEditor()
         ];
         SelectedTiling = AvailableTilings[0];
 

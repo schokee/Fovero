@@ -77,6 +77,17 @@
                     </StackPanel>
                 </DataTemplate>
 
+                <DataTemplate DataType="{x:Type editors:CircularTilingEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Rings" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rings, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Segments" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Segments, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                    </StackPanel>
+                </DataTemplate>
+
                 <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
                     <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
                         <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
