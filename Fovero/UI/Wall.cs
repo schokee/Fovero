@@ -12,17 +12,9 @@ public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISha
 
     public IEdge Edge { get; } = edge;
 
+    public string Geometry => Edge.PathData;
+
     public bool IsShared => Edge.IsShared;
-
-    public float X1 => Edge.Start.X;
-
-    public float Y1 => Edge.Start.Y;
-
-    public float X2 => Edge.End.X;
-
-    public float Y2 => Edge.End.Y;
-
-    public string Geometry => $"M {X1},{Y1} {X2},{Y2}";
 
     public bool IsOpen
     {

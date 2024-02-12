@@ -10,7 +10,5 @@ public interface ITile
 
     Rectangle Bounds { get; }
 
-    IEnumerable<Point2D> CornerPoints { get; }
-
     IEnumerable<IEdge> Edges { get; }
 }

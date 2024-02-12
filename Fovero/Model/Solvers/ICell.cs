@@ -9,7 +9,5 @@ public interface ICell
 {
     Point2D Location { get; }
 
-    IEnumerable<Point2D> CornerPoints { get; }
-
     IEnumerable<ICell> AccessibleAdjacentCells { get; }
 }

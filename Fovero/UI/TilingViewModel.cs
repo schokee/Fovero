@@ -1,4 +1,5 @@
 ﻿using System.Reactive.Disposables;
+using System.Text.RegularExpressions;
 using Caliburn.Micro;
 using Fovero.Model.Generators;
 using Fovero.Model.Geometry;
@@ -294,13 +295,22 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
     {
+        private static readonly Regex MovePattern = new(@"^M [+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+");
+
         private readonly ITile _tile = tile;
 
         public Point2D Location => _tile.Center;
 
-        public IEnumerable<Point2D> CornerPoints => _tile.CornerPoints;
-
         public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
+
+        public string PathData
+        {
+            get
+            {
+                var path = string.Join(" ", _tile.Edges.Select((x, n) => n > 0 ? MovePattern.Replace(x.PathData, "") : x.PathData));
+                return path;
+            }
+        }
 
         public override bool Equals(object obj)
         {

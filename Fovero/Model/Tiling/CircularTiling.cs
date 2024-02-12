@@ -3,11 +3,13 @@ using MoreLinq;
 
 namespace Fovero.Model.Tiling;
 
-public sealed class CircularTiling(ushort rings, ushort segments) : ITiling
+public sealed class CircularTiling(ushort rings, ushort segments, bool curved) : ITiling
 {
     public ushort Rings { get; } = rings;
 
     public ushort Segments { get; } = segments;
+
+    public bool Curved { get; } = curved;
 
     public Rectangle Bounds => new(0, 0, Rings + 1, Rings + 1);
 
@@ -34,7 +36,7 @@ public sealed class CircularTiling(ushort rings, ushort segments) : ITiling
 
     private Point2D TopLeftPointOf(ushort ring, ushort segment)
     {
-        var result = new Circle(Bounds.Center, ring / 2f).PointAt(SegmentSweep * segment);
+        var result = new Circle(Bounds.Center, ring).PointAt(SegmentSweep * segment);
         return result;
     }
 
@@ -50,12 +52,15 @@ public sealed class CircularTiling(ushort rings, ushort segments) : ITiling
             _ring = ring;
             _segment = segment;
 
-            Bounds = CornerPoints.Union();
+            var expandBy = new Size2D(0.3f, 0.3f);
+
+            Center = new Circle(_format.Bounds.Center, ring + 0.5f).PointAt(_format.SegmentSweep * (segment + 0.5f));
+            Bounds = new Rectangle(Center - expandBy, Center + expandBy);
         }
 
-        public ushort Ordinal => (ushort)(_ring * _format.Segments + _segment);
+        public ushort Ordinal => (ushort)((_ring - 1) * _format.Segments + _segment);
 
-        public Point2D Center => Bounds.Center;
+        public Point2D Center { get; }
 
         public Rectangle Bounds { get; }
 
@@ -93,9 +98,21 @@ public sealed class CircularTiling(ushort rings, ushort segments) : ITiling
                                 _ => location
                             };
 
-                        return _format.Contains(neighbor)
+                        var result = _format.Contains(neighbor)
                             ? Edge.CreateShared(segment.Start, segment.End, this, _format.CreateTile(neighbor.Ring, neighbor.Segment))
                             : Edge.CreateBorder(segment.Start, segment.End, this);
+
+                        switch (edge)
+                        {
+                            case 0 when _format.Curved:
+                                result.PathData = $"M {segment.Start.X},{segment.Start.Y} A {_ring + 1} {_ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
+                                return result;
+                            case 2 when _format.Curved:
+                                result.PathData = $"M {segment.Start.X},{segment.Start.Y} A {_ring} {_ring} 0 0 0 {segment.End.X},{segment.End.Y}";
+                                return result;
+                            default:
+                                return result;
+                        }
                     });
             }
         }

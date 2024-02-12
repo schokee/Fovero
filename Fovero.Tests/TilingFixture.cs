@@ -57,6 +57,7 @@ public sealed class TilingFixture
             yield return new TestCaseData(new HexagonalTiling(size, size));
             yield return new TestCaseData(new TriangularTiling(size, size));
             yield return new TestCaseData(new TruncatedSquareTiling(size, size));
+            yield return new TestCaseData(new CircularTiling(size, size, true));
         }
     }
 }
