@@ -157,7 +157,7 @@
 
         </StackPanel>
 
-        <Grid Margin="10">
+        <Grid Margin="10" ClipToBounds="True">
             <Grid.Resources>
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="Focusable" Value="False" />
