@@ -42,6 +42,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         Builders =
         [
+            BuildingStrategy<Wall>.Wilson,
             BuildingStrategy<Wall>.HuntAndKill,
             BuildingStrategy<Wall>.Kruskal
         ];

@@ -37,8 +37,13 @@ public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IE
 
             IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
             {
+                if (allWalls.Count == 0)
+                {
+                    yield break;
+                }
+
                 var allLinks = CreateLookup(allWalls, random);
-                var cell = allLinks.ElementAt(random.Next(allLinks.Count)).Key;
+                var cell = allLinks.First().Key;
 
                 var unvisitedCells = new HashSet<ushort>(allLinks.Select(x => x.Key));
 
@@ -48,13 +53,64 @@ public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IE
                                      .FirstOrDefault(x => unvisitedCells.Contains(x.Neighbor)) ??
                                  allLinks
                                      .Where(x => unvisitedCells.Contains(x.Key))
-                                     .SelectMany(neighboringCells => neighboringCells.Where(link => !unvisitedCells.Contains(link.Neighbor)))
-                                     .First();
+                                     .SelectMany(neighboringCells => neighboringCells)
+                                     .First(link => !unvisitedCells.Contains(link.Neighbor));
 
                     unvisitedCells.Remove(toJoin.Cell);
                     cell = toJoin.Neighbor;
 
                     yield return toJoin.Wall;
+                }
+            }
+        }
+    }
+
+    public static BuildingStrategy<T> Wilson
+    {
+        get
+        {
+            return new BuildingStrategy<T>("Wilson's", Build);
+
+            IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
+            {
+                if (allWalls.Count == 0)
+                {
+                    yield break;
+                }
+
+                var allLinks = CreateLookup(allWalls, random);
+                var unvisitedCells = new HashSet<ushort>(allLinks.Skip(1).Select(x => x.Key));
+
+                while (unvisitedCells.Count > 0)
+                {
+                    var step = unvisitedCells.ElementAt(random.Next(unvisitedCells.Count));
+                    var path = new List<ushort> { step };
+
+                    // Walk
+                    while (unvisitedCells.Contains(step))
+                    {
+                        var directions = allLinks[step];
+                        step = directions.ElementAt(random.Next(directions.Count())).Neighbor;
+
+                        var truncateAt = path.IndexOf(step) + 1;
+
+                        if (truncateAt > 0)
+                        {
+                            // Loop detected - truncate the path
+                            path.RemoveRange(truncateAt, path.Count - truncateAt);
+                        }
+                        else
+                        {
+                            path.Add(step);
+                        }
+                    }
+
+                    // Carve
+                    foreach (var link in path.Pairwise((cell, neighbor) => allLinks[cell].First(x => x.Neighbor == neighbor)))
+                    {
+                        unvisitedCells.Remove(link.Cell);
+                        yield return link.Wall;
+                    }
                 }
             }
         }
