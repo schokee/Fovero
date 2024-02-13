@@ -105,10 +105,10 @@ public sealed class CircularTiling(ushort rings, ushort segments, bool curved) :
                         switch (edge)
                         {
                             case 0 when _format.Curved:
-                                result.PathData = $"M {segment.Start.X},{segment.Start.Y} A {_ring + 1} {_ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
+                                result.DrawData = $"A {_ring + 1} {_ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
                                 return result;
                             case 2 when _format.Curved:
-                                result.PathData = $"M {segment.Start.X},{segment.Start.Y} A {_ring} {_ring} 0 0 0 {segment.End.X},{segment.End.Y}";
+                                result.DrawData = $"A {_ring} {_ring} 0 0 0 {segment.End.X},{segment.End.Y}";
                                 return result;
                             default:
                                 return result;

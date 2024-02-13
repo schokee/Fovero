@@ -295,19 +295,18 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
     {
-        private static readonly Regex MovePattern = new(@"^M [+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+");
-
         private readonly ITile _tile = tile;
 
         public Point2D Location => _tile.Center;
 
         public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
 
+        [UsedImplicitly]
         public string PathData
         {
             get
             {
-                var path = string.Join(" ", _tile.Edges.Select((x, n) => n > 0 ? MovePattern.Replace(x.PathData, "") : x.PathData));
+                var path = string.Join(" ", _tile.Edges.Select((edge, n) => n == 0 ? edge.PathData : edge.DrawData));
                 return path;
             }
         }
