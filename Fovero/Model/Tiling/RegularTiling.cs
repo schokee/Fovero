@@ -1,4 +1,6 @@
-﻿namespace Fovero.Model.Tiling;
+﻿using Fovero.Model.Geometry;
+
+namespace Fovero.Model.Tiling;
 
 public abstract class RegularTiling(ushort columns, ushort rows) : ITiling
 {

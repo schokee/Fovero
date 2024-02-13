@@ -1,7 +1,8 @@
 ﻿using System.Reactive.Disposables;
+using System.Text.RegularExpressions;
 using Caliburn.Micro;
-using Fovero.Model;
 using Fovero.Model.Generators;
+using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using Fovero.UI.Editors;
@@ -34,11 +35,19 @@ public sealed class TilingViewModel : Screen, ICanvas
             new RegularTilingEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
             new RegularTilingEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
             new PyramidTilingEditor(),
-            new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 }
+            new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 },
+            new CircularTilingEditor()
         ];
         SelectedTiling = AvailableTilings[0];
 
-        Builders = [BuildingStrategy<Wall>.Kruskal];
+        Builders =
+        [
+            BuildingStrategy<Wall>.RecursiveBacktracker,
+            BuildingStrategy<Wall>.Wilson,
+            BuildingStrategy<Wall>.HuntAndKill,
+            BuildingStrategy<Wall>.Kruskal
+        ];
+
         SelectedBuilder = Builders[0];
 
         Solvers =
@@ -297,9 +306,17 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         public Point2D Location => _tile.Center;
 
-        public IEnumerable<Point2D> CornerPoints => _tile.CornerPoints;
-
         public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
+
+        [UsedImplicitly]
+        public string PathData
+        {
+            get
+            {
+                var path = string.Join(" ", _tile.Edges.Select((edge, n) => n == 0 ? edge.PathData : edge.DrawData));
+                return path;
+            }
+        }
 
         public override bool Equals(object obj)
         {

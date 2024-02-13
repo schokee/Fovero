@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using Fovero.Model.Geometry;
+using MoreLinq;
 
 namespace Fovero.Model.Solvers;
 
@@ -28,28 +29,8 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
 
     private static SolvingFunction SolveUsing(PathPrioritisation.Method prioritisePath)
     {
-        return (origin, goal) =>
-            Traverse(origin, cell => prioritisePath(cell.Location, goal.Location)).TakeUntil(cell => cell.Equals(goal));
-    }
-
-    private static IEnumerable<ICell> Traverse(ICell origin, Func<ICell, float> prioritise)
-    {
-        var visitedCells = new HashSet<ICell>();
-        var cellsToCheck = new PriorityQueue<ICell, float>();
-
-        cellsToCheck.Enqueue(origin, 0);
-
-        while (cellsToCheck.Count > 0)
-        {
-            var cell = cellsToCheck.Dequeue();
-            visitedCells.Add(cell);
-
-            yield return cell;
-
-            foreach (var neighbor in cell.AccessibleAdjacentCells.Except(visitedCells))
-            {
-                cellsToCheck.Enqueue(neighbor, prioritise(neighbor));
-            }
-        }
+        return (origin, goal) => origin
+            .Traverse(cell => prioritisePath(cell.Location, goal.Location))
+            .TakeUntil(cell => cell.Equals(goal));
     }
 }

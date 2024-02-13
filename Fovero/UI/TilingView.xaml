@@ -8,14 +8,9 @@
              xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
              xmlns:local="clr-namespace:Fovero.UI"
              xmlns:editors="clr-namespace:Fovero.UI.Editors"
-             xmlns:converters="clr-namespace:Fovero.UI.Converters"
-             xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
-    <UserControl.Resources>
-        <converters:Point2DEnumerableToPointCollectionConverter x:Key="Point2DEnumerableToPointCollectionConverter" />
-    </UserControl.Resources>
     <DockPanel Margin="10">
         <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
             <StackPanel.Resources>
@@ -74,6 +69,18 @@
                         <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
                             <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
                         </HeaderedContentControl>
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type editors:CircularTilingEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Rings" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rings, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Segments" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Segments, Delay=200}" Minimum="3" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <CheckBox Content="Curved" IsChecked="{Binding Curved}" />
                     </StackPanel>
                 </DataTemplate>
 
@@ -150,7 +157,7 @@
 
         </StackPanel>
 
-        <Grid Margin="10">
+        <Grid Margin="10" ClipToBounds="True">
             <Grid.Resources>
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="Focusable" Value="False" />
@@ -176,8 +183,8 @@
 
             <ItemsControl ItemsSource="{Binding VisitedCells}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type solvers:ICell}">
-                        <Polygon SnapsToDevicePixels="False" Points="{Binding CornerPoints, Converter={StaticResource Point2DEnumerableToPointCollectionConverter}}" Fill="#5522aa22"/>
+                    <DataTemplate>
+                        <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
