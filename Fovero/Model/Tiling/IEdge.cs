@@ -13,4 +13,6 @@ public interface IEdge
     bool IsShared => Neighbors.Count > 1;
 
     string PathData { get; }
+
+    string DrawData { get; }
 }
