@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using Fovero.Model.Geometry;
+using MoreLinq;
 
 namespace Fovero.Model.Tiling;
 
@@ -56,7 +57,7 @@ public class PyramidTiling(ushort height) : ITiling
 
         public Rectangle Bounds => new((_format.Height - _row + _column) / 2f, _row * CellHeight, 1, CellHeight);
 
-        private IEnumerable<Point2D> CornerPoints
+        public IEnumerable<Point2D> CornerPoints
         {
             get
             {

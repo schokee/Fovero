@@ -1,4 +1,4 @@
-﻿using System.Windows.Media.Media3D;
+﻿using Fovero.Model.Geometry;
 
 namespace Fovero.Model.Tiling;
 
@@ -13,9 +13,9 @@ public abstract class RegularTiling(ushort columns, ushort rows) : ITiling
     public IEnumerable<ITile> Generate()
     {
         return Enumerable
-            .Range(0, (int)Rows)
+            .Range(0, Rows)
             .SelectMany(r => Enumerable
-                .Range(0, (int)Columns)
+                .Range(0, Columns)
                 .Select(c => CreateTile(c, r)));
     }
 

@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using Fovero.Model.Geometry;
+using MoreLinq;
 
 namespace Fovero.Model.Tiling;
 
@@ -28,7 +29,7 @@ public class SquareTiling(ushort columns, ushort rows) : RegularTiling(columns, 
 
         public Rectangle Bounds => new(_column, _row, 1, 1);
 
-        private IEnumerable<Point2D> CornerPoints
+        public IEnumerable<Point2D> CornerPoints
         {
             get
             {
