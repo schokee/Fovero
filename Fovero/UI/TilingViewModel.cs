@@ -40,7 +40,12 @@ public sealed class TilingViewModel : Screen, ICanvas
         ];
         SelectedTiling = AvailableTilings[0];
 
-        Builders = [BuildingStrategy<Wall>.Kruskal];
+        Builders =
+        [
+            BuildingStrategy<Wall>.HuntAndKill,
+            BuildingStrategy<Wall>.Kruskal
+        ];
+
         SelectedBuilder = Builders[0];
 
         Solvers =
