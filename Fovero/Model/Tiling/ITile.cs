@@ -1,4 +1,6 @@
-﻿namespace Fovero.Model.Tiling;
+﻿using Fovero.Model.Geometry;
+
+namespace Fovero.Model.Tiling;
 
 public interface ITile
 {
@@ -7,8 +9,6 @@ public interface ITile
     Point2D Center { get; }
 
     Rectangle Bounds { get; }
-
-    IEnumerable<Point2D> CornerPoints { get; }
 
     IEnumerable<IEdge> Edges { get; }
 }

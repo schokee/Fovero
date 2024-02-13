@@ -4,16 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
              xmlns:local="clr-namespace:Fovero.UI"
              xmlns:editors="clr-namespace:Fovero.UI.Editors"
-             xmlns:converters="clr-namespace:Fovero.UI.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
-    <UserControl.Resources>
-        <converters:Point2DEnumerableToPointCollectionConverter x:Key="Point2DEnumerableToPointCollectionConverter" />
-    </UserControl.Resources>
     <DockPanel Margin="10">
         <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
             <StackPanel.Resources>
@@ -27,9 +24,16 @@
                     </Setter>
                 </Style>
 
+                <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
+                    <Setter Property="Margin" Value="4,0"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+
                 <Style TargetType="{x:Type mah:NumericUpDown}" BasedOn="{StaticResource {x:Type mah:NumericUpDown}}">
                     <Setter Property="VerticalAlignment" Value="Center"/>
                     <Setter Property="MinWidth" Value="90"/>
+                    <Setter Property="mah:TextBoxHelper.SelectAllOnFocus" Value="True"/>
                 </Style>
 
                 <Style TargetType="{x:Type HeaderedContentControl}">
@@ -68,6 +72,18 @@
                     </StackPanel>
                 </DataTemplate>
 
+                <DataTemplate DataType="{x:Type editors:CircularTilingEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Rings" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rings, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Segments" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Segments, Delay=200}" Minimum="3" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <CheckBox Content="Curved" IsChecked="{Binding Curved}" />
+                    </StackPanel>
+                </DataTemplate>
+
                 <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
                     <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
                         <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
@@ -98,11 +114,22 @@
                 </StackPanel>
             </HeaderedContentControl>
 
+            <HeaderedContentControl>
+                <DockPanel>
+                    <Label Content="Speed" />
+                    <iconPacks:PackIconMaterial Kind="Tortoise" />
+                    <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
+                    <Slider Minimum="0" Maximum="100" Value="{Binding AnimationSpeed, Delay=50}" />
+                </DockPanel>
+            </HeaderedContentControl>
+
             <Separator />
 
             <HeaderedContentControl>
                 <DockPanel>
                     <Label Content="Zoom" />
+                    <iconPacks:PackIconMaterial Kind="MagnifyMinusOutline" />
+                    <iconPacks:PackIconMaterial Kind="MagnifyPlusOutline" DockPanel.Dock="Right" />
                     <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" />
                 </DockPanel>
             </HeaderedContentControl>
@@ -116,7 +143,8 @@
             </HeaderedContentControl>
 
             <HeaderedContentControl>
-                <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center" />
+                <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center"
+                                Focusable="False" IsTabStop="False"/>
             </HeaderedContentControl>
 
             <Separator />
@@ -129,9 +157,11 @@
 
         </StackPanel>
 
-        <Grid Margin="10">
+        <Grid Margin="10" ClipToBounds="True">
             <Grid.Resources>
                 <Style TargetType="{x:Type ItemsControl}">
+                    <Setter Property="Focusable" Value="False" />
+                    <Setter Property="IsTabStop" Value="False" />
                     <Setter Property="HorizontalAlignment" Value="Center" />
                     <Setter Property="VerticalAlignment" Value="Center" />
                     <Setter Property="Height" Value="{Binding Path=Bounds.Height}" />
@@ -151,10 +181,10 @@
                 </Style>
             </Grid.Resources>
 
-            <ItemsControl ItemsSource="{Binding VisitedTiles}">
+            <ItemsControl ItemsSource="{Binding VisitedCells}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type tiling:ITile}">
-                        <Polygon SnapsToDevicePixels="False" Points="{Binding CornerPoints, Converter={StaticResource Point2DEnumerableToPointCollectionConverter}}" Fill="#5522aa22"/>
+                    <DataTemplate>
+                        <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

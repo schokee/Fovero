@@ -1,4 +1,6 @@
-﻿namespace Fovero.Model.Tiling;
+﻿using Fovero.Model.Geometry;
+
+namespace Fovero.Model.Tiling;
 
 public interface IEdge
 {
@@ -9,4 +11,8 @@ public interface IEdge
     IReadOnlyList<ITile> Neighbors { get; }
 
     bool IsShared => Neighbors.Count > 1;
+
+    string PathData { get; }
+
+    string DrawData { get; }
 }

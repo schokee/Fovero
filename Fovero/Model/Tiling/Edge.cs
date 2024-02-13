@@ -1,4 +1,6 @@
-﻿namespace Fovero.Model.Tiling;
+﻿using Fovero.Model.Geometry;
+
+namespace Fovero.Model.Tiling;
 
 public sealed class Edge : IEdge
 {
@@ -15,6 +17,7 @@ public sealed class Edge : IEdge
         Id = start.MidPointTo(end).ScaledBy(1000);
         Start = start;
         End = end;
+        DrawData = $"L {end.X},{end.Y}";
         Neighbors = neighbors;
     }
 
@@ -23,6 +26,10 @@ public sealed class Edge : IEdge
     public Point2D Start { get; }
 
     public Point2D End { get; }
+
+    public string PathData => $"M {Start.X},{Start.Y} {DrawData}";
+
+    public string DrawData { get; internal set; }
 
     public IReadOnlyList<ITile> Neighbors { get; }
 
@@ -60,19 +67,4 @@ public sealed class Edge : IEdge
 
         return new Edge(start, end, neighborA, neighborB);
     }
-
-    //private sealed class TileComparer : IEqualityComparer<ITile>
-    //{
-    //    public static TileComparer Instance { get; } = new();
-
-    //    public bool Equals(ITile x, ITile y)
-    //    {
-    //        return x!.Ordinal == y!.Ordinal;
-    //    }
-
-    //    public int GetHashCode(ITile obj)
-    //    {
-    //        return obj.Ordinal;
-    //    }
-    //}
 }
