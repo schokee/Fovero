@@ -20,7 +20,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
-    private int _animationSpeed = 86; // 10 ms delay
+    private int _animationSpeed = 75; // 10 ms delay
 
 
     public TilingViewModel()
@@ -114,7 +114,18 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public double AnimationDelay => Math.Pow(10, 1 + (100 - AnimationSpeed) / 50f) - AnimationSpeed / 10f;
+    public double AnimationDelay => AnimationSpeed == 100 ? 0 : Math.Pow(10, CalculateExponent(AnimationSpeed));
+
+    private static double CalculateExponent(double animationSpeed)
+    {
+        var x = (100 - animationSpeed) / 50f;
+
+        return x switch
+        {
+            <= 1 => 2 * x,
+            _ => x + 1
+        };
+    }
 
     public int Zoom
     {
