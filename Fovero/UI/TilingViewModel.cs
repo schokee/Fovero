@@ -1,5 +1,4 @@
 ﻿using System.Reactive.Disposables;
-using System.Text.RegularExpressions;
 using Caliburn.Micro;
 using Fovero.Model.Generators;
 using Fovero.Model.Geometry;
@@ -21,6 +20,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
+    private int _animationSpeed = 86; // 10 ms delay
 
 
     public TilingViewModel()
@@ -102,7 +102,19 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public bool IsSeedLocked { get; set; }
 
-    public int AnimationSpeed { get; set; } = 90;
+    public int AnimationSpeed
+    {
+        get => _animationSpeed;
+        set
+        {
+            if (Set(ref _animationSpeed, value))
+            {
+                NotifyOfPropertyChange(nameof(AnimationDelay));
+            }
+        }
+    }
+
+    public double AnimationDelay => Math.Pow(10, 1 + (100 - AnimationSpeed) / 50f) - AnimationSpeed / 10f;
 
     public int Zoom
     {
@@ -294,9 +306,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         {
             doWork(item);
 
-            // REVISIT: figure out a power series for calculating the delay
-            var delay = TimeSpan.FromMilliseconds((100 - AnimationSpeed) * 10);
-            await Task.Delay(delay);
+            await Task.Delay(TimeSpan.FromMilliseconds(AnimationDelay));
         }
     }
 

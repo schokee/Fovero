@@ -114,13 +114,15 @@
                 </StackPanel>
             </HeaderedContentControl>
 
-            <HeaderedContentControl>
-                <DockPanel>
-                    <Label Content="Speed" />
-                    <iconPacks:PackIconMaterial Kind="Tortoise" />
-                    <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
-                    <Slider Minimum="0" Maximum="100" Value="{Binding AnimationSpeed, Delay=50}" />
-                </DockPanel>
+            <HeaderedContentControl Header="Speed">
+                <StackPanel Orientation="Vertical">
+                    <DockPanel>
+                        <iconPacks:PackIconMaterial Kind="Tortoise" />
+                        <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
+                        <Slider Minimum="0" Maximum="100" Value="{Binding AnimationSpeed, Delay=50}" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding AnimationDelay, StringFormat=Delay: {0:0 ms;;no delay}}" />
+                </StackPanel>
             </HeaderedContentControl>
 
             <Separator />
