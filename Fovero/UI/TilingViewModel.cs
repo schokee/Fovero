@@ -1,5 +1,4 @@
 ﻿using System.Reactive.Disposables;
-using System.Text.RegularExpressions;
 using Caliburn.Micro;
 using Fovero.Model.Generators;
 using Fovero.Model.Geometry;
@@ -21,7 +20,6 @@ public sealed class TilingViewModel : Screen, ICanvas
     private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
-
 
     public TilingViewModel()
     {
@@ -102,7 +100,9 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public bool IsSeedLocked { get; set; }
 
-    public int AnimationSpeed { get; set; } = 90;
+    public ActionPlayer BuildingSequence { get; } = new();
+
+    public ActionPlayer SolutionSequence { get; } = new();
 
     public int Zoom
     {
@@ -241,7 +241,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         {
             var random = new Random(Seed);
 
-            await ForEachAsync(SelectedBuilder
+            await BuildingSequence.Play(SelectedBuilder
                 .SelectWallsToBeOpened(SharedWalls.ToList(), random)
                 .TakeWhile(_ => IsBusy), x => x.IsOpen = true);
 
@@ -272,11 +272,9 @@ public sealed class TilingViewModel : Screen, ICanvas
             var origin = new Cell(Tiles.First(), pathways);
             var goal = new Cell(Tiles.Last(), pathways);
 
-            var solution = SelectedSolver
+            await SolutionSequence.Play(SelectedSolver
                 .FindPath(origin, goal)
-                .TakeWhile(_ => IsBusy);
-
-            await ForEachAsync(solution, VisitedCells.Add);
+                .TakeWhile(_ => IsBusy), VisitedCells.Add);
         }
     }
 
@@ -286,18 +284,6 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         IsBusy = true;
         return Disposable.Create(() => IsBusy = false);
-    }
-
-    private async Task ForEachAsync<T>(IEnumerable<T> source, Action<T> doWork)
-    {
-        foreach (T item in source)
-        {
-            doWork(item);
-
-            // REVISIT: figure out a power series for calculating the delay
-            var delay = TimeSpan.FromMilliseconds((100 - AnimationSpeed) * 10);
-            await Task.Delay(delay);
-        }
     }
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell

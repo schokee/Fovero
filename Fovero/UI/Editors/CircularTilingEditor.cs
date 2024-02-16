@@ -7,6 +7,7 @@ public class CircularTilingEditor() : TilingEditor("Circular")
     private int _rings = 20;
     private int _segments = 16;
     private bool _curved = true;
+    private bool _adaptive = true;
 
     public int Rings
     {
@@ -26,8 +27,16 @@ public class CircularTilingEditor() : TilingEditor("Circular")
         set => SetFormat(ref _curved, value);
     }
 
+    public bool Adaptive
+    {
+        get => _adaptive;
+        set => SetFormat(ref _adaptive, value);
+    }
+
     public override ITiling CreateTiling()
     {
-        return new CircularTiling((ushort)Rings, (ushort)Segments, Curved);
+        return Adaptive
+            ? new AdaptiveCircularTiling((ushort)Rings, (ushort)Segments, Curved)
+            : new CircularTiling((ushort)Rings, (ushort)Segments, Curved);
     }
 }
