@@ -80,22 +80,22 @@ public sealed class AdaptiveCircularTiling : ITiling
             get
             {
                 var location = new Location(Ring, Segment);
-                var isUpperSplit = IsUpperEdgeSplit;
-                var isLowerSplit = IsLowerEdgeSplit;
+                var isOuterEdgeSplit = IsOuterEdgeSplit;
+                var isInnerEdgeSplit = IsInnerEdgeSplit;
 
                 return CornerPoints
                     .Repeat()
                     .Pairwise((start, end) => (Start: start, End: end))
-                    .Take(isUpperSplit ? 5 : 4)
+                    .Take(isOuterEdgeSplit ? 5 : 4)
                     .Select((segment, edge) =>
                     {
-                        var neighbor = isUpperSplit
+                        var neighbor = isOuterEdgeSplit
                             ? edge switch
                             {
                                 0 => location with { Ring = (ushort)(Ring + 1), Segment = Segment * 2 },
                                 1 => location with { Ring = (ushort)(Ring + 1), Segment = Segment * 2 + 1 },
                                 2 => location with { Segment = NextSegment },
-                                3 when isLowerSplit => location with { Ring = (ushort)(Ring - 1), Segment = Segment / 2 },
+                                3 when isInnerEdgeSplit => location with { Ring = (ushort)(Ring - 1), Segment = Segment / 2 },
                                 3 => location with { Ring = (ushort)(Ring - 1) },
                                 4 => location with { Segment = PreviousSegment },
                                 _ => location
@@ -104,7 +104,7 @@ public sealed class AdaptiveCircularTiling : ITiling
                             {
                                 0 => location with { Ring = (ushort)(Ring + 1) },
                                 1 => location with { Segment = NextSegment },
-                                2 when isLowerSplit => location with { Ring = (ushort)(Ring - 1), Segment = Segment / 2 },
+                                2 when isInnerEdgeSplit => location with { Ring = (ushort)(Ring - 1), Segment = Segment / 2 },
                                 2 => location with { Ring = (ushort)(Ring - 1) },
                                 3 => location with { Segment = PreviousSegment },
                                 _ => location
@@ -116,12 +116,12 @@ public sealed class AdaptiveCircularTiling : ITiling
 
                         if (Format.Curved)
                         {
-                            if (isUpperSplit)
+                            if (isOuterEdgeSplit)
                             {
                                 switch (edge)
                                 {
                                     case 0:
-                                    case 1:
+                                    //case 1:
                                         result.DrawData = $"A {Ring + 1} {Ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
                                         break;
                                     case 3:
@@ -163,8 +163,8 @@ public sealed class AdaptiveCircularTiling : ITiling
         private ushort NextSegment => (ushort)((Segment + 1) % Segments);
         private ushort PreviousSegment => (ushort)((Segment > 0 ? Segment : Segments) - 1);
 
-        private bool IsUpperEdgeSplit => Ring + 1 < Format.Rings && Segments < Format.SegmentsAtRing[Ring + 1];
-        private bool IsLowerEdgeSplit => Ring > 1 && Segments > Format.SegmentsAtRing[Ring - 1];
+        private bool IsOuterEdgeSplit => Ring + 1 < Format.Rings && Segments < Format.SegmentsAtRing[Ring + 1];
+        private bool IsInnerEdgeSplit => Ring > 1 && Segments > Format.SegmentsAtRing[Ring - 1];
 
         private IEnumerable<Point2D> CornerPoints
         {
@@ -178,7 +178,7 @@ public sealed class AdaptiveCircularTiling : ITiling
 
                 yield return outerArc.PointAt(segmentSweep * Segment);
 
-                if (IsUpperEdgeSplit)
+                if (IsOuterEdgeSplit)
                 {
                     yield return outerArc.PointAt(segmentSweep * (Segment + 0.5f));
                 }
