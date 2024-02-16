@@ -89,7 +89,7 @@ public sealed class AdaptiveCircularTiling : ITiling
                     .Take(isOuterEdgeSplit ? 5 : 4)
                     .Select((segment, edge) =>
                     {
-                        var neighbor = isOuterEdgeSplit
+                        var locationOfNeighbor = isOuterEdgeSplit
                             ? edge switch
                             {
                                 0 => location with { Ring = (ushort)(Ring + 1), Segment = Segment * 2 },
@@ -110,8 +110,8 @@ public sealed class AdaptiveCircularTiling : ITiling
                                 _ => location
                             };
 
-                        var result = _lookup.ContainsKey(neighbor)
-                            ? Edge.CreateShared(segment.Start, segment.End, this, _lookup[neighbor])
+                        var result = _lookup.TryGetValue(locationOfNeighbor, out var neighbor)
+                            ? Edge.CreateShared(segment.Start, segment.End, this, neighbor)
                             : Edge.CreateBorder(segment.Start, segment.End, this);
 
                         if (Format.Curved)
@@ -121,11 +121,11 @@ public sealed class AdaptiveCircularTiling : ITiling
                                 switch (edge)
                                 {
                                     case 0:
-                                    //case 1:
-                                        result.DrawData = $"A {Ring + 1} {Ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
+                                    case 1:
+                                        result.DrawData = OuterArcMarkup();
                                         break;
                                     case 3:
-                                        result.DrawData = $"A {Ring} {Ring} 0 0 0 {segment.End.X},{segment.End.Y}";
+                                        result.DrawData = InnerArcMarkup();
                                         break;
                                 }
                             }
@@ -134,13 +134,16 @@ public sealed class AdaptiveCircularTiling : ITiling
                                 switch (edge)
                                 {
                                     case 0:
-                                        result.DrawData = $"A {Ring + 1} {Ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
+                                        result.DrawData = OuterArcMarkup();
                                         break;
                                     case 2:
-                                        result.DrawData = $"A {Ring} {Ring} 0 0 0 {segment.End.X},{segment.End.Y}";
+                                        result.DrawData = InnerArcMarkup();
                                         break;
                                 }
                             }
+
+                            string OuterArcMarkup() => $"A {Ring + 1} {Ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
+                            string InnerArcMarkup() => $"A {Ring} {Ring} 0 0 0 {segment.End.X},{segment.End.Y}";
                         }
 
                         return result;
