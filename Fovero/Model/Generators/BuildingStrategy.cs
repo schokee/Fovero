@@ -129,17 +129,17 @@ public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IE
                     yield break;
                 }
 
-                var allLinks = CreateLookup(allWalls, random);
-
-                var startingCell = allWalls[0].NeighborA;
-                var visitedCells = new HashSet<ushort> { startingCell };
-
+                var visitedCells = new HashSet<ushort>();
                 var stack = new Stack<ushort>();
+
+                var allLinks = CreateLookup(allWalls, random);
+                var startingCell = allWalls.Shuffle().First().NeighborA;
                 stack.Push(startingCell);
 
                 while (stack.Count > 0)
                 {
                     var cell = stack.Peek();
+                    visitedCells.Add(cell);
                     var link = allLinks[cell].FirstOrDefault(x => !visitedCells.Contains(x.Neighbor));
 
                     if (link is null)
@@ -148,9 +148,7 @@ public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IE
                         continue;
                     }
 
-                    visitedCells.Add(link.Neighbor);
                     yield return link.Wall;
-
                     stack.Push(link.Neighbor);
                 }
             }
