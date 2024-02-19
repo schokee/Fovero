@@ -27,6 +27,12 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         DisplayName = "Tiling";
 
+        Builders = BuildingStrategy<Wall>.All.ToList();
+        SelectedBuilder = Builders[0];
+
+        Solvers = SolvingStrategy.All.ToList();
+        SelectedSolver = Solvers[0];
+
         AvailableTilings =
         [
             new RegularTilingEditor("Square", (c, r) => new SquareTiling(c, r)) { Columns = 32, Rows = 16 },
@@ -36,25 +42,8 @@ public sealed class TilingViewModel : Screen, ICanvas
             new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 },
             new CircularTilingEditor()
         ];
+
         SelectedTiling = AvailableTilings[0];
-
-        Builders =
-        [
-            BuildingStrategy<Wall>.RecursiveBacktracker,
-            BuildingStrategy<Wall>.Wilson,
-            BuildingStrategy<Wall>.HuntAndKill,
-            BuildingStrategy<Wall>.Kruskal
-        ];
-
-        SelectedBuilder = Builders[0];
-
-        Solvers =
-        [
-            SolvingStrategy.AStarEuclidean,
-            SolvingStrategy.AStarManhattan,
-            SolvingStrategy.BreadthFirstSearch
-        ];
-        SelectedSolver = Solvers[0];
     }
 
     public bool IsIdle => !IsBusy;
