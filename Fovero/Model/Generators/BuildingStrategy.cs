@@ -45,18 +45,18 @@ public record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IE
                 var allLinks = CreateLookup(allWalls, random);
                 var cell = allLinks.First().Key;
 
-                var unvisitedCells = new HashSet<ushort>(allLinks.Select(x => x.Key));
+                var unvisitedCells = new HashSet<ushort>(allLinks.Select(x => x.Key).Where(x => x != cell));
 
-                while (unvisitedCells.Count > 0)
+                while (unvisitedCells.Any())
                 {
                     var toJoin = allLinks[cell]
                                      .FirstOrDefault(x => unvisitedCells.Contains(x.Neighbor)) ??
                                  allLinks
-                                     .Where(x => unvisitedCells.Contains(x.Key))
+                                     .Where(x => !unvisitedCells.Contains(x.Key))
                                      .SelectMany(neighboringCells => neighboringCells)
-                                     .First(link => !unvisitedCells.Contains(link.Neighbor));
+                                     .First(link => unvisitedCells.Contains(link.Neighbor));
 
-                    unvisitedCells.Remove(toJoin.Cell);
+                    unvisitedCells.Remove(toJoin.Neighbor);
                     cell = toJoin.Neighbor;
 
                     yield return toJoin.Wall;
