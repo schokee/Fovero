@@ -98,6 +98,7 @@
                             <mah:NumericUpDown Value="{Binding Segments, Delay=200}" Minimum="3" Maximum="40" MaxWidth="80" />
                         </HeaderedContentControl>
                         <CheckBox Content="Curved" IsChecked="{Binding Curved}" />
+                        <CheckBox Content="Adaptive" IsChecked="{Binding Adaptive}" Margin="0,8,0,0" />
                     </StackPanel>
                 </DataTemplate>
 
