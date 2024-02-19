@@ -9,19 +9,16 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         return Name;
     }
 
-    public static IEnumerable<BuildingStrategy<T>> All
-    {
-        get
-        {
-            yield return HuntAndKill;
-            yield return Kruskal;
-            yield return Prim;
-            yield return PrimMixed;
-            yield return PrimOldest;
-            yield return RecursiveBacktracker;
-            yield return Wilson;
-        }
-    }
+    public static IReadOnlyList<BuildingStrategy<T>> All =>
+    [
+        HuntAndKill,
+        Kruskal,
+        Prim,
+        PrimMixed,
+        PrimOldest,
+        RecursiveBacktracker,
+        Wilson
+    ];
 
     public static BuildingStrategy<T> Kruskal
     {

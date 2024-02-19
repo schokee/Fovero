@@ -27,10 +27,10 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         DisplayName = "Tiling";
 
-        Builders = BuildingStrategy<Wall>.All.ToList();
+        Builders = BuildingStrategy<Wall>.All;
         SelectedBuilder = Builders[0];
 
-        Solvers = SolvingStrategy.All.ToList();
+        Solvers = SolvingStrategy.All;
         SelectedSolver = Solvers[0];
 
         AvailableTilings =

@@ -12,15 +12,12 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
         return Name;
     }
 
-    public static IEnumerable<SolvingStrategy> All
-    {
-        get
-        {
-            yield return AStarEuclidean;
-            yield return AStarManhattan;
-            yield return BreadthFirstSearch;
-        }
-    }
+    public static IReadOnlyList<SolvingStrategy> All =>
+    [
+        AStarEuclidean,
+        AStarManhattan,
+        BreadthFirstSearch
+    ];
 
     public static SolvingStrategy AStarEuclidean => new("A* Euclidean", SolveUsing(PathPrioritisation.EuclidianDistance));
     public static SolvingStrategy AStarManhattan => new("A* Manhattan", SolveUsing(PathPrioritisation.ManhattanDistance));
