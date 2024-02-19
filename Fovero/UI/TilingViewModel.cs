@@ -1,5 +1,4 @@
 ﻿using System.Reactive.Disposables;
-using System.Text.RegularExpressions;
 using Caliburn.Micro;
 using Fovero.Model.Generators;
 using Fovero.Model.Geometry;
@@ -21,7 +20,6 @@ public sealed class TilingViewModel : Screen, ICanvas
     private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
-
 
     public TilingViewModel()
     {
@@ -102,7 +100,9 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public bool IsSeedLocked { get; set; }
 
-    public int AnimationSpeed { get; set; } = 90;
+    public ActionPlayer BuildingSequence { get; } = new();
+
+    public ActionPlayer SolutionSequence { get; } = new();
 
     public int Zoom
     {
@@ -241,7 +241,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         {
             var random = new Random(Seed);
 
-            await ForEachAsync(SelectedBuilder
+            await BuildingSequence.Play(SelectedBuilder
                 .SelectWallsToBeOpened(SharedWalls.ToList(), random)
                 .TakeWhile(_ => IsBusy), x => x.IsOpen = true);
 
@@ -256,7 +256,19 @@ public sealed class TilingViewModel : Screen, ICanvas
     }
 
     [UsedImplicitly]
-    public async Task Solve()
+    public Task Solve()
+    {
+        return Solve(Tiles.First().Ordinal, Tiles.Last().Ordinal);
+    }
+
+    [UsedImplicitly]
+    public Task ReverseSolve()
+    {
+        return Solve(Tiles.Last().Ordinal, Tiles.First().Ordinal);
+    }
+
+    [UsedImplicitly]
+    private async Task Solve(ushort start, ushort end)
     {
         VisitedCells.Clear();
 
@@ -269,14 +281,12 @@ public sealed class TilingViewModel : Screen, ICanvas
                 .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
                 .ToLookup(x => x.From, x => x.To);
 
-            var origin = new Cell(Tiles.First(), pathways);
-            var goal = new Cell(Tiles.Last(), pathways);
+            var origin = new Cell(Tiles[start], pathways);
+            var goal = new Cell(Tiles[end], pathways);
 
-            var solution = SelectedSolver
+            await SolutionSequence.Play(SelectedSolver
                 .FindPath(origin, goal)
-                .TakeWhile(_ => IsBusy);
-
-            await ForEachAsync(solution, VisitedCells.Add);
+                .TakeWhile(_ => IsBusy), VisitedCells.Add);
         }
     }
 
@@ -286,18 +296,6 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         IsBusy = true;
         return Disposable.Create(() => IsBusy = false);
-    }
-
-    private async Task ForEachAsync<T>(IEnumerable<T> source, Action<T> doWork)
-    {
-        foreach (T item in source)
-        {
-            doWork(item);
-
-            // REVISIT: figure out a power series for calculating the delay
-            var delay = TimeSpan.FromMilliseconds((100 - AnimationSpeed) * 10);
-            await Task.Delay(delay);
-        }
     }
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
@@ -320,12 +318,12 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         public override bool Equals(object obj)
         {
-            return obj is Cell cell && ReferenceEquals(_tile, cell._tile);
+            return obj is Cell cell && _tile.Ordinal == cell._tile.Ordinal;
         }
 
         public override int GetHashCode()
         {
-            return _tile.GetHashCode();
+            return _tile.Ordinal.GetHashCode();
         }
     }
 }

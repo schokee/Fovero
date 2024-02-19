@@ -26,8 +26,12 @@
 
                 <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
                     <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
-                    <Setter Property="Margin" Value="4,0"/>
                     <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.SliderThumb.Disabled}"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
 
                 <Style TargetType="{x:Type mah:NumericUpDown}" BasedOn="{StaticResource {x:Type mah:NumericUpDown}}">
@@ -61,6 +65,19 @@
                     </Setter>
                 </Style>
 
+                <DataTemplate DataType="{x:Type local:ActionPlayer}">
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox Content="Animate" IsChecked="{Binding IsAnimated}"/>
+                        <HeaderedContentControl IsEnabled="{Binding IsAnimated}" Margin="0,8,0,0">
+                            <DockPanel>
+                                <iconPacks:PackIconMaterial Kind="Tortoise" />
+                                <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
+                                <Slider Minimum="0" Maximum="{Binding MaximumSpeed, Mode=OneTime}" Value="{Binding AnimationSpeed, Delay=50}" Margin="6,0" />
+                            </DockPanel>
+                        </HeaderedContentControl>
+                    </StackPanel>
+                </DataTemplate>
+
                 <DataTemplate DataType="{x:Type editors:RegularTilingEditor}">
                     <StackPanel Orientation="Vertical">
                         <HeaderedContentControl Header="Columns" HorizontalContentAlignment="Left">
@@ -91,6 +108,19 @@
                 </DataTemplate>
             </StackPanel.Resources>
 
+            <HeaderedContentControl Header="Generation Algorithm">
+                <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Seed" IsEnabled="{Binding IsIdle}">
+                <StackPanel Orientation="Vertical">
+                    <mah:NumericUpDown Value="{Binding Seed, Delay=200, Mode=TwoWay}" />
+                    <CheckBox IsChecked="{Binding IsSeedLocked}" Content="Lock" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Content="{Binding BuildingSequence}" />
+
             <HeaderedContentControl>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -103,26 +133,6 @@
                 </Grid>
             </HeaderedContentControl>
 
-            <HeaderedContentControl Header="Algorithm">
-                <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" />
-            </HeaderedContentControl>
-
-            <HeaderedContentControl Header="Seed" IsEnabled="{Binding IsIdle}">
-                <StackPanel Orientation="Vertical">
-                    <mah:NumericUpDown Value="{Binding Seed, Delay=200, Mode=TwoWay}" />
-                    <CheckBox IsChecked="{Binding IsSeedLocked}" Content="Lock" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                </StackPanel>
-            </HeaderedContentControl>
-
-            <HeaderedContentControl>
-                <DockPanel>
-                    <Label Content="Speed" />
-                    <iconPacks:PackIconMaterial Kind="Tortoise" />
-                    <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
-                    <Slider Minimum="0" Maximum="100" Value="{Binding AnimationSpeed, Delay=50}" />
-                </DockPanel>
-            </HeaderedContentControl>
-
             <Separator />
 
             <HeaderedContentControl>
@@ -130,7 +140,7 @@
                     <Label Content="Zoom" />
                     <iconPacks:PackIconMaterial Kind="MagnifyMinusOutline" />
                     <iconPacks:PackIconMaterial Kind="MagnifyPlusOutline" DockPanel.Dock="Right" />
-                    <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" />
+                    <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" Margin="6,0" />
                 </DockPanel>
             </HeaderedContentControl>
 
@@ -149,12 +159,19 @@
 
             <Separator />
 
-            <HeaderedContentControl Header="Algorithm">
+            <HeaderedContentControl Header="Solution Algorithm">
                 <ComboBox ItemsSource="{Binding Solvers}" SelectedItem="{Binding SelectedSolver}" />
             </HeaderedContentControl>
 
-            <Button x:Name="Solve" Content ="Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="0,4,0,0" IsEnabled="{Binding CanSolve}"/>
+            <HeaderedContentControl Content="{Binding SolutionSequence}" />
 
+            <HeaderedContentControl>
+                <Button x:Name="Solve" Content ="Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="0,4,0,0" IsEnabled="{Binding CanSolve}"/>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <Button x:Name="ReverseSolve" Content ="Reverse Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanSolve}"/>
+            </HeaderedContentControl>
         </StackPanel>
 
         <Grid Margin="10" ClipToBounds="True">
