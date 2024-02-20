@@ -72,7 +72,12 @@
                             <DockPanel>
                                 <iconPacks:PackIconMaterial Kind="Tortoise" />
                                 <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
-                                <Slider Minimum="0" Maximum="{Binding MaximumSpeed, Mode=OneTime}" Value="{Binding AnimationSpeed, Delay=50}" Margin="6,0" />
+                                <Slider Minimum="0" Maximum="{Binding MaximumSpeed, Mode=OneTime}" Value="{Binding AnimationSpeed, Delay=50}" Margin="6,0"
+                                        ToolTipService.InitialShowDelay="0">
+                                    <Slider.ToolTip>
+                                        <ToolTip Content="{Binding AnimationDelay}" ContentStringFormat="{}{0:N0} msec" />
+                                    </Slider.ToolTip>
+                                </Slider>
                             </DockPanel>
                         </HeaderedContentControl>
                     </StackPanel>
