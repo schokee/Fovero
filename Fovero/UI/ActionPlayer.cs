@@ -35,8 +35,7 @@ public sealed class ActionPlayer : PropertyChangedBase
                 continue;
             }
 
-            // REVISIT: figure out a power series for calculating the delay
-            var delay = TimeSpan.FromMilliseconds((MaximumSpeed - AnimationSpeed) * 10);
+            var delay = TimeSpan.FromMilliseconds(AnimationDelay);
             await Task.Delay(delay);
         }
     }
