@@ -263,6 +263,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private async Task Solve(ushort start, ushort end)
     {
         VisitedCells.Clear();
+        Solution.Clear();
 
         using (BeginWork())
         {
