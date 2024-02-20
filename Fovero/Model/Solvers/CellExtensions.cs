@@ -33,10 +33,7 @@ public static class CellExtensions
             .TakeWhile(x => Equals(x.First, x.Second))
             .Count();
 
-        var retreat = from
-            .WalkEndToStart()
-            .Take(from.Count - branchedAt)
-            .Select(_ => (Movement)new Retreat());
+        var retreat = Enumerable.Repeat((Movement) new Retreat(), from.Count - branchedAt);
 
         var advance = to
             .WalkEndToStart()
