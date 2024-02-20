@@ -214,17 +214,25 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Solution}" 
-                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Location.X, Mode=OneTime}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Location.Y, Mode=OneTime}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
+            <ItemsControl ItemsSource="{Binding Solution}" >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type solvers:ICell}">
-                        <Ellipse Width="0.4" Height="0.4" Fill="DarkGreen" Margin="-0.2,-0.2,0,0" />
+                        <Line X1="{Binding Path=Location.X}"
+                              Y1="{Binding Path=Location.Y}"
+                              X2="{Binding Path=Location.X, RelativeSource={RelativeSource PreviousData}}"
+                              Y2="{Binding Path=Location.Y, RelativeSource={RelativeSource PreviousData}}"
+                              Stroke="Crimson"
+                              StrokeThickness="0.1" >
+                            <Line.Style>
+                                <Style TargetType="{x:Type Line}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Hidden" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Line.Style>
+                        </Line>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -236,7 +244,7 @@
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
-                                    <Setter Property="Stroke" Value="#F01E90FF" />
+                                    <Setter Property="Stroke" Value="#501E90FF" />
                                     <Setter Property="StrokeStartLineCap" Value="Round" />
                                     <Setter Property="StrokeEndLineCap" Value="Round" />
                                     <Style.Triggers>
