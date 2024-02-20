@@ -50,23 +50,18 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
             {
                 var layout = new MazeLayout(allWalls, random);
 
-                if (layout.IsEmpty)
-                {
-                    yield break;
-                }
-
-                var cell = layout.Last();
+                var cell = layout.RandomUnvisited;
 
                 while (!layout.IsComplete)
                 {
-                    var linkToNeighbor =
+                    var stepToNeighbor =
                         cell.UnvisitedNeighbors.FirstOrDefault() ??
-                        layout.UnvisitedCells.SelectMany(cell => cell.Neighbors).First(link => link.StartCell.HasBeenVisited);
+                        layout.VisitedCells.SelectMany(cell => cell.UnvisitedNeighbors).First();
 
-                    linkToNeighbor.EndCell.HasBeenVisited = true;
-                    yield return linkToNeighbor.Wall;
+                    cell = stepToNeighbor.End;  // Unvisited neighbor
+                    cell.HasBeenVisited = true;
 
-                    cell = linkToNeighbor.StartCell;
+                    yield return stepToNeighbor.Wall;
                 }
             }
         }
@@ -87,14 +82,9 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         get => new("Prim's (Oldest)", (allWalls, random) => GrowingTree(allWalls, random, x => x.First()));
     }
 
-    private static IEnumerable<T> GrowingTree(IEnumerable<T> allWalls, Random random, Func<IReadOnlyCollection<ICell>, ICell> selectCell)
+    private static IEnumerable<T> GrowingTree(IReadOnlyCollection<T> allWalls, Random random, Func<IReadOnlyCollection<ICell>, ICell> selectCell)
     {
         var layout = new MazeLayout(allWalls, random);
-
-        if (layout.IsEmpty)
-        {
-            yield break;
-        }
 
         var pool = new HashSet<ICell>();
         Visit(layout.RandomUnvisited);
@@ -102,16 +92,16 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         while (!layout.IsComplete)
         {
             var cell = selectCell(pool);
-            var linkToNeighbor = cell.UnvisitedNeighbors.FirstOrDefault();
+            var stepToNeighbor = cell.UnvisitedNeighbors.FirstOrDefault();
 
-            if (linkToNeighbor is null)
+            if (stepToNeighbor is null)
             {
                 pool.Remove(cell);
                 continue;
             }
 
-            Visit(linkToNeighbor.StartCell);
-            yield return linkToNeighbor.Wall;
+            Visit(stepToNeighbor.End);
+            yield return stepToNeighbor.Wall;
         }
 
         void Visit(ICell cell)
@@ -131,27 +121,22 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
             {
                 var layout = new MazeLayout(allWalls, random);
 
-                if (layout.IsEmpty)
-                {
-                    yield break;
-                }
-
                 var stack = new Stack<ICell>();
                 Visit(layout.RandomUnvisited);
 
                 while (!layout.IsComplete)
                 {
                     var cell = stack.Peek();
-                    var linkToNeighbor = cell.UnvisitedNeighbors.FirstOrDefault();
+                    var stepToNeighbor = cell.UnvisitedNeighbors.FirstOrDefault();
 
-                    if (linkToNeighbor is null)
+                    if (stepToNeighbor is null)
                     {
                         stack.Pop();
                         continue;
                     }
 
-                    Visit(linkToNeighbor.StartCell);
-                    yield return linkToNeighbor.Wall;
+                    Visit(stepToNeighbor.End);
+                    yield return stepToNeighbor.Wall;
                 }
 
                 void Visit(ICell cell)
@@ -171,14 +156,10 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
 
             static IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
             {
-                var layout = new MazeLayout(allWalls, random);
-
-                if (layout.IsEmpty)
+                var layout = new MazeLayout(allWalls, random)
                 {
-                    yield break;
-                }
-
-                layout.RandomUnvisited.HasBeenVisited = true;
+                    RandomUnvisited = { HasBeenVisited = true }
+                };
 
                 while (!layout.IsComplete)
                 {
@@ -204,10 +185,10 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
                     }
 
                     // Carve
-                    foreach (var link in path.Pairwise((cell, neighbor) => cell.Neighbors.First(x => Equals(neighbor, x.StartCell))))
+                    foreach (var step in path.Pairwise((cell, neighbor) => cell.Neighbors.First(x => Equals(neighbor, x.End))))
                     {
-                        link.EndCell.HasBeenVisited = true;
-                        yield return link.Wall;
+                        step.Start.HasBeenVisited = true;
+                        yield return step.Wall;
                     }
                 }
             }

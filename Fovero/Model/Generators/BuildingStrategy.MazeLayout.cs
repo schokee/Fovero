@@ -5,11 +5,11 @@ namespace Fovero.Model.Generators;
 
 public partial record BuildingStrategy<T>
 {
-    private interface ILink
+    private interface IStep
     {
-        ICell StartCell { get; }
+        ICell Start { get; }
 
-        ICell EndCell { get; }
+        ICell End { get; }
 
         T Wall { get; }
     }
@@ -20,44 +20,55 @@ public partial record BuildingStrategy<T>
 
         ICell RandomNeighbor { get; }
 
-        IEnumerable<ILink> Neighbors { get; }
+        IEnumerable<IStep> Neighbors { get; }
 
-        IEnumerable<ILink> UnvisitedNeighbors => Neighbors.Where(link => !link.StartCell.HasBeenVisited);
+        IEnumerable<IStep> UnvisitedNeighbors => Neighbors.Where(step => !step.End.HasBeenVisited);
+
+        IEnumerable<IStep> VisitedNeighbors => Neighbors.Where(step => step.End.HasBeenVisited);
     }
 
     private sealed class MazeLayout : IEnumerable<ICell>
     {
         private readonly Random _random;
-        private readonly ILookup<ushort, Link> _allLinks;
+        private readonly IReadOnlyDictionary<ushort, ICell> _cells;
+        private readonly ILookup<ushort, IStep> _pathToNeighbor;
         private readonly HashSet<ushort> _unvisitedCells;
 
-        public MazeLayout(IEnumerable<T> allWalls, Random random)
+        public MazeLayout(IReadOnlyCollection<T> allWalls, Random random)
         {
+            if (allWalls.Count == 0)
+            {
+                throw new ArgumentException(nameof(allWalls));
+            }
+
             _random = random;
-            _allLinks = allWalls
+            _pathToNeighbor = allWalls
                 .Shuffle(random)
                 .SelectMany(sharedWall => new[]
                 {
-                    new Link(this, sharedWall.NeighborA, sharedWall.NeighborB, sharedWall),
-                    new Link(this, sharedWall.NeighborB, sharedWall.NeighborA, sharedWall)
+                    new Step(this, sharedWall.NeighborA, sharedWall.NeighborB, sharedWall),
+                    new Step(this, sharedWall.NeighborB, sharedWall.NeighborA, sharedWall)
                 })
                 .Distinct()
-                .ToLookup(x => x.Cell);
+                .ToLookup(x => x.Cell, x => (IStep)x);
 
-            _unvisitedCells = [.._allLinks.Select(x => x.Key)];
+            _cells = _pathToNeighbor.ToDictionary(x => x.Key, x => (ICell)new Cell(this, x.Key));
+            _unvisitedCells = [.._pathToNeighbor.Select(x => x.Key)];
         }
 
-        public bool IsEmpty => !_allLinks.Any();
+        public bool IsEmpty => !_pathToNeighbor.Any();
 
         public bool IsComplete => _unvisitedCells.Count == 0;
 
-        public IEnumerable<ICell> UnvisitedCells => _unvisitedCells.Select(x => new Cell(this, x));
+        public ICell RandomUnvisited => _cells[_unvisitedCells.SelectRandom(_random)];
 
-        public ICell RandomUnvisited => new Cell(this, _unvisitedCells.SelectRandom(_random));
+        public IEnumerable<ICell> VisitedCells => _cells.Values.Where(x => x.HasBeenVisited);
+
+        public IEnumerable<ICell> UnvisitedCells => _unvisitedCells.Select(x => _cells[x]);
 
         public IEnumerator<ICell> GetEnumerator()
         {
-            return _allLinks.Select(x => new Cell(this, x.Key)).GetEnumerator();
+            return _cells.Values.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -65,22 +76,20 @@ public partial record BuildingStrategy<T>
             return GetEnumerator();
         }
 
-        private record Link(MazeLayout Layout, ushort Cell, ushort Neighbor, T Wall) : ILink
+        private record Step(MazeLayout Layout, ushort Cell, ushort Neighbor, T Wall) : IStep
         {
-            public ICell StartCell => new Cell(Layout, Cell);
+            public ICell Start => Layout._cells[Cell];
 
-            public ICell EndCell => new Cell(Layout, Neighbor);
+            public ICell End => Layout._cells[Neighbor];
 
             public T Wall { get; } = Wall;
-
-            public Link Reversed => this with { Cell = Neighbor, Neighbor = Cell };
         }
 
         private sealed class Cell(MazeLayout layout, ushort ordinal) : ICell
         {
             private readonly ushort _ordinal = ordinal;
 
-            private IEnumerable<Link> Links => layout._allLinks[_ordinal];
+            private IEnumerable<IStep> StepsToNeighbors => layout._pathToNeighbor[_ordinal];
 
             public bool HasBeenVisited
             {
@@ -98,9 +107,9 @@ public partial record BuildingStrategy<T>
                 }
             }
 
-            public ICell RandomNeighbor => Links.ElementAt(layout._random.Next(Links.Count())).EndCell;
+            public ICell RandomNeighbor => StepsToNeighbors.ElementAt(layout._random.Next(StepsToNeighbors.Count())).End;
 
-            public IEnumerable<ILink> Neighbors => Links.Select(link => link.Reversed);
+            public IEnumerable<IStep> Neighbors => StepsToNeighbors;
 
             public override string ToString()
             {
