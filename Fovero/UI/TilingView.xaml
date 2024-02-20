@@ -8,6 +8,7 @@
              xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
              xmlns:local="clr-namespace:Fovero.UI"
              xmlns:editors="clr-namespace:Fovero.UI.Editors"
+             xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
@@ -204,10 +205,26 @@
                 </Style>
             </Grid.Resources>
 
-            <ItemsControl ItemsSource="{Binding VisitedCells}">
+            <ItemsControl ItemsSource="{Binding VisitedCells}"
+                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Solution}" 
+                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type ContentPresenter}">
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Location.X, Mode=OneTime}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Location.Y, Mode=OneTime}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type solvers:ICell}">
+                        <Ellipse Width="0.4" Height="0.4" Fill="DarkGreen" Margin="-0.2,-0.2,0,0" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

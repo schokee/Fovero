@@ -126,6 +126,8 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public IObservableCollection<ICell> VisitedCells { get; } = new BindableCollection<ICell>();
 
+    public IObservableCollection<ICell> Solution { get; } = new BindableCollection<ICell>();
+
     public IReadOnlyList<ITilingEditor> AvailableTilings { get; }
 
     public ITilingEditor SelectedTiling
@@ -181,6 +183,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         Tiles.Clear();
         Walls.Clear();
+        Solution.Clear();
         VisitedCells.Clear();
 
         if (SelectedTiling is not null)
@@ -275,7 +278,22 @@ public sealed class TilingViewModel : Screen, ICanvas
 
             await SolutionSequence.Play(SelectedSolver
                 .FindPath(origin, goal)
-                .TakeWhile(_ => IsBusy), VisitedCells.Add);
+                .Prepend(Path.Empty)
+                .Pairwise((prev, next) => prev.SwitchTo(next))
+                .SelectMany(move => move)
+                .TakeWhile(_ => IsBusy), step =>
+                {
+                    switch (step)
+                    {
+                        case Retreat:
+                            Solution.RemoveAt(Solution.Count - 1);
+                            break;
+                        case Advance advance:
+                            Solution.Add(advance.NextCell);
+                            VisitedCells.Add(advance.NextCell);
+                            break;
+                    }
+                });
         }
     }
 
@@ -313,6 +331,11 @@ public sealed class TilingViewModel : Screen, ICanvas
         public override int GetHashCode()
         {
             return _tile.Ordinal.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return _tile.Ordinal.ToString();
         }
     }
 }

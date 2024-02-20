@@ -2,24 +2,48 @@
 
 public static class CellExtensions
 {
-    public static IEnumerable<ICell> Traverse(this ICell origin, Func<ICell, float> prioritise)
+    public static IEnumerable<Path> Traverse(this ICell origin, Func<ICell, float> prioritise)
     {
         var visitedCells = new HashSet<ICell>();
-        var cellsToCheck = new PriorityQueue<ICell, float>();
+        var cellsToCheck = new PriorityQueue<Path, float>();
 
-        cellsToCheck.Enqueue(origin, 0);
+        cellsToCheck.Enqueue(new Path(origin), 0);
 
         while (cellsToCheck.Count > 0)
         {
-            var cell = cellsToCheck.Dequeue();
-            visitedCells.Add(cell);
+            var step = cellsToCheck.Dequeue();
 
-            yield return cell;
-
-            foreach (var neighbor in cell.AccessibleAdjacentCells.Except(visitedCells))
+            if (visitedCells.Add(step.LastCell))
             {
-                cellsToCheck.Enqueue(neighbor, prioritise(neighbor));
+                yield return step;
+
+                foreach (var neighbor in step.LastCell.AccessibleAdjacentCells.Except(visitedCells))
+                {
+                    cellsToCheck.Enqueue(step.To(neighbor), prioritise(neighbor));
+                }
             }
         }
+    }
+
+    public static IEnumerable<Movement> SwitchTo(this Path from, Path to)
+    {
+        var branchedAt = from
+            .WalkStartToEnd()
+            .Zip(to.WalkStartToEnd())
+            .TakeWhile(x => Equals(x.First, x.Second))
+            .Count();
+
+        var retreat = from
+            .WalkEndToStart()
+            .Take(from.Count - branchedAt)
+            .Select(_ => (Movement)new Retreat());
+
+        var advance = to
+            .WalkEndToStart()
+            .Take(to.Count - branchedAt)
+            .Reverse()
+            .Select(x => new Advance(x));
+
+        return retreat.Concat(advance);
     }
 }
