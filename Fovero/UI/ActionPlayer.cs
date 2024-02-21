@@ -5,9 +5,14 @@ namespace Fovero.UI;
 
 public sealed class ActionPlayer : PropertyChangedBase
 {
+    private bool _isAnimated = true;
     private int _animationSpeed = 75; // 10ms delay
 
-    public bool IsAnimated { get; set; } = true;
+    public bool IsAnimated
+    {
+        get => _isAnimated;
+        set => Set(ref _isAnimated, value);
+    }
 
     public int AnimationSpeed
     {
