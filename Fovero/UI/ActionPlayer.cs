@@ -5,24 +5,45 @@ namespace Fovero.UI;
 
 public sealed class ActionPlayer : PropertyChangedBase
 {
-    private bool _isAnimated = true;
-    private int _animationSpeed = 75; // 10ms delay
+    private readonly ActionPlayerSettings _settings;
+
+    private System.Action SaveSettings { get; }
+
+    public ActionPlayer(string settingsKey)
+    {
+        var userSettings = Properties.Settings.Default;
+
+        _settings = userSettings[settingsKey] as ActionPlayerSettings ?? ActionPlayerSettings.Default;
+
+        SaveSettings = () =>
+        {
+            userSettings[settingsKey] = _settings;
+            userSettings.Save();
+        };
+    }
 
     public bool IsAnimated
     {
-        get => _isAnimated;
-        set => Set(ref _isAnimated, value);
+        get => _settings.IsAnimationEnabled;
+        set
+        {
+            _settings.IsAnimationEnabled = value;
+            SaveSettings();
+
+            NotifyOfPropertyChange();
+        }
     }
 
     public int AnimationSpeed
     {
-        get => _animationSpeed;
+        get => _settings.AnimationSpeed;
         set
         {
-            if (Set(ref _animationSpeed, value))
-            {
-                NotifyOfPropertyChange(nameof(AnimationDelay));
-            }
+            _settings.AnimationSpeed = value;
+            SaveSettings();
+
+            NotifyOfPropertyChange();
+            NotifyOfPropertyChange(nameof(AnimationDelay));
         }
     }
 

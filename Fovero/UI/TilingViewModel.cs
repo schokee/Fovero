@@ -4,6 +4,7 @@ using Fovero.Model.Generators;
 using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
+using Fovero.Properties;
 using Fovero.UI.Editors;
 using JetBrains.Annotations;
 using MoreLinq;
@@ -18,18 +19,26 @@ public sealed class TilingViewModel : Screen, ICanvas
     private Rectangle _bounds;
     private bool _isBusy;
     private bool _hasGenerated;
+    private bool _showHotPaths;
+    private bool _isSeedLocked;
     private int _zoom = 22;
     private int _seed;
+    private bool _showCells;
+
+    private static Settings Settings => Settings.Default;
 
     public TilingViewModel()
     {
         _seed = Random.Shared.Next();
+        _isSeedLocked = Settings.LockSeed;
+        _showHotPaths = Settings.ShowHotPaths;
+        _showCells = Settings.ShowCells;
 
         DisplayName = "Tiling";
         Solution.CollectionChanged += delegate { NotifyOfPropertyChange(nameof(CanClearSolution)); };
 
         Builders = BuildingStrategy<Wall>.All;
-        SelectedBuilder = Builders[0];
+        _selectedBuilder = Builders.FirstOrDefault(x => x.Name == Settings.Generator) ?? Builders[0];
 
         Solvers = SolvingStrategy.All;
         SelectedSolver = Solvers[0];
@@ -62,7 +71,31 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public bool ShowHotPaths { get; set; }
+    public bool ShowHotPaths
+    {
+        get => _showHotPaths;
+        set
+        {
+            if (Set(ref _showHotPaths, value))
+            {
+                Settings.ShowHotPaths = value;
+                Settings.Save();
+            }
+        }
+    }
+
+    public bool ShowCells
+    {
+        get => _showCells;
+        set
+        {
+            if (Set(ref _showCells, value))
+            {
+                Settings.ShowCells = value;
+                Settings.Save();
+            }
+        }
+    }
 
     public bool CanSolve => IsIdle && HasGenerated;
 
@@ -90,11 +123,22 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public bool IsSeedLocked { get; set; }
+    public bool IsSeedLocked
+    {
+        get => _isSeedLocked;
+        set
+        {
+            if (Set(ref _isSeedLocked, value))
+            {
+                Settings.LockSeed = value;
+                Settings.Save();
+            }
+        }
+    }
 
-    public ActionPlayer BuildingSequence { get; } = new();
+    public ActionPlayer BuildingSequence { get; } = new(nameof(BuildingSequence));
 
-    public ActionPlayer SolutionSequence { get; } = new();
+    public ActionPlayer SolutionSequence { get; } = new(nameof(SolutionSequence));
 
     public int Zoom
     {
@@ -162,7 +206,14 @@ public sealed class TilingViewModel : Screen, ICanvas
     public BuildingStrategy<Wall> SelectedBuilder
     {
         get => _selectedBuilder;
-        set => Set(ref _selectedBuilder, value);
+        set
+        {
+            if (Set(ref _selectedBuilder, value))
+            {
+                Settings.Generator = SelectedBuilder.Name;
+                Settings.Save();
+            }
+        }
     }
 
     public IReadOnlyList<SolvingStrategy> Solvers { get; }
