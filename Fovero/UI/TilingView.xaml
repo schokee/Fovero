@@ -1,0 +1,306 @@
+﻿<UserControl x:Class="Fovero.UI.TilingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
+             xmlns:local="clr-namespace:Fovero.UI"
+             xmlns:editors="clr-namespace:Fovero.UI.Editors"
+             xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
+    <DockPanel Margin="10">
+        <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Separator}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Separator}">
+                                <Rectangle Height="1" Margin="0,4" Stroke="{StaticResource MahApps.Brushes.Accent2}" />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.SliderThumb.Disabled}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+
+                <Style TargetType="{x:Type mah:NumericUpDown}" BasedOn="{StaticResource {x:Type mah:NumericUpDown}}">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="MinWidth" Value="90"/>
+                    <Setter Property="mah:TextBoxHelper.SelectAllOnFocus" Value="True"/>
+                </Style>
+
+                <Style TargetType="{x:Type HeaderedContentControl}">
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="IsTabStop" Value="False"/>
+                    <Setter Property="Margin" Value="0,0,0,8"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
+                                <DockPanel>
+                                    <ContentPresenter DockPanel.Dock="Top" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" >
+                                        <ContentPresenter.Resources>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="FontWeight" Value="DemiBold" />
+                                                <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
+                                                <Setter Property="Margin" Value="0,0,0,2" />
+                                            </Style>
+                                        </ContentPresenter.Resources>
+                                    </ContentPresenter>
+                                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                                </DockPanel>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <DataTemplate DataType="{x:Type local:ActionPlayer}">
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox Content="Animate" IsChecked="{Binding IsAnimated}"/>
+                        <HeaderedContentControl IsEnabled="{Binding IsAnimated}" Margin="0,8,0,0">
+                            <DockPanel>
+                                <iconPacks:PackIconMaterial Kind="Tortoise" />
+                                <iconPacks:PackIconMaterial Kind="Rabbit" DockPanel.Dock="Right" />
+                                <Slider Minimum="0" Maximum="{Binding MaximumSpeed, Mode=OneTime}" Value="{Binding AnimationSpeed, Delay=50}" Margin="6,0"
+                                        ToolTipService.InitialShowDelay="0">
+                                    <Slider.ToolTip>
+                                        <ToolTip Content="{Binding AnimationDelay}" ContentStringFormat="{}{0:N0} msec" />
+                                    </Slider.ToolTip>
+                                </Slider>
+                            </DockPanel>
+                        </HeaderedContentControl>
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type editors:RegularTilingEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Columns" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Columns, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type editors:CircularTilingEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Rings" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rings, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Segments" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Segments, Delay=200}" Minimum="3" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <CheckBox Content="Curved" IsChecked="{Binding Curved}" />
+                        <CheckBox Content="Adaptive" IsChecked="{Binding Adaptive}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
+                    <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
+                        <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                    </HeaderedContentControl>
+                </DataTemplate>
+            </StackPanel.Resources>
+
+            <HeaderedContentControl Header="Generation Algorithm">
+                <ComboBox ItemsSource="{Binding Builders}" SelectedItem="{Binding SelectedBuilder}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Seed" IsEnabled="{Binding IsIdle}">
+                <StackPanel Orientation="Vertical">
+                    <mah:NumericUpDown Value="{Binding Seed, Delay=200, Mode=TwoWay}" />
+                    <CheckBox IsChecked="{Binding IsSeedLocked}" Content="Lock" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Content="{Binding BuildingSequence}" />
+
+            <HeaderedContentControl>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="80" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition MinWidth="80" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding IsIdle}" />
+                    <Button x:Name="Reset" Grid.Column="2" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" />
+                </Grid>
+            </HeaderedContentControl>
+
+            <Separator />
+
+            <HeaderedContentControl>
+                <DockPanel>
+                    <Label Content="Zoom" />
+                    <iconPacks:PackIconMaterial Kind="MagnifyMinusOutline" />
+                    <iconPacks:PackIconMaterial Kind="MagnifyPlusOutline" DockPanel.Dock="Right" />
+                    <Slider Minimum="15" Maximum="60" Value="{Binding Zoom, Delay=50, Mode=TwoWay}" Margin="6,0" />
+                </DockPanel>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <CheckBox x:Name="ShowCells" Content="Show Cells" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Format">
+                <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" DisplayMemberPath="Name" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center"
+                                Focusable="False" IsTabStop="False"/>
+            </HeaderedContentControl>
+
+            <Separator />
+
+            <HeaderedContentControl Header="Solution Algorithm">
+                <ComboBox ItemsSource="{Binding Solvers}" SelectedItem="{Binding SelectedSolver}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <CheckBox x:Name="ShowHotPaths" Content="Show Hot Paths" IsEnabled="{Binding IsIdle}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Content="{Binding SolutionSequence}" />
+
+            <HeaderedContentControl>
+                <Button x:Name="Solve" Content ="Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="0,4,0,0" IsEnabled="{Binding CanSolve}"/>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <Button x:Name="ReverseSolve" Content ="Reverse Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanSolve}"/>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <Button x:Name="ClearSolution" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanClearSolution}"/>
+            </HeaderedContentControl>
+        </StackPanel>
+
+        <Grid Margin="10" ClipToBounds="True">
+            <Grid.Resources>
+                <Style TargetType="{x:Type ItemsControl}">
+                    <Setter Property="Focusable" Value="False" />
+                    <Setter Property="IsTabStop" Value="False" />
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Height" Value="{Binding Path=Bounds.Height}" />
+                    <Setter Property="Width" Value="{Binding Path=Bounds.Width}" />
+                    <Setter Property="LayoutTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="ItemsPanel">
+                        <Setter.Value>
+                            <ItemsPanelTemplate>
+                                <Canvas IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
+
+            <ItemsControl ItemsSource="{Binding VisitedCells}"
+                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Solution}"
+                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type solvers:ICell}">
+                        <Line X1="{Binding Path=Location.X, Mode=OneTime}"
+                              Y1="{Binding Path=Location.Y, Mode=OneTime}"
+                              X2="{Binding Path=Location.X, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
+                              Y2="{Binding Path=Location.Y, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
+                              Stroke="Crimson"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              StrokeThickness="0.12" >
+                            <Line.Style>
+                                <Style TargetType="{x:Type Line}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Hidden" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Line.Style>
+                        </Line>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Walls}" UseLayoutRounding="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:Wall}">
+                        <Path Data="{Binding Geometry, Mode=OneTime}">
+                            <Path.Style>
+                                <Style TargetType="{x:Type Path}">
+                                    <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
+                                    <Setter Property="Stroke" Value="#F01E90FF" />
+                                    <Setter Property="StrokeStartLineCap" Value="Round" />
+                                    <Setter Property="StrokeEndLineCap" Value="Round" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsShared, Mode=OneTime}" Value="False">
+                                            <Setter Property="Stroke" Value="DimGray" />
+                                            <Setter Property="Canvas.ZIndex" Value="10" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                                            <Setter Property="Stroke" Value="DarkOrange" />
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard Name="FadeEffect">
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.7"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <StopStoryboard BeginStoryboardName="FadeEffect"/>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.35"
+                          Visibility="{Binding IsChecked, ElementName=ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type ContentPresenter}">
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Bounds.Top, Mode=OneTime}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type tiling:ITile}">
+                        <Grid Width="{Binding Path=Bounds.Width, Mode=OneTime}" Height="{Binding Path=Bounds.Height, Mode=OneTime}">
+                            <Rectangle StrokeThickness="0.01" Stroke="Crimson"/>
+                            <TextBlock Text="{Binding Ordinal}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="0.35" Foreground="Gainsboro"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </DockPanel>
+</UserControl>
