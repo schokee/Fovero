@@ -1,41 +1,61 @@
-﻿namespace Fovero.Model.Solvers;
+﻿using System.Collections;
 
-public record Path
+namespace Fovero.Model.Solvers;
+
+internal sealed class Path<T> : IReadOnlyCollection<T>
 {
-    public static Path Empty { get; } = new(default, null, 0);
+    private readonly Path<T> _prologue;
+    private readonly Lazy<IReadOnlyCollection<T>> _collection;
 
-    public Path(ICell lastCell) : this(lastCell, null, 1)
+    public static Path<T> Empty { get; } = new(default);
+
+    public Path(T last) : this(Empty, last)
     {
     }
 
-    private Path(ICell lastCell, Path precedingSteps, int count)
+    private Path(Path<T> prologue, T last)
     {
-        LastCell = lastCell;
-        PrecedingSteps = precedingSteps;
-        Count = count;
+        _prologue = prologue;
+        _collection = new Lazy<IReadOnlyCollection<T>>(ToArray);
+
+        Count = prologue?.Count + 1 ?? 0;
+        Last = last;
     }
-
-    public ICell LastCell { get; }
-
-    public Path PrecedingSteps { get; }
 
     public int Count { get;  }
 
-    public Path To(ICell lastCell)
+    public T Last { get; }
+
+    public Path<T> To(T last)
     {
-        return new Path(lastCell, this, Count + 1);
+        return new Path<T>(this, last);
     }
 
-    public IEnumerable<ICell> WalkStartToEnd()
+    public IEnumerator<T> GetEnumerator()
     {
-        return WalkEndToStart().Reverse();
+        return _collection.Value.GetEnumerator();
     }
 
-    public IEnumerable<ICell> WalkEndToStart()
+    IEnumerator IEnumerable.GetEnumerator()
     {
-        for (var step = this; step?.Count > 0; step = step.PrecedingSteps)
+        return GetEnumerator();
+    }
+
+    public static implicit operator Path<T>(T item)
+    {
+        return new Path<T>(item);
+    }
+
+    private T[] ToArray()
+    {
+        var result = new T[Count];
+        var i = Count;
+
+        for (var path = this; --i >= 0 && path is not null; path = path._prologue)
         {
-            yield return step.LastCell;
+            result[i] = path.Last;
         }
+
+        return result;
     }
 }

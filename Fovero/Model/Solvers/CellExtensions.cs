@@ -1,49 +1,39 @@
 ﻿namespace Fovero.Model.Solvers;
 
-public static class CellExtensions
+internal static class CellExtensions
 {
-    public static IEnumerable<Path> Traverse(this ICell origin, Func<ICell, float> prioritise)
+    public static IEnumerable<Path<ICell>> Traverse(this ICell origin, Func<ICell, float> prioritise)
     {
         var visitedCells = new HashSet<ICell>();
-        var cellsToCheck = new PriorityQueue<Path, float>();
+        var pathsToCheck = new PriorityQueue<Path<ICell>, float>();
 
-        cellsToCheck.Enqueue(new Path(origin), 0);
+        pathsToCheck.Enqueue(new Path<ICell>(origin), 0);
 
-        while (cellsToCheck.Count > 0)
+        while (pathsToCheck.Count > 0)
         {
-            var step = cellsToCheck.Dequeue();
+            var path = pathsToCheck.Dequeue();
 
-            if (visitedCells.Add(step.LastCell))
+            if (visitedCells.Add(path.Last))
             {
-                yield return step;
+                yield return path;
 
-                foreach (var neighbor in step.LastCell.AccessibleAdjacentCells.Except(visitedCells))
+                foreach (var neighbor in path.Last.AccessibleAdjacentCells.Except(visitedCells))
                 {
-                    cellsToCheck.Enqueue(step.To(neighbor), prioritise(neighbor));
+                    pathsToCheck.Enqueue(path.To(neighbor), prioritise(neighbor));
                 }
             }
         }
     }
 
-    public static IEnumerable<Movement> SwitchTo(this Path from, Path to)
+    public static IEnumerable<CollectionChange> SwitchTo<T>(this IReadOnlyCollection<T> from, IReadOnlyCollection<T> to)
     {
         var branchedAt = from
-            .WalkStartToEnd()
-            .Zip(to.WalkStartToEnd())
+            .Zip(to)
             .TakeWhile(x => Equals(x.First, x.Second))
             .Count();
 
-        var retreat = from
-            .WalkEndToStart()
-            .Take(from.Count - branchedAt)
-            .Select(_ => (Movement)new Retreat());
-
-        var advance = to
-            .WalkEndToStart()
-            .Take(to.Count - branchedAt)
-            .Reverse()
-            .Select(x => new Advance(x));
-
-        return retreat.Concat(advance);
+        return Enumerable
+            .Repeat((CollectionChange)new RemoveLast(), from.Count - branchedAt)
+            .Concat(to.Skip(branchedAt).Select(item => new Append<T>(item)));
     }
 }

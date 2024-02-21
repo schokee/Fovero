@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using JetBrains.Annotations;
 
 namespace Fovero.UI;
 
@@ -20,6 +21,7 @@ public sealed class ActionPlayer : PropertyChangedBase
         }
     }
 
+    [UsedImplicitly]
     public int MaximumSpeed { get; } = 100;
 
     public double AnimationDelay => AnimationSpeed == MaximumSpeed ? 0 : Math.Pow(10, CalculateExponent());
@@ -30,13 +32,10 @@ public sealed class ActionPlayer : PropertyChangedBase
         {
             doWork(item);
 
-            if (!IsAnimated)
+            if (IsAnimated && AnimationDelay > 0)
             {
-                continue;
+                await Task.Delay(TimeSpan.FromMilliseconds(AnimationDelay));
             }
-
-            var delay = TimeSpan.FromMilliseconds(AnimationDelay);
-            await Task.Delay(delay);
         }
     }
 

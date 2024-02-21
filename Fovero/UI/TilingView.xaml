@@ -170,6 +170,10 @@
                 <ComboBox ItemsSource="{Binding Solvers}" SelectedItem="{Binding SelectedSolver}" />
             </HeaderedContentControl>
 
+            <HeaderedContentControl>
+                <CheckBox x:Name="ShowHotPaths" Content="Show Hot Paths" IsEnabled="{Binding IsIdle}" />
+            </HeaderedContentControl>
+
             <HeaderedContentControl Content="{Binding SolutionSequence}" />
 
             <HeaderedContentControl>
@@ -178,6 +182,10 @@
 
             <HeaderedContentControl>
                 <Button x:Name="ReverseSolve" Content ="Reverse Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanSolve}"/>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <Button x:Name="ClearSolution" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanClearSolution}"/>
             </HeaderedContentControl>
         </StackPanel>
 
@@ -214,15 +222,18 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Solution}" >
+            <ItemsControl ItemsSource="{Binding Solution}"
+                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type solvers:ICell}">
-                        <Line X1="{Binding Path=Location.X}"
-                              Y1="{Binding Path=Location.Y}"
-                              X2="{Binding Path=Location.X, RelativeSource={RelativeSource PreviousData}}"
-                              Y2="{Binding Path=Location.Y, RelativeSource={RelativeSource PreviousData}}"
+                        <Line X1="{Binding Path=Location.X, Mode=OneTime}"
+                              Y1="{Binding Path=Location.Y, Mode=OneTime}"
+                              X2="{Binding Path=Location.X, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
+                              Y2="{Binding Path=Location.Y, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
                               Stroke="Crimson"
-                              StrokeThickness="0.1" >
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              StrokeThickness="0.12" >
                             <Line.Style>
                                 <Style TargetType="{x:Type Line}">
                                     <Style.Triggers>
@@ -244,7 +255,7 @@
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
-                                    <Setter Property="Stroke" Value="#501E90FF" />
+                                    <Setter Property="Stroke" Value="#F01E90FF" />
                                     <Setter Property="StrokeStartLineCap" Value="Round" />
                                     <Setter Property="StrokeEndLineCap" Value="Round" />
                                     <Style.Triggers>

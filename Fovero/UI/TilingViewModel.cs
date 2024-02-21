@@ -26,6 +26,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         _seed = Random.Shared.Next();
 
         DisplayName = "Tiling";
+        Solution.CollectionChanged += delegate { NotifyOfPropertyChange(nameof(CanClearSolution)); };
 
         Builders = BuildingStrategy<Wall>.All;
         SelectedBuilder = Builders[0];
@@ -60,6 +61,8 @@ public sealed class TilingViewModel : Screen, ICanvas
             }
         }
     }
+
+    public bool ShowHotPaths { get; set; }
 
     public bool CanSolve => IsIdle && HasGenerated;
 
@@ -170,21 +173,16 @@ public sealed class TilingViewModel : Screen, ICanvas
         set => Set(ref _selectedSolver, value);
     }
 
-    private void OnFormatChanged()
-    {
-        Reset();
-    }
-
     [UsedImplicitly]
     public void Reset()
     {
         IsBusy = false;
         HasGenerated = false;
 
+        ClearSolution();
+
         Tiles.Clear();
         Walls.Clear();
-        Solution.Clear();
-        VisitedCells.Clear();
 
         if (SelectedTiling is not null)
         {
@@ -247,6 +245,14 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
+    public bool CanClearSolution => Solution.Count > 0;
+
+    public void ClearSolution()
+    {
+        VisitedCells.Clear();
+        Solution.Clear();
+    }
+
     [UsedImplicitly]
     public Task Solve()
     {
@@ -262,8 +268,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     [UsedImplicitly]
     private async Task Solve(ushort start, ushort end)
     {
-        VisitedCells.Clear();
-        Solution.Clear();
+        ClearSolution();
 
         using (BeginWork())
         {
@@ -276,22 +281,26 @@ public sealed class TilingViewModel : Screen, ICanvas
 
             var origin = new Cell(Tiles[start], pathways);
             var goal = new Cell(Tiles[end], pathways);
+            var trackVisit = TrackingRule;
 
             await SolutionSequence.Play(SelectedSolver
                 .FindPath(origin, goal)
-                .Prepend(Path.Empty)
+                .Prepend(Array.Empty<ICell>())
                 .Pairwise((prev, next) => prev.SwitchTo(next))
                 .SelectMany(move => move)
-                .TakeWhile(_ => IsBusy), step =>
+                .TakeWhile(_ => IsBusy), change =>
                 {
-                    switch (step)
+                    switch (change)
                     {
-                        case Retreat:
+                        case RemoveLast:
                             Solution.RemoveAt(Solution.Count - 1);
                             break;
-                        case Advance advance:
-                            Solution.Add(advance.NextCell);
-                            VisitedCells.Add(advance.NextCell);
+                        case Append<ICell> append:
+                            Solution.Add(append.Item);
+                            if (trackVisit(append.Item))
+                            {
+                                VisitedCells.Add(append.Item);
+                            }
                             break;
                     }
                 });
@@ -300,10 +309,29 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     private IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared).Distinct();
 
+    private Predicate<ICell> TrackingRule
+    {
+        get
+        {
+            if (ShowHotPaths)
+            {
+                return _ => true;
+            }
+
+            var visitedCells = new HashSet<ICell>();
+            return visitedCells.Add;
+        }
+    }
+
     private IDisposable BeginWork()
     {
         IsBusy = true;
         return Disposable.Create(() => IsBusy = false);
+    }
+
+    private void OnFormatChanged()
+    {
+        Reset();
     }
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
