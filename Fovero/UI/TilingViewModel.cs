@@ -27,6 +27,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         DisplayName = "Tiling";
         Solution.CollectionChanged += delegate { NotifyOfPropertyChange(nameof(CanClearSolution)); };
+        SearchEnds.CollectionChanged += delegate { NotifyOfPropertyChange( nameof(CanSolve)); };
 
         Builders = BuildingStrategy<Wall>.All;
         SelectedBuilder = Builders[0];
@@ -64,7 +65,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public bool ShowHotPaths { get; set; }
 
-    public bool CanSolve => IsIdle && HasGenerated;
+    public bool CanSolve => IsIdle && HasGenerated && SearchEnds.Count == 2;
 
     public bool HasGenerated
     {
@@ -85,7 +86,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         {
             if (Set(ref _seed, value))
             {
-                OnFormatChanged();
+                Reset();
             }
         }
     }
@@ -124,6 +125,8 @@ public sealed class TilingViewModel : Screen, ICanvas
     #endregion
 
     public IObservableCollection<ITile> Tiles { get; } = new BindableCollection<ITile>();
+
+    public IObservableCollection<ITile> SearchEnds { get; } = new BindableCollection<ITile>();
 
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
 
@@ -256,17 +259,17 @@ public sealed class TilingViewModel : Screen, ICanvas
     [UsedImplicitly]
     public Task Solve()
     {
-        return Solve(Tiles.First().Ordinal, Tiles.Last().Ordinal);
+        return Solve(SearchEnds[0], SearchEnds[1]);
     }
 
     [UsedImplicitly]
     public Task ReverseSolve()
     {
-        return Solve(Tiles.Last().Ordinal, Tiles.First().Ordinal);
+        return Solve(SearchEnds[1], SearchEnds[0]);
     }
 
     [UsedImplicitly]
-    private async Task Solve(ushort start, ushort end)
+    private async Task Solve(ITile from, ITile to)
     {
         ClearSolution();
 
@@ -279,8 +282,8 @@ public sealed class TilingViewModel : Screen, ICanvas
                 .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
                 .ToLookup(x => x.From, x => x.To);
 
-            var origin = new Cell(Tiles[start], pathways);
-            var goal = new Cell(Tiles[end], pathways);
+            var origin = new Cell(Tiles[from.Ordinal], pathways);
+            var goal = new Cell(Tiles[to.Ordinal], pathways);
             var trackVisit = TrackingRule;
 
             await SolutionSequence.Play(SelectedSolver
@@ -304,6 +307,28 @@ public sealed class TilingViewModel : Screen, ICanvas
                             break;
                     }
                 });
+        }
+    }
+
+    [UsedImplicitly]
+    public void TileClicked(ITile tile)
+    {
+        if (IsIdle)
+        {
+            var existing = SearchEnds.IndexOf(tile);
+
+            if (existing == 0)
+            {
+                return;
+            }
+
+            if (existing == 1 || SearchEnds.Count > 1)
+            {
+                SearchEnds.RemoveAt(1);
+            }
+
+            SearchEnds.Insert(0, tile);
+            ClearSolution();
         }
     }
 
@@ -332,6 +357,14 @@ public sealed class TilingViewModel : Screen, ICanvas
     private void OnFormatChanged()
     {
         Reset();
+
+        SearchEnds.Clear();
+
+        if (Tiles.Count > 1)
+        {
+            SearchEnds.Add(Tiles.First());
+            SearchEnds.Add(Tiles.Last());
+        }
     }
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
@@ -343,14 +376,7 @@ public sealed class TilingViewModel : Screen, ICanvas
         public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
 
         [UsedImplicitly]
-        public string PathData
-        {
-            get
-            {
-                var path = string.Join(" ", _tile.Edges.Select((edge, n) => n == 0 ? edge.PathData : edge.DrawData));
-                return path;
-            }
-        }
+        public string PathData => _tile.PathData;
 
         public override bool Equals(object obj)
         {

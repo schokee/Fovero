@@ -11,4 +11,6 @@ public interface ITile
     Rectangle Bounds { get; }
 
     IEnumerable<IEdge> Edges { get; }
+
+    public string PathData => string.Join(" ", Edges.Select((edge, n) => n == 0 ? edge.PathData : edge.DrawData));
 }

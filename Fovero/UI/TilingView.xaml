@@ -5,10 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:cm="http://caliburnmicro.com"
+             xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
              xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
              xmlns:local="clr-namespace:Fovero.UI"
              xmlns:editors="clr-namespace:Fovero.UI.Editors"
-             xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
@@ -191,8 +192,11 @@
 
         <Grid Margin="10" ClipToBounds="True">
             <Grid.Resources>
+                <local:TileToPathConverter x:Key="TileToPathConverter" />
+
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="Focusable" Value="False" />
+                    <Setter Property="IsHitTestVisible" Value="False" />
                     <Setter Property="IsTabStop" Value="False" />
                     <Setter Property="HorizontalAlignment" Value="Center" />
                     <Setter Property="VerticalAlignment" Value="Center" />
@@ -200,7 +204,7 @@
                     <Setter Property="Width" Value="{Binding Path=Bounds.Width}" />
                     <Setter Property="LayoutTransform">
                         <Setter.Value>
-                            <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
+                            <ScaleTransform ScaleX="{Binding Scaling}" ScaleY="{Binding Scaling}" />
                         </Setter.Value>
                     </Setter>
                     <Setter Property="ItemsPanel">
@@ -211,6 +215,11 @@
                         </Setter.Value>
                     </Setter>
                 </Style>
+
+                <Style x:Key="TilePresenterStyle" TargetType="{x:Type ContentPresenter}">
+                    <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Path=Bounds.Top, Mode=OneTime}"/>
+                </Style>
             </Grid.Resources>
 
             <ItemsControl ItemsSource="{Binding VisitedCells}"
@@ -218,6 +227,30 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl x:Name="Bg" ItemsSource="{Binding Tiles}" IsHitTestVisible="True">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type tiling:ITile}">
+                        <Path SnapsToDevicePixels="False" Data="{Binding Converter={StaticResource TileToPathConverter}, Mode=OneTime}" Fill="Transparent"
+                              cm:Message.Attach="[Event MouseDown]=[Action TileClicked($dataContext)]"
+                              cm:Action.TargetWithoutContext="{Binding DataContext, ElementName=Bg, Mode=OneTime}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding SearchEnds}">
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type ContentPresenter}">
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Center.X, Mode=OneTime}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Center.Y, Mode=OneTime}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Width="0.4" Height="0.4" Margin="-0.2,-0.2,0,0" Fill="Crimson"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -284,14 +317,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.35"
+            <ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.35" ItemContainerStyle="{StaticResource TilePresenterStyle}"
                           Visibility="{Binding IsChecked, ElementName=ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Bounds.Top, Mode=OneTime}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type tiling:ITile}">
                         <Grid Width="{Binding Path=Bounds.Width, Mode=OneTime}" Height="{Binding Path=Bounds.Height, Mode=OneTime}">
