@@ -242,15 +242,9 @@
             </ItemsControl>
 
             <ItemsControl ItemsSource="{Binding SearchEnds}">
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Center.X, Mode=OneTime}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Center.Y, Mode=OneTime}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Ellipse Width="0.4" Height="0.4" Margin="-0.2,-0.2,0,0" Fill="Crimson"/>
+                    <DataTemplate DataType="{x:Type local:Marker}">
+                        <Path Data="{Binding Path}" Fill="Crimson"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

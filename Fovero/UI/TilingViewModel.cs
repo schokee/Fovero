@@ -126,7 +126,7 @@ public sealed class TilingViewModel : Screen, ICanvas
 
     public IObservableCollection<ITile> Tiles { get; } = new BindableCollection<ITile>();
 
-    public IObservableCollection<ITile> SearchEnds { get; } = new BindableCollection<ITile>();
+    public IObservableCollection<Marker> SearchEnds { get; } = new BindableCollection<Marker>();
 
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
 
@@ -269,7 +269,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     }
 
     [UsedImplicitly]
-    private async Task Solve(ITile from, ITile to)
+    private async Task Solve(Marker from, Marker to)
     {
         ClearSolution();
 
@@ -282,8 +282,8 @@ public sealed class TilingViewModel : Screen, ICanvas
                 .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
                 .ToLookup(x => x.From, x => x.To);
 
-            var origin = new Cell(Tiles[from.Ordinal], pathways);
-            var goal = new Cell(Tiles[to.Ordinal], pathways);
+            var origin = new Cell(Tiles[from.Tile], pathways);
+            var goal = new Cell(Tiles[to.Tile], pathways);
             var trackVisit = TrackingRule;
 
             await SolutionSequence.Play(SelectedSolver
@@ -315,19 +315,20 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         if (IsIdle)
         {
-            var existing = SearchEnds.IndexOf(tile);
+            var currentStart = SearchEnds.FirstOrDefault();
 
-            if (existing == 0)
+            if (currentStart is not null)
             {
-                return;
+                if (currentStart.Tile == tile.Ordinal)
+                {
+                    return;
+                }
+
+                SearchEnds[0] = EndMarker(Tiles[currentStart.Tile]);
+                SearchEnds.RemoveRange(SearchEnds.Skip(1));
             }
 
-            if (existing == 1 || SearchEnds.Count > 1)
-            {
-                SearchEnds.RemoveAt(1);
-            }
-
-            SearchEnds.Insert(0, tile);
+            SearchEnds.Insert(0, StartMarker(tile));
             ClearSolution();
         }
     }
@@ -362,9 +363,30 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         if (Tiles.Count > 1)
         {
-            SearchEnds.Add(Tiles.First());
-            SearchEnds.Add(Tiles.Last());
+            SearchEnds.Add(StartMarker(Tiles.First()));
+            SearchEnds.Add(EndMarker(Tiles.Last()));
         }
+    }
+
+    public static Marker StartMarker(ITile tile)
+    {
+        var bounds = MarkerBounds(tile);
+        var radius = bounds.Width / 2;
+
+        return new Marker(tile.Ordinal, $"M {bounds.Left} {tile.Center.Y} a {radius} {radius} 0 0 0 {bounds.Width} 0 a {radius} {radius} 0 0 0 {-bounds.Width} 0 z");
+    }
+
+    public static Marker EndMarker(ITile tile)
+    {
+        var bounds = MarkerBounds(tile);
+        var radius = bounds.Width / 2;
+
+        return new Marker(tile.Ordinal, $"M {bounds.Center.X} {bounds.Top} l {radius} {radius} l {-radius} {radius} l {-radius} {-radius} z");
+    }
+
+    private static Rectangle MarkerBounds(ITile tile)
+    {
+        return new Rectangle(0, 0, 0.45f, 0.45f).CenteredAt(tile.Center);
     }
 
     private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
