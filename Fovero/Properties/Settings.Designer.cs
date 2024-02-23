@@ -96,5 +96,17 @@ namespace Fovero.Properties {
                 this["ShowHotPaths"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowVisitedCells {
+            get {
+                return ((bool)(this["ShowVisitedCells"]));
+            }
+            set {
+                this["ShowVisitedCells"] = value;
+            }
+        }
     }
 }

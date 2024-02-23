@@ -19,6 +19,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private Rectangle _bounds;
     private bool _isBusy;
     private bool _hasGenerated;
+    private bool _showVisitedCells;
     private bool _showHotPaths;
     private bool _isSeedLocked;
     private int _zoom = 22;
@@ -31,6 +32,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         _seed = Random.Shared.Next();
         _isSeedLocked = Settings.LockSeed;
+        _showVisitedCells = Settings.ShowVisitedCells;
         _showHotPaths = Settings.ShowHotPaths;
         _showCells = Settings.ShowCells;
 
@@ -67,6 +69,21 @@ public sealed class TilingViewModel : Screen, ICanvas
             {
                 NotifyOfPropertyChange(nameof(IsIdle));
                 NotifyOfPropertyChange(nameof(CanSolve));
+            }
+        }
+    }
+
+    public bool ShowVisitedCells
+    {
+        get => _showVisitedCells;
+        set
+        {
+            if (Set(ref _showVisitedCells, value))
+            {
+                NotifyOfPropertyChange(nameof(ShowHotPaths));
+
+                Settings.ShowVisitedCells = value;
+                Settings.Save();
             }
         }
     }
@@ -172,6 +189,8 @@ public sealed class TilingViewModel : Screen, ICanvas
     public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
 
     public IObservableCollection<ICell> VisitedCells { get; } = new BindableCollection<ICell>();
+
+    public IObservableCollection<ICell> HotPaths { get; } = new BindableCollection<ICell>();
 
     public IObservableCollection<ICell> Solution { get; } = new BindableCollection<ICell>();
 
@@ -301,6 +320,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     public void ClearSolution()
     {
         VisitedCells.Clear();
+        HotPaths.Clear();
         Solution.Clear();
     }
 
@@ -348,10 +368,7 @@ public sealed class TilingViewModel : Screen, ICanvas
                             break;
                         case Append<ICell> append:
                             Solution.Add(append.Item);
-                            if (trackVisit(append.Item))
-                            {
-                                VisitedCells.Add(append.Item);
-                            }
+                            (trackVisit(append.Item) ? VisitedCells : HotPaths).Add(append.Item);
                             break;
                     }
                 });
@@ -364,11 +381,6 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         get
         {
-            if (ShowHotPaths)
-            {
-                return _ => true;
-            }
-
             var visitedCells = new HashSet<ICell>();
             return visitedCells.Add;
         }

@@ -9,6 +9,7 @@
              xmlns:local="clr-namespace:Fovero.UI"
              xmlns:editors="clr-namespace:Fovero.UI.Editors"
              xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
+             xmlns:converters="clr-namespace:Fovero.UI.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
@@ -171,7 +172,11 @@
             </HeaderedContentControl>
 
             <HeaderedContentControl>
-                <CheckBox x:Name="ShowHotPaths" Content="Show Hot Paths" IsEnabled="{Binding IsIdle}" />
+                <CheckBox x:Name="ShowVisitedCells" Content="Show Visited Cells" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <CheckBox x:Name="ShowHotPaths" Content="Show Hot Paths" IsEnabled="{Binding ShowVisitedCells, Mode=OneWay}" />
             </HeaderedContentControl>
 
             <HeaderedContentControl Content="{Binding SolutionSequence}" />
@@ -214,7 +219,7 @@
             </Grid.Resources>
 
             <ItemsControl ItemsSource="{Binding VisitedCells}"
-                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                          Visibility="{Binding ShowVisitedCells, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
@@ -222,8 +227,21 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Solution}"
-                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ItemsControl ItemsSource="{Binding HotPaths}" >
+                <ItemsControl.Visibility>
+                    <MultiBinding Converter="{converters:ObjectToVisibilityConverter}" Mode="OneWay" >
+                        <Binding Path="ShowVisitedCells" />
+                        <Binding Path="ShowHotPaths" />
+                    </MultiBinding>
+                </ItemsControl.Visibility>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Solution}" >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type solvers:ICell}">
                         <Line X1="{Binding Path=Location.X, Mode=OneTime}"
@@ -233,17 +251,8 @@
                               Stroke="Crimson"
                               StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round"
-                              StrokeThickness="0.12" >
-                            <Line.Style>
-                                <Style TargetType="{x:Type Line}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Hidden" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Line.Style>
-                        </Line>
+                              StrokeThickness="0.12"
+                              Visibility="{Binding RelativeSource={RelativeSource PreviousData}, Converter={converters:ObjectToVisibilityConverter}}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -285,7 +294,7 @@
             </ItemsControl>
 
             <ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.35"
-                          Visibility="{Binding IsChecked, ElementName=ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                          Visibility="{Binding ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
                 <ItemsControl.ItemContainerStyle>
                     <Style TargetType="{x:Type ContentPresenter}">
                         <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
