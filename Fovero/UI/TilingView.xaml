@@ -188,6 +188,10 @@
             <HeaderedContentControl>
                 <Button x:Name="ClearSolution" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanClearSolution}"/>
             </HeaderedContentControl>
+
+            <HeaderedContentControl>
+                <CheckBox x:Name="UserSolve" Content="User Solve" IsEnabled="{Binding IsIdle}" />
+            </HeaderedContentControl>
         </StackPanel>
 
         <Grid Margin="10" ClipToBounds="True">
@@ -235,7 +239,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type tiling:ITile}">
                         <Path SnapsToDevicePixels="False" Data="{Binding Converter={StaticResource TileToPathConverter}, Mode=OneTime}" Fill="Transparent"
-                              cm:Message.Attach="[Event MouseDown]=[Action TileClicked($dataContext)]"
+                              cm:Message.Attach="[Event MouseDown]=[Action TileClicked($dataContext)];[Event MouseEnter]=[Action TileHovered($dataContext)]"
                               cm:Action.TargetWithoutContext="{Binding DataContext, ElementName=Bg, Mode=OneTime}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

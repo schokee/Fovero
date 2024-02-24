@@ -10,4 +10,6 @@ public interface ICell
     Point2D Location { get; }
 
     IEnumerable<ICell> AccessibleAdjacentCells { get; }
+
+    ushort Ordinal { get; }
 }

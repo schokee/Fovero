@@ -20,6 +20,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private bool _hasGenerated;
     private int _zoom = 22;
     private int _seed;
+    private bool _userSolve;
 
     public TilingViewModel()
     {
@@ -275,16 +276,10 @@ public sealed class TilingViewModel : Screen, ICanvas
 
         using (BeginWork())
         {
-            var tileLookup = Tiles.ToDictionary(x => x.Ordinal);
-
-            var pathways = Walls
-                .Where(x => x.IsOpen)
-                .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
-                .ToLookup(x => x.From, x => x.To);
+            var pathways = GetPathways();
 
             var origin = new Cell(Tiles[from.Tile], pathways);
             var goal = new Cell(Tiles[to.Tile], pathways);
-            var trackVisit = TrackingRule;
 
             await SolutionSequence.Play(SelectedSolver
                 .FindPath(origin, goal)
@@ -299,15 +294,22 @@ public sealed class TilingViewModel : Screen, ICanvas
                             Solution.RemoveAt(Solution.Count - 1);
                             break;
                         case Append<ICell> append:
-                            Solution.Add(append.Item);
-                            if (trackVisit(append.Item))
-                            {
-                                VisitedCells.Add(append.Item);
-                            }
+                            AddCellToSolution(append.Item, TrackingRule);
                             break;
                     }
                 });
         }
+    }
+
+    private ILookup<ITile, ITile> GetPathways()
+    {
+        var tileLookup = Tiles.ToDictionary(x => x.Ordinal);
+
+        var pathways = Walls
+            .Where(x => x.IsOpen)
+            .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
+            .ToLookup(x => x.From, x => x.To);
+        return pathways;
     }
 
     [UsedImplicitly]
@@ -330,6 +332,44 @@ public sealed class TilingViewModel : Screen, ICanvas
 
             SearchEnds.Insert(0, StartMarker(tile));
             ClearSolution();
+        }
+    }
+
+    public bool UserSolve
+    {
+        get => _userSolve;
+        set
+        {
+            if (Set(ref _userSolve, value) && value)
+            {
+                ClearSolution();
+                AddCellToSolution(new Cell(Tiles[SearchEnds[0].Tile], GetPathways()), _ => true);
+            }
+        }
+    }
+
+    [UsedImplicitly]
+    public void TileHovered(ITile tile)
+    {
+        if (!UserSolve) return;
+
+        if (Solution.FirstOrDefault(c => c.Ordinal == tile.Ordinal) is { } pastCell)
+        {
+            var toRemove = Solution.Skip(Solution.IndexOf(pastCell) + 1).ToList();
+            Solution.RemoveRange(toRemove);
+        }
+        else if (Solution.Last().AccessibleAdjacentCells.FirstOrDefault(c => c.Ordinal == tile.Ordinal) is { } nextCell)
+        {
+            AddCellToSolution(nextCell, c => !VisitedCells.Contains(c));
+        }
+    }
+
+    private void AddCellToSolution(ICell nextCell, Predicate<ICell> trackVisit)
+    {
+        Solution.Add(nextCell);
+        if (trackVisit(nextCell))
+        {
+            VisitedCells.Add(nextCell);
         }
     }
 
@@ -394,6 +434,8 @@ public sealed class TilingViewModel : Screen, ICanvas
         private readonly ITile _tile = tile;
 
         public Point2D Location => _tile.Center;
+
+        public ushort Ordinal => _tile.Ordinal;
 
         public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
 
