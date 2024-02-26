@@ -182,6 +182,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     {
         IsBusy = false;
         HasGenerated = false;
+        UserSolve = false;
 
         ClearSolution();
 
@@ -273,6 +274,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     private async Task Solve(Marker from, Marker to)
     {
         ClearSolution();
+        UserSolve = false;
 
         using (BeginWork())
         {
@@ -315,7 +317,7 @@ public sealed class TilingViewModel : Screen, ICanvas
     [UsedImplicitly]
     public void TileClicked(ITile tile)
     {
-        if (IsIdle)
+        if (IsIdle && !UserSolve)
         {
             var currentStart = SearchEnds.FirstOrDefault();
 
