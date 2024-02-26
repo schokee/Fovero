@@ -190,7 +190,7 @@
             </HeaderedContentControl>
 
             <HeaderedContentControl>
-                <CheckBox x:Name="UserSolve" Content="User Solve" IsEnabled="{Binding IsIdle}" />
+                <CheckBox x:Name="UserSolve" Content="User Solve" IsEnabled="{Binding CanSolve}" />
             </HeaderedContentControl>
         </StackPanel>
 
