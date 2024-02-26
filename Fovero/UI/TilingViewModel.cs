@@ -363,6 +363,13 @@ public sealed class TilingViewModel : Screen, ICanvas
         else if (Solution.Last().AccessibleAdjacentCells.FirstOrDefault(c => c.Ordinal == tile.Ordinal) is { } nextCell)
         {
             AddCellToSolution(nextCell, c => !VisitedCells.Contains(c));
+
+            if (nextCell.Ordinal == SearchEnds[1].Tile)
+            {
+                // celebrate victory
+
+                UserSolve = false;
+            }
         }
     }
 
