@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
     <PackageReference Include="MahApps.Metro" />
     <PackageReference Include="MahApps.Metro.IconPacks.Material" />

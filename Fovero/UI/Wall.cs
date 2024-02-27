@@ -4,11 +4,9 @@ using Fovero.Model.Tiling;
 
 namespace Fovero.UI;
 
-public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISharedWall
+public sealed class Wall(IEdge edge) : PropertyChangedBase, ISharedWall
 {
     private bool _isOpen;
-
-    public ICanvas Canvas { get; } = canvas;
 
     public IEdge Edge { get; } = edge;
 
@@ -22,7 +20,7 @@ public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISha
         set => Set(ref _isOpen, value);
     }
 
-    public IEnumerable<(T From, T To)> SelectPathways<T>(Func<ushort, T> createNode)
+    public IEnumerable<(T From, T To)> SelectPathwaysFrom<T>(T source, Func<ushort, T> createNode)
     {
         if (!IsShared)
         {
@@ -32,8 +30,14 @@ public sealed class Wall(ICanvas canvas, IEdge edge) : PropertyChangedBase, ISha
         var p1 = createNode(Neighbors.ElementAt(0));
         var p2 = createNode(Neighbors.ElementAt(1));
 
-        yield return (p1, p2);
-        yield return (p2, p1);
+        if (Equals(source, p1))
+        {
+            yield return (source, p2);
+        }
+        else if (Equals(source, p2))
+        {
+            yield return (source, p1);
+        }
     }
 
     #region ISharedWall

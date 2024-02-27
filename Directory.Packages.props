@@ -7,7 +7,7 @@
     <PackageVersion Include="Autofac" Version="7.1.0" />
     <PackageVersion Include="Autofac.Extras.AttributeMetadata" Version="6.0.0" />
     <PackageVersion Include="Caliburn.Micro" Version="4.0.212" />
-    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageVersion Include="CsvHelper" Version="30.0.1" />
     <PackageVersion Include="Expression.Interaction" Version="3.0.40218" />
     <PackageVersion Include="GitVersion.MsBuild" Version="5.12.0" />

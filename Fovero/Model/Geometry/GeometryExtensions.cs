@@ -41,4 +41,9 @@ public static class GeometryExtensions
     {
         return new Rectangle(rectangle.TopLeft + offset, rectangle.BottomRight - offset);
     }
+
+    public static Rectangle CenteredAt(this Rectangle rectangle, Point2D center)
+    {
+        return rectangle with { X = center.X - rectangle.Width / 2, Y = center.Y - rectangle.Height / 2 };
+    }
 }
