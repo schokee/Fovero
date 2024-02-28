@@ -21,13 +21,15 @@ public class SquareTiling(ushort columns, ushort rows) : RegularTiling(columns, 
             _format = format;
             _column = column;
             _row = row;
+
+            Bounds = new Rectangle(_column, _row, 1, 1).InModelUnits();
         }
 
         public ushort Ordinal => (ushort)(_row * _format.Columns + _column);
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new(_column, _row, 1, 1);
+        public Rectangle Bounds { get; }
 
         public IEnumerable<Point2D> CornerPoints
         {

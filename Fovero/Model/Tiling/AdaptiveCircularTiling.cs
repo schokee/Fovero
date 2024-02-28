@@ -3,35 +3,22 @@ using MoreLinq;
 
 namespace Fovero.Model.Tiling;
 
-public sealed class AdaptiveCircularTiling : ITiling
+public sealed class AdaptiveCircularTiling : CircularTiling
 {
     private IReadOnlyList<int> SegmentsAtRing { get; }
 
-    public AdaptiveCircularTiling(ushort rings, ushort segments, bool curved)
+    public AdaptiveCircularTiling(ushort rings, ushort segments, bool curved) : base(rings, segments, curved)
     {
-        Rings = rings;
-        Segments = segments;
-        Curved = curved;
-        Bounds = new(0, 0, Rings + 1, Rings + 1);
-
-        var segmentSweep = Angle.FromDegrees((float)Degrees.PerCircle / Segments);
+        var segmentSweep = SegmentSweep;
 
         SegmentsAtRing = Enumerable
             .Range(1, rings)
-            .Select(ring => (int)(Segments * Math.Pow(2, Math.Truncate(Math.Log2(segmentSweep.Radians * ring)))))
+            .Select(ring => (int)(Segments * MathF.Pow(2, MathF.Truncate(MathF.Log2(segmentSweep.Radians * ring)))))
             .Prepend(0)
             .ToList();
     }
 
-    public ushort Rings { get; }
-
-    public ushort Segments { get; }
-
-    public bool Curved { get; }
-
-    public Rectangle Bounds { get; }
-
-    public IEnumerable<ITile> Generate()
+    public override IEnumerable<ITile> Generate()
     {
         var allLocations = Enumerable
             .Range(1, Rings)
@@ -63,9 +50,9 @@ public sealed class AdaptiveCircularTiling : ITiling
             Ring = (ushort)location.Ring;
             Segment = (ushort)location.Segment;
 
-            var expandBy = new Size2D(0.3f, 0.3f);
+            var expandBy = new Size2D(0.3f, 0.3f).InModelUnits();
 
-            Center = new Circle(Format.Bounds.Center, Ring + 0.5f).PointAt(SegmentSweep * (Segment + 0.5f));
+            Center = Format.CircleAt(Ring + 0.5f).PointAt(SegmentSweep * (Segment + 0.5f));
             Bounds = new Rectangle(Center - expandBy, Center + expandBy);
         }
 
@@ -142,8 +129,8 @@ public sealed class AdaptiveCircularTiling : ITiling
                                 }
                             }
 
-                            string OuterArcMarkup() => $"A {Ring + 1} {Ring + 1} 0 0 1 {segment.End.X},{segment.End.Y}";
-                            string InnerArcMarkup() => $"A {Ring} {Ring} 0 0 0 {segment.End.X},{segment.End.Y}";
+                            string OuterArcMarkup() => ArcMarkup(Ring + 1, segment.End, true);
+                            string InnerArcMarkup() => ArcMarkup(Ring, segment.End, false);
                         }
 
                         return result;
@@ -174,10 +161,8 @@ public sealed class AdaptiveCircularTiling : ITiling
             get
             {
                 var segmentSweep = SegmentSweep;
-                var center = Format.Bounds.Center;
-                var nextSegment = NextSegment;
 
-                var outerArc = new Circle(center, Ring + 1);
+                var outerArc = Format.CircleAt(Ring + 1);
 
                 yield return outerArc.PointAt(segmentSweep * Segment);
 
@@ -186,19 +171,15 @@ public sealed class AdaptiveCircularTiling : ITiling
                     yield return outerArc.PointAt(segmentSweep * (Segment + 0.5f));
                 }
 
+                var nextSegment = NextSegment;
+
                 yield return outerArc.PointAt(segmentSweep * nextSegment);
 
-                var innerArc = new Circle(center, Ring);
+                var innerArc = Format.CircleAt(Ring);
 
                 yield return innerArc.PointAt(segmentSweep * nextSegment);
                 yield return innerArc.PointAt(segmentSweep * Segment);
             }
         }
-    }
-
-    private readonly struct Location(int ring, int segment)
-    {
-        public int Ring { get; init; } = ring;
-        public int Segment { get; init; } = segment;
     }
 }

@@ -37,6 +37,6 @@ public class CircularTilingEditor() : TilingEditor("Circular")
     {
         return Adaptive
             ? new AdaptiveCircularTiling((ushort)Rings, (ushort)Segments, Curved)
-            : new CircularTiling((ushort)Rings, (ushort)Segments, Curved);
+            : new SlicedCircularTiling((ushort)Rings, (ushort)Segments, Curved);
     }
 }

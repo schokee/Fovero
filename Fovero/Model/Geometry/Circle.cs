@@ -43,7 +43,7 @@ public readonly struct Circle : IEquatable<Circle>
 
     public Circle ReduceBy(float offset)
     {
-        return new Circle(Center, Math.Max(0, Radius - offset));
+        return new Circle(Center, MathF.Max(0, Radius - offset));
     }
 
     public static Circle CenterWithin(Size2D bounds)

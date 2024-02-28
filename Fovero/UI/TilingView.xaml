@@ -3,12 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:tiling="clr-namespace:Fovero.Model.Tiling"
-             xmlns:local="clr-namespace:Fovero.UI"
-             xmlns:editors="clr-namespace:Fovero.UI.Editors"
              xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
+             xmlns:local="clr-namespace:Fovero.UI"
+             xmlns:behaviors="clr-namespace:Fovero.UI.Behaviors"
+             xmlns:converters="clr-namespace:Fovero.UI.Converters"
+             xmlns:editors="clr-namespace:Fovero.UI.Editors"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
@@ -135,7 +137,7 @@
                         <ColumnDefinition Width="6" />
                         <ColumnDefinition MinWidth="80" />
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding IsIdle}" />
+                    <Button x:Name="Generate" Content="Generate" Style="{StaticResource MahApps.Styles.Button.Flat}" />
                     <Button x:Name="Reset" Grid.Column="2" Content="Reset" Style="{StaticResource MahApps.Styles.Button.Flat}" />
                 </Grid>
             </HeaderedContentControl>
@@ -151,9 +153,15 @@
                 </DockPanel>
             </HeaderedContentControl>
 
-            <HeaderedContentControl>
-                <CheckBox x:Name="ShowCells" Content="Show Cells" />
-            </HeaderedContentControl>
+            <!--
+            <mc:AlternateContent>
+                <mc:Choice Requires="debug">
+                    <HeaderedContentControl>
+                        <CheckBox x:Name="ShowCells" Content="Show Cells" />
+                    </HeaderedContentControl>
+                </mc:Choice>
+            </mc:AlternateContent>
+            -->
 
             <HeaderedContentControl Header="Format">
                 <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" DisplayMemberPath="Name" />
@@ -170,22 +178,19 @@
                 <ComboBox ItemsSource="{Binding Solvers}" SelectedItem="{Binding SelectedSolver}" />
             </HeaderedContentControl>
 
-            <HeaderedContentControl>
-                <CheckBox x:Name="ShowHotPaths" Content="Show Hot Paths" IsEnabled="{Binding IsIdle}" />
-            </HeaderedContentControl>
-
             <HeaderedContentControl Content="{Binding SolutionSequence}" />
+
+            <HeaderedContentControl Header="Visit Highlighting">
+                <ComboBox x:Name="VisitHighlighting" ItemsSource="{x:Static local:VisitHighlighting.Options}"
+                          DisplayMemberPath="Value" SelectedValuePath="Key" SelectedIndex="1" />
+            </HeaderedContentControl>
 
             <HeaderedContentControl>
                 <Button x:Name="Solve" Content ="Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="0,4,0,0" IsEnabled="{Binding CanSolve}"/>
             </HeaderedContentControl>
 
             <HeaderedContentControl>
-                <Button x:Name="ReverseSolve" Content ="Reverse Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanSolve}"/>
-            </HeaderedContentControl>
-
-            <HeaderedContentControl>
-                <Button x:Name="ClearSolution" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanClearSolution}"/>
+                <Button x:Name="Clear" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" />
             </HeaderedContentControl>
         </StackPanel>
 
@@ -193,14 +198,16 @@
             <Grid.Resources>
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="Focusable" Value="False" />
+                    <Setter Property="IsHitTestVisible" Value="False"/>
                     <Setter Property="IsTabStop" Value="False" />
+                    <Setter Property="UseLayoutRounding" Value="False" />
                     <Setter Property="HorizontalAlignment" Value="Center" />
                     <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="Height" Value="{Binding Path=Bounds.Height}" />
-                    <Setter Property="Width" Value="{Binding Path=Bounds.Width}" />
+                    <Setter Property="Height" Value="{Binding Path=Maze.Height}" />
+                    <Setter Property="Width" Value="{Binding Path=Maze.Width}" />
                     <Setter Property="LayoutTransform">
                         <Setter.Value>
-                            <ScaleTransform ScaleX="{Binding Path=Scaling}" ScaleY="{Binding Scaling}" />
+                            <ScaleTransform ScaleX="{Binding Scaling}" ScaleY="{Binding Scaling}" />
                         </Setter.Value>
                     </Setter>
                     <Setter Property="ItemsPanel">
@@ -213,16 +220,75 @@
                 </Style>
             </Grid.Resources>
 
-            <ItemsControl ItemsSource="{Binding VisitedCells}"
+            <ItemsControl x:Name="TrailMap" ItemsSource="{Binding TrailMap}" IsHitTestVisible="True"
                           Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.Resources>
+                    <converters:CountToHeatBrushConverter x:Key="CountToHeatBrushConverter" />
+                </ItemsControl.Resources>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas IsItemsHost="True" >
+                            <b:Interaction.Behaviors>
+                                <behaviors:TrailDrawingBehavior TrailMap="{Binding TrailMap}" />
+                            </b:Interaction.Behaviors>
+                        </Canvas>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}" Fill="#5522aa22"/>
+                        <Path SnapsToDevicePixels="False" Data="{Binding PathData, Mode=OneTime}">
+                            <Path.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Set Start"
+                                              Command="{Binding Path=DataContext.SetStartCommand, Source={x:Reference TrailMap}}"
+                                              CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Set End"
+                                              Command="{Binding Path=DataContext.SetEndCommand, Source={x:Reference TrailMap}}"
+                                              CommandParameter="{Binding}"/>
+                                    <Separator />
+                                    <MenuItem Header="Reverse End Points"
+                                              Command="{Binding Path=DataContext.ReverseEndPointsCommand, Source={x:Reference TrailMap}}"/>
+                                </ContextMenu>
+                            </Path.ContextMenu>
+                            <Path.Style>
+                                <Style TargetType="{x:Type Path}">
+                                    <Setter Property="Fill" Value="Transparent" />
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding HasBeenVisited}" Value="True" />
+                                                <Condition Binding="{Binding SelectedValue, ElementName=VisitHighlighting}" Value="{x:Static local:VisitHighlightingStyle.AnyVisit}" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Fill" Value="{x:Static converters:CountToHeatBrushConverter.BaseBrush}"/>
+                                        </MultiDataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding HasBeenVisited}" Value="True" />
+                                                <Condition Binding="{Binding SelectedValue, ElementName=VisitHighlighting}" Value="{x:Static local:VisitHighlightingStyle.VisitFrequency}" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Fill" Value="{Binding VisitCount, Converter={StaticResource CountToHeatBrushConverter}}"/>
+                                        </MultiDataTrigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="StrokeThickness" Value="0.3"/>
+                                            <Setter Property="Fill" Value="#80FFE724"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Solution}"
+            <ItemsControl ItemsSource="{Binding Path=TrailMap.Markers}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Path Data="{Binding}" Fill="Crimson"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Path=TrailMap.Solution}"
                           Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type solvers:ICell}">
@@ -233,7 +299,7 @@
                               Stroke="Crimson"
                               StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round"
-                              StrokeThickness="0.12" >
+                              StrokeThickness="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" >
                             <Line.Style>
                                 <Style TargetType="{x:Type Line}">
                                     <Style.Triggers>
@@ -248,13 +314,13 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Walls}" UseLayoutRounding="False">
+            <ItemsControl x:Name="Walls" ItemsSource="{Binding Path=Maze.Walls}" UseLayoutRounding="False">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:Wall}">
                         <Path Data="{Binding Geometry, Mode=OneTime}">
                             <Path.Style>
                                 <Style TargetType="{x:Type Path}">
-                                    <Setter Property="StrokeThickness" Value="{Binding Path=Canvas.StrokeThickness}" />
+                                    <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" />
                                     <Setter Property="Stroke" Value="#F01E90FF" />
                                     <Setter Property="StrokeStartLineCap" Value="Round" />
                                     <Setter Property="StrokeEndLineCap" Value="Round" />
@@ -284,23 +350,29 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Tiles}" FontSize="0.35"
-                          Visibility="{Binding IsChecked, ElementName=ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type ContentPresenter}">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Bounds.Top, Mode=OneTime}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type tiling:ITile}">
-                        <Grid Width="{Binding Path=Bounds.Width, Mode=OneTime}" Height="{Binding Path=Bounds.Height, Mode=OneTime}">
-                            <Rectangle StrokeThickness="0.01" Stroke="Crimson"/>
-                            <TextBlock Text="{Binding Ordinal}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="0.35" Foreground="Gainsboro"/>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <!--
+            <mc:AlternateContent>
+                <mc:Choice Requires="debug">
+                    <ItemsControl ItemsSource="{Binding TrailMap}"
+                                  Visibility="{Binding IsChecked, ElementName=ShowCells, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="{x:Type ContentPresenter}">
+                                <Setter Property="Canvas.Left" Value="{Binding Path=Bounds.Left, Mode=OneTime}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Path=Bounds.Top, Mode=OneTime}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type local:IMazeCell}">
+                                <Grid Width="{Binding Path=Bounds.Width, Mode=OneTime}" Height="{Binding Path=Bounds.Height, Mode=OneTime}">
+                                    <Rectangle StrokeThickness="2" Stroke="Crimson"/>
+                                    <TextBlock Text="{Binding Ordinal}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30" Foreground="Gainsboro"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </mc:Choice>
+            </mc:AlternateContent>
+            -->
         </Grid>
     </DockPanel>
 </UserControl>

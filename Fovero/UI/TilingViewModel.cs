@@ -1,32 +1,31 @@
 ﻿using System.Reactive.Disposables;
 using Caliburn.Micro;
+using CommunityToolkit.Mvvm.Input;
 using Fovero.Model.Generators;
-using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using Fovero.UI.Editors;
 using JetBrains.Annotations;
-using MoreLinq;
 
 namespace Fovero.UI;
 
-public sealed class TilingViewModel : Screen, ICanvas
+public sealed partial class TilingViewModel : Screen, ICanvas
 {
     private BuildingStrategy<Wall> _selectedBuilder;
     private SolvingStrategy _selectedSolver;
     private ITilingEditor _selectedTiling;
-    private Rectangle _bounds;
+    private Maze _maze;
+    private ITrailMap _trailMap;
     private bool _isBusy;
     private bool _hasGenerated;
-    private int _zoom = 22;
     private int _seed;
+    private int _zoom = 22;
 
     public TilingViewModel()
     {
         _seed = Random.Shared.Next();
 
         DisplayName = "Tiling";
-        Solution.CollectionChanged += delegate { NotifyOfPropertyChange(nameof(CanClearSolution)); };
 
         Builders = BuildingStrategy<Wall>.All;
         SelectedBuilder = Builders[0];
@@ -57,14 +56,11 @@ public sealed class TilingViewModel : Screen, ICanvas
             if (Set(ref _isBusy, value))
             {
                 NotifyOfPropertyChange(nameof(IsIdle));
+                NotifyOfPropertyChange(nameof(CanGenerate));
                 NotifyOfPropertyChange(nameof(CanSolve));
             }
         }
     }
-
-    public bool ShowHotPaths { get; set; }
-
-    public bool CanSolve => IsIdle && HasGenerated;
 
     public bool HasGenerated
     {
@@ -109,27 +105,13 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public Rectangle Bounds
-    {
-        get => _bounds;
-        set => Set(ref _bounds, value);
-    }
-
     #region ICanvas
 
-    public double Scaling => Zoom;
+    public double Scaling => Zoom / Projection.Unit;
 
     public double StrokeThickness => Math.Max(0.001, 3 / Scaling);
 
     #endregion
-
-    public IObservableCollection<ITile> Tiles { get; } = new BindableCollection<ITile>();
-
-    public IObservableCollection<Wall> Walls { get; } = new BindableCollection<Wall>();
-
-    public IObservableCollection<ICell> VisitedCells { get; } = new BindableCollection<ICell>();
-
-    public IObservableCollection<ICell> Solution { get; } = new BindableCollection<ICell>();
 
     public IReadOnlyList<ITilingEditor> AvailableTilings { get; }
 
@@ -170,61 +152,61 @@ public sealed class TilingViewModel : Screen, ICanvas
     public SolvingStrategy SelectedSolver
     {
         get => _selectedSolver;
-        set => Set(ref _selectedSolver, value);
+        set
+        {
+            if (Set(ref _selectedSolver, value))
+            {
+                NotifyOfPropertyChange(nameof(CanSolve));
+            }
+        }
+    }
+
+    public Maze Maze
+    {
+        get => _maze;
+        private set
+        {
+            if (Set(ref _maze, value))
+            {
+                TrailMap = Maze?.CreateTrailMap();
+                HasGenerated = false;
+                NotifyOfPropertyChange(nameof(CanGenerate));
+            }
+        }
+    }
+
+    public ITrailMap TrailMap
+    {
+        get => _trailMap;
+        private set => Set(ref _trailMap, value);
     }
 
     [UsedImplicitly]
     public void Reset()
     {
-        IsBusy = false;
+        Clear();
+
+        Maze?.ResetWalls();
         HasGenerated = false;
-
-        ClearSolution();
-
-        Tiles.Clear();
-        Walls.Clear();
-
-        if (SelectedTiling is not null)
-        {
-            var tiling = SelectedTiling.CreateTiling();
-
-            Bounds = tiling.Bounds;
-
-            Tiles.AddRange(tiling.Generate());
-
-            Walls.AddRange(Tiles
-                .SelectMany(x => x.Edges)
-                .Distinct()
-                .Select(x => new Wall(this, x)));
-        }
     }
 
     [UsedImplicitly]
-    public async Task Clear()
+    public void Clear()
     {
-        if (IsBusy)
-        {
-            return;
-        }
-
-        using (BeginWork())
-        {
-            var toDo = SharedWalls
-                .Where(x => !x.IsOpen)
-                .Shuffle()
-                .ToList();
-
-            foreach (Wall wall in toDo.TakeWhile(_ => IsBusy))
-            {
-                wall.IsOpen = true;
-                await Task.Delay(TimeSpan.FromMilliseconds(100));
-            }
-        }
+        IsBusy = false;
+        TrailMap?.Reset();
     }
+
+    public bool CanGenerate => IsIdle && Maze is not null;
 
     [UsedImplicitly]
     public async Task Generate()
     {
+        if (!CanGenerate)
+        {
+            return;
+        }
+
         Reset();
 
         using (BeginWork())
@@ -232,7 +214,7 @@ public sealed class TilingViewModel : Screen, ICanvas
             var random = new Random(Seed);
 
             await BuildingSequence.Play(SelectedBuilder
-                .SelectWallsToBeOpened(SharedWalls.ToList(), random)
+                .SelectWallsToBeOpened(Maze.SharedWalls.ToList(), random)
                 .TakeWhile(_ => IsBusy), x => x.IsOpen = true);
 
             if (!IsSeedLocked)
@@ -245,81 +227,23 @@ public sealed class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public bool CanClearSolution => Solution.Count > 0;
-
-    public void ClearSolution()
-    {
-        VisitedCells.Clear();
-        Solution.Clear();
-    }
+    public bool CanSolve => IsIdle && HasGenerated && TrailMap is not null && SelectedSolver is not null;
 
     [UsedImplicitly]
-    public Task Solve()
+    public async Task Solve()
     {
-        return Solve(Tiles.First().Ordinal, Tiles.Last().Ordinal);
-    }
+        if (!CanSolve)
+        {
+            return;
+        }
 
-    [UsedImplicitly]
-    public Task ReverseSolve()
-    {
-        return Solve(Tiles.Last().Ordinal, Tiles.First().Ordinal);
-    }
-
-    [UsedImplicitly]
-    private async Task Solve(ushort start, ushort end)
-    {
-        ClearSolution();
+        TrailMap.Reset();
 
         using (BeginWork())
         {
-            var tileLookup = Tiles.ToDictionary(x => x.Ordinal);
-
-            var pathways = Walls
-                .Where(x => x.IsOpen)
-                .SelectMany(wall => wall.SelectPathways(n => tileLookup[n]))
-                .ToLookup(x => x.From, x => x.To);
-
-            var origin = new Cell(Tiles[start], pathways);
-            var goal = new Cell(Tiles[end], pathways);
-            var trackVisit = TrackingRule;
-
-            await SolutionSequence.Play(SelectedSolver
-                .FindPath(origin, goal)
-                .Prepend(Array.Empty<ICell>())
-                .Pairwise((prev, next) => prev.SwitchTo(next))
-                .SelectMany(move => move)
-                .TakeWhile(_ => IsBusy), change =>
-                {
-                    switch (change)
-                    {
-                        case RemoveLast:
-                            Solution.RemoveAt(Solution.Count - 1);
-                            break;
-                        case Append<ICell> append:
-                            Solution.Add(append.Item);
-                            if (trackVisit(append.Item))
-                            {
-                                VisitedCells.Add(append.Item);
-                            }
-                            break;
-                    }
-                });
-        }
-    }
-
-    private IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared).Distinct();
-
-    private Predicate<ICell> TrackingRule
-    {
-        get
-        {
-            if (ShowHotPaths)
-            {
-                return _ => true;
-            }
-
-            var visitedCells = new HashSet<ICell>();
-            return visitedCells.Add;
+            await SolutionSequence.Play(TrailMap
+                .FindSolution(SelectedSolver)
+                .TakeWhile(_ => IsBusy), TrailMap.Update);
         }
     }
 
@@ -329,42 +253,37 @@ public sealed class TilingViewModel : Screen, ICanvas
         return Disposable.Create(() => IsBusy = false);
     }
 
+    private bool CanSetStart(IMazeCell cell)
+    {
+        return TrailMap?.IsValidStart(cell) == true;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSetStart))]
+    private void SetStart(IMazeCell cell)
+    {
+        TrailMap.StartCell = cell;
+    }
+
+    private bool CanSetEnd(IMazeCell cell)
+    {
+        return TrailMap?.IsValidEnd(cell) == true;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSetEnd))]
+    private void SetEnd(IMazeCell cell)
+    {
+        TrailMap.EndCell = cell;
+    }
+
+    [RelayCommand]
+    private void ReverseEndPoints()
+    {
+        TrailMap?.ReverseEndPoints();
+    }
+
     private void OnFormatChanged()
     {
         Reset();
-    }
-
-    private sealed class Cell(ITile tile, ILookup<ITile, ITile> adjacentTiles) : ICell
-    {
-        private readonly ITile _tile = tile;
-
-        public Point2D Location => _tile.Center;
-
-        public IEnumerable<ICell> AccessibleAdjacentCells => adjacentTiles[_tile].Select(tile => new Cell(tile, adjacentTiles));
-
-        [UsedImplicitly]
-        public string PathData
-        {
-            get
-            {
-                var path = string.Join(" ", _tile.Edges.Select((edge, n) => n == 0 ? edge.PathData : edge.DrawData));
-                return path;
-            }
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Cell cell && _tile.Ordinal == cell._tile.Ordinal;
-        }
-
-        public override int GetHashCode()
-        {
-            return _tile.Ordinal.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return _tile.Ordinal.ToString();
-        }
+        Maze = SelectedTiling is null ? null : new Maze(SelectedTiling.CreateTiling());
     }
 }

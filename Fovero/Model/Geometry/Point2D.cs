@@ -15,7 +15,7 @@ public readonly struct Point2D(float x, float y)
         var dx = X - other.X;
         var dy = Y - other.Y;
 
-        return Math.Abs(dx) + Math.Abs(dy);
+        return MathF.Abs(dx) + MathF.Abs(dy);
     }
 
     public float EuclidianDistanceTo(Point2D other)

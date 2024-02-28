@@ -83,14 +83,14 @@ public readonly struct Angle(AngleUnitOfMeasure unitOfMeasure, float value) : IE
 
         if (min.Success)
         {
-            deg += int.Parse(min.Value) / 60f;
+            deg += int.Parse(min.Value) / 60;
         }
 
         var sec = matchPattern.Groups["sec"];
 
         if (sec.Success)
         {
-            deg += int.Parse(sec.Value) / 3600f;
+            deg += int.Parse(sec.Value) / 3600;
         }
 
         return FromDegrees(deg);

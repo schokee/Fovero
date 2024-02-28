@@ -12,6 +12,8 @@ public record Rectangle(float X, float Y, float Width, float Height)
 
     public Point2D Center => new(X + Width / 2, Y + Height / 2);
 
+    public Size2D Size => new(Width, Height);
+
     public float Left => X;
     public float Top => Y;
 

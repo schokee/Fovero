@@ -8,7 +8,7 @@ public abstract class RegularTiling(ushort columns, ushort rows) : ITiling
 
     public ushort Rows { get; } = rows;
 
-    public virtual Rectangle Bounds => new(0, 0, Columns, Rows);
+    public virtual Rectangle Bounds => new Rectangle(0, 0, Columns, Rows).InModelUnits();
 
     public IEnumerable<ITile> Generate()
     {
