@@ -52,6 +52,8 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
 
                 var cell = layout.RandomUnvisited;
 
+                cell.HasBeenVisited = true;
+
                 while (!layout.IsComplete)
                 {
                     var stepToNeighbor =
