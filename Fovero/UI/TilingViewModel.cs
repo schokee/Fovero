@@ -205,7 +205,7 @@ public sealed partial class TilingViewModel : Screen, ICanvas
     {
         Clear();
 
-        Maze?.ResetWalls();
+        Maze?.ResetWalls(clearLocks: true);
         HasGenerated = false;
     }
 
@@ -226,7 +226,10 @@ public sealed partial class TilingViewModel : Screen, ICanvas
             return;
         }
 
-        Reset();
+        Clear();
+
+        Maze.ResetWalls();
+        HasGenerated = false;
 
         using (BeginWork())
         {

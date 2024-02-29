@@ -35,11 +35,16 @@ public sealed partial class Maze
 
     public IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared && !x.IsLocked);
 
-    public void ResetWalls()
+    public void ResetWalls(bool clearLocks = false)
     {
-        foreach (var wall in SharedWalls)
+        foreach (var wall in Walls.Where(x => x.IsShared))
         {
             wall.IsOpen = false;
+
+            if (clearLocks)
+            {
+                wall.IsLocked = false;
+            }
         }
     }
 
