@@ -178,7 +178,26 @@ public sealed partial class TilingViewModel : Screen, ICanvas
     public ITrailMap TrailMap
     {
         get => _trailMap;
-        private set => Set(ref _trailMap, value);
+        private set
+        {
+            void OnSolvedStateChanged(object _, bool solved)
+            {
+                NotifyOfPropertyChange(nameof(CanSolve));
+            }
+
+            if (_trailMap is not null)
+            {
+                _trailMap.SolvedStateChanged -= OnSolvedStateChanged;
+            }
+
+            Set(ref _trailMap, value);
+            NotifyOfPropertyChange(nameof(CanSolve));
+
+            if (_trailMap is not null)
+            {
+                _trailMap.SolvedStateChanged += OnSolvedStateChanged;
+            }
+        }
     }
 
     [UsedImplicitly]
@@ -227,7 +246,7 @@ public sealed partial class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public bool CanSolve => IsIdle && HasGenerated && TrailMap is not null && SelectedSolver is not null;
+    public bool CanSolve => IsIdle && HasGenerated && TrailMap?.IsSolved == false && SelectedSolver is not null;
 
     [UsedImplicitly]
     public async Task Solve()

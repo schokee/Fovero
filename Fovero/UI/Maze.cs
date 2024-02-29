@@ -33,7 +33,7 @@ public sealed partial class Maze
 
     public IReadOnlyList<Wall> Walls { get; }
 
-    public IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared);
+    public IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared && !x.IsLocked);
 
     public void ResetWalls()
     {

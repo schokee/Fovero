@@ -7,6 +7,7 @@ namespace Fovero.UI;
 public sealed class Wall(IEdge edge) : PropertyChangedBase, ISharedWall
 {
     private bool _isOpen;
+    private bool _isLocked;
 
     public IEdge Edge { get; } = edge;
 
@@ -18,6 +19,18 @@ public sealed class Wall(IEdge edge) : PropertyChangedBase, ISharedWall
     {
         get => _isOpen;
         set => Set(ref _isOpen, value);
+    }
+
+    public bool IsLocked
+    {
+        get => _isLocked;
+        set
+        {
+            if (IsShared)
+            {
+                Set(ref _isLocked, value);
+            }
+        }
     }
 
     public IEnumerable<(T From, T To)> SelectPathwaysFrom<T>(T source, Func<ushort, T> createNode)

@@ -12,9 +12,12 @@ public sealed partial class Maze
 {
     private class TrailMap : PropertyChangedBase, ITrailMap
     {
+        private IReadOnlyDictionary<ushort, Cell> Cells { get; }
         private IMazeCell _startCell;
         private IMazeCell _endCell;
-        private IReadOnlyDictionary<ushort, Cell> Cells { get; }
+        private bool _isSolved;
+
+        public event EventHandler<bool> SolvedStateChanged;
 
         public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<Wall> walls)
         {
@@ -35,7 +38,7 @@ public sealed partial class Maze
                     }
                 }
 
-                NotifyOfPropertyChange(nameof(IsSolved));
+                IsSolved = Solution.Count > 1 && EndCell.HasBeenVisited && EndCell.Equals(Solution.Last());
                 NotifyOfPropertyChange(nameof(CanReset));
             };
 
@@ -101,7 +104,17 @@ public sealed partial class Maze
             return GetEnumerator();
         }
 
-        public bool IsSolved => Solution.Count > 1 && EndCell.Equals(Solution.Last());
+        public bool IsSolved
+        {
+            get => _isSolved;
+            private set
+            {
+                if (Set(ref _isSolved, value))
+                {
+                    SolvedStateChanged?.Invoke(this, value);
+                }
+            }
+        }
 
         public bool CanReset => Solution.Count > 0;
 
