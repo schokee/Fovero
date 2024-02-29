@@ -22,7 +22,7 @@ public class SquareTiling(ushort columns, ushort rows) : RegularTiling(columns, 
             _column = column;
             _row = row;
 
-            Bounds = new Rectangle(_column, _row, 1, 1).InModelUnits();
+            Bounds = new Rectangle(_column, _row, 1, 1).ToScaledUnits();
         }
 
         public ushort Ordinal => (ushort)(_row * _format.Columns + _column);

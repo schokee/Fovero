@@ -50,7 +50,7 @@ public sealed class AdaptiveCircularTiling : CircularTiling
             Ring = (ushort)location.Ring;
             Segment = (ushort)location.Segment;
 
-            var expandBy = new Size2D(0.3f, 0.3f).InModelUnits();
+            var expandBy = new Size2D(0.3f, 0.3f).ToScaledUnits();
 
             Center = Format.CircleAt(Ring + 0.5f).PointAt(SegmentSweep * (Segment + 0.5f));
             Bounds = new Rectangle(Center - expandBy, Center + expandBy);

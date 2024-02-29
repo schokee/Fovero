@@ -196,6 +196,9 @@
 
         <Grid Margin="10" ClipToBounds="True">
             <Grid.Resources>
+                <SolidColorBrush x:Key="Unsolved" Color="Crimson"/>
+                <SolidColorBrush x:Key="Solved" Color="Gold"/>
+
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="Focusable" Value="False" />
                     <Setter Property="IsHitTestVisible" Value="False"/>
@@ -283,12 +286,23 @@
             <ItemsControl ItemsSource="{Binding Path=TrailMap.Markers}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Path Data="{Binding}" Fill="Crimson"/>
+                        <Path Data="{Binding}">
+                            <Path.Style>
+                                <Style TargetType="{x:Type Path}">
+                                    <Setter Property="Fill" Value="{StaticResource Unsolved}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}">
+                                            <Setter Property="Fill" Value="{StaticResource Solved}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Path=TrailMap.Solution}"
+            <ItemsControl x:Name="Solution" ItemsSource="{Binding Path=TrailMap.Solution}"
                           Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type solvers:ICell}">
@@ -296,15 +310,18 @@
                               Y1="{Binding Path=Location.Y, Mode=OneTime}"
                               X2="{Binding Path=Location.X, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
                               Y2="{Binding Path=Location.Y, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
-                              Stroke="Crimson"
                               StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round"
                               StrokeThickness="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" >
                             <Line.Style>
                                 <Style TargetType="{x:Type Line}">
+                                    <Setter Property="Stroke" Value="{StaticResource Unsolved}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
                                             <Setter Property="Visibility" Value="Hidden" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}">
+                                            <Setter Property="Stroke" Value="{StaticResource Solved}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

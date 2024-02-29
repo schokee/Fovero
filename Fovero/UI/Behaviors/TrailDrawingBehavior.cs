@@ -76,7 +76,7 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
 
         _shutdown.Disposable = toJoin
             .ObserveOn(SynchronizationContext.Current!)
-            .Subscribe(x => UpdateWith(x.First, x.Second));
+            .Subscribe(x => UpdateSolution(TrailMap, x.First, x.Second));
 
         base.OnAttached();
     }
@@ -96,17 +96,19 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
         return result;
     }
 
-    private void UpdateWith(IMazeCell at, IMazeCell currentEnd)
+    private static void UpdateSolution(ITrailMap trailMap, IMazeCell cell, IMazeCell currentEnd)
     {
-        var canAdd = currentEnd is null ? TrailMap.StartCell.Equals(at) : currentEnd.AccessibleAdjacentCells.Contains(at);
+        var canAdd = currentEnd is null
+            ? cell.Equals(trailMap.StartCell)
+            : cell.AccessibleAdjacentCells.Contains(currentEnd);
 
         if (canAdd)
         {
-            TrailMap.Solution.Add(at);
+            trailMap.Solution.Add(cell);
         }
         else
         {
-            TrailMap.Solution.TrimAllAfter(at);
+            trailMap.Solution.RemoveAllAfter(cell);
         }
     }
 }

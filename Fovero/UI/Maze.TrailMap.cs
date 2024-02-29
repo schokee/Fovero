@@ -101,7 +101,7 @@ public sealed partial class Maze
             return GetEnumerator();
         }
 
-        public bool IsSolved => Solution.Count > 1 && StartCell.Equals(Solution[0]) && EndCell.Equals(Solution.Last());
+        public bool IsSolved => EndCell.HasBeenVisited; // Solution.Count > 1 && StartCell.Equals(Solution[0]) && EndCell.Equals(Solution.Last());
 
         public bool CanReset => Solution.Count > 0;
 
@@ -159,6 +159,6 @@ public sealed partial class Maze
             }
         }
 
-        private static Rectangle MarkerBounds { get; } = new Rectangle(0, 0, 0.45f, 0.45f).InModelUnits();
+        private static Rectangle MarkerBounds { get; } = new Rectangle(0, 0, 0.45f, 0.45f).ToScaledUnits();
     }
 }

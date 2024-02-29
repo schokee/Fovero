@@ -9,7 +9,7 @@ public static class Extensions
         return source.ElementAt(random.Next(source.Count));
     }
 
-    public static bool TrimAllAfter<T>(this IObservableCollection<T> source, T element)
+    public static bool RemoveAllAfter<T>(this IObservableCollection<T> source, T element)
     {
         var endIndex = source.IndexOf(element);
 

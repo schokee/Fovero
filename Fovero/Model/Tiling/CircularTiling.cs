@@ -10,13 +10,13 @@ public abstract class CircularTiling(ushort rings, ushort segments, bool curved)
 
     public bool Curved { get; } = curved;
 
-    public Rectangle Bounds => new Rectangle(0, 0, Rings + 1, Rings + 1).InModelUnits();
+    public Rectangle Bounds => new Rectangle(0, 0, Rings + 1, Rings + 1).ToScaledUnits();
 
     public abstract IEnumerable<ITile> Generate();
 
     protected Angle SegmentSweep { get; } = Angle.FromDegrees((float)Degrees.PerCircle / segments);
 
-    protected Circle CircleAt(float ring) => new(Bounds.Center, ring * Projection.Unit);
+    protected Circle CircleAt(float ring) => new(Bounds.Center, ring * Scaling.Unit);
 
     protected Point2D TopLeftPointOf(ushort ring, ushort segment) => CircleAt(ring).PointAt(SegmentSweep * segment);
 
@@ -28,6 +28,6 @@ public abstract class CircularTiling(ushort rings, ushort segments, bool curved)
 
     protected static string ArcMarkup(int ring, Point2D end, bool clockwiseSweep)
     {
-        return $"A {Projection.Unit * ring} {Projection.Unit * ring} 0 0 {(clockwiseSweep ? 1 : 0)} {end.X},{end.Y}";
+        return $"A {Scaling.Unit * ring} {Scaling.Unit * ring} 0 0 {(clockwiseSweep ? 1 : 0)} {end.X},{end.Y}";
     }
 }

@@ -1,13 +1,13 @@
 ﻿using Fovero.Model.Geometry;
 using MoreLinq;
 
-using static Fovero.Model.Tiling.Projection;
+using static Fovero.Model.Tiling.Scaling;
 
 namespace Fovero.Model.Tiling;
 
 public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
-    public override Rectangle Bounds => new Rectangle(0, 0, 2 * Columns, 2 * Rows).InModelUnits();
+    public override Rectangle Bounds => new Rectangle(0, 0, 2 * Columns, 2 * Rows).ToScaledUnits();
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -44,7 +44,7 @@ public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(
                     ? new Rectangle(c + 1, r + 1, 1, 1)
                     : new Rectangle(c, r, 3, 3);
 
-                return bounds.InModelUnits();
+                return bounds.ToScaledUnits();
             }
         }
 

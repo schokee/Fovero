@@ -107,7 +107,7 @@ public sealed partial class TilingViewModel : Screen, ICanvas
 
     #region ICanvas
 
-    public double Scaling => Zoom / Projection.Unit;
+    public double Scaling => Zoom / Model.Tiling.Scaling.Unit;
 
     public double StrokeThickness => Math.Max(0.001, 3 / Scaling);
 

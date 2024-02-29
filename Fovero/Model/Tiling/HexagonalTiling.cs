@@ -7,7 +7,7 @@ public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling(column
 {
     private static float CellHeight { get; } = MathF.Sqrt(3);
 
-    public override Rectangle Bounds => new Rectangle(0, 0, 3 * (Columns + 0.5f) / 2, Rows * CellHeight).InModelUnits();
+    public override Rectangle Bounds => new Rectangle(0, 0, 3 * (Columns + 0.5f) / 2, Rows * CellHeight).ToScaledUnits();
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -33,14 +33,14 @@ public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling(column
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new Rectangle(_column * 1.5f, _row * CellHeight + (_isEvenColumn ? 0 : CellHeight / 2), 2, CellHeight).InModelUnits();
+        public Rectangle Bounds => new Rectangle(_column * 1.5f, _row * CellHeight + (_isEvenColumn ? 0 : CellHeight / 2), 2, CellHeight).ToScaledUnits();
 
         public IEnumerable<Point2D> CornerPoints
         {
             get
             {
                 var bounds = Bounds;
-                var half = Projection.Unit / 2;
+                var half = Scaling.Unit / 2;
 
                 yield return new Point2D(bounds.Left + half, bounds.Top);
                 yield return new Point2D(bounds.Right - half, bounds.Top);
