@@ -101,7 +101,7 @@ public sealed partial class Maze
             return GetEnumerator();
         }
 
-        public bool IsSolved => EndCell.HasBeenVisited; // Solution.Count > 1 && StartCell.Equals(Solution[0]) && EndCell.Equals(Solution.Last());
+        public bool IsSolved => Solution.Count > 1 && EndCell.Equals(Solution.Last());
 
         public bool CanReset => Solution.Count > 0;
 

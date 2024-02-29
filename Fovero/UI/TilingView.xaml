@@ -291,7 +291,7 @@
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="Fill" Value="{StaticResource Unsolved}"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}">
+                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}" Value="True">
                                             <Setter Property="Fill" Value="{StaticResource Solved}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -320,7 +320,7 @@
                                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
                                             <Setter Property="Visibility" Value="Hidden" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}">
+                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}" Value="True">
                                             <Setter Property="Stroke" Value="{StaticResource Solved}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
