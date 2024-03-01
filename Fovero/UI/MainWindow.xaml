@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         MinWidth="1000" MinHeight="800"
-        mc:Ignorable="d"
-        WindowState="Maximized">
+        mc:Ignorable="d">
     <ContentControl x:Name="Workspace" Focusable="False" IsTabStop="False" />
 </mah:MetroWindow>
