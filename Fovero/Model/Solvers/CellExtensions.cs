@@ -1,11 +1,13 @@
-﻿namespace Fovero.Model.Solvers;
+﻿using Fovero.Model.DataStructures;
+
+namespace Fovero.Model.Solvers;
 
 internal static class CellExtensions
 {
     public static IEnumerable<Path<ICell>> Traverse(this ICell origin, Func<ICell, float> prioritise)
     {
         var visitedCells = new HashSet<ICell>();
-        var pathsToCheck = new PriorityQueue<Path<ICell>, float>();
+        var pathsToCheck = new ExtendedQueue<Path<ICell>>();
 
         pathsToCheck.Enqueue(new Path<ICell>(origin), 0);
 
