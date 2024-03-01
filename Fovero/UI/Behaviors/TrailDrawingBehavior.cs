@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Fovero.Model;
 using Microsoft.Xaml.Behaviors;
 
 namespace Fovero.UI.Behaviors;
@@ -110,17 +109,19 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
 
     private static void UpdateSolution(ITrailMap trailMap, IMazeCell cell, IMazeCell currentEnd)
     {
+        if (cell.Equals(currentEnd)) return;
+
         var canAdd = currentEnd is null
             ? cell.Equals(trailMap.StartCell)
             : cell.AccessibleAdjacentCells.Contains(currentEnd);
 
-        if (canAdd)
+        if (currentEnd is not null && cell.HasBeenVisited)
+        {
+            trailMap.GoToVisitedCell(cell);
+        }
+        else if (canAdd)
         {
             trailMap.Solution.Add(cell);
-        }
-        else
-        {
-            trailMap.Solution.RemoveAllAfter(cell);
         }
     }
 }

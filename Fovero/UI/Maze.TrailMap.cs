@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 using Caliburn.Micro;
+using Fovero.Model.DataStructures;
 using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
@@ -16,6 +17,8 @@ public sealed partial class Maze
         private IMazeCell _endCell;
         private IReadOnlyDictionary<ushort, Cell> Cells { get; }
 
+        private readonly PredecessorSequence<IMazeCell> _cellSequence = new();
+
         public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<Wall> walls)
         {
             Cells = tiles
@@ -29,6 +32,7 @@ public sealed partial class Maze
             {
                 if (args.Action == NotifyCollectionChangedAction.Add)
                 {
+                    _cellSequence.Insert(Solution);
                     foreach (IMazeCell cell in args.NewItems!)
                     {
                         cell.VisitCount++;
@@ -108,6 +112,7 @@ public sealed partial class Maze
         public void Reset()
         {
             Solution.Clear();
+            _cellSequence.Clear();
 
             foreach (var cell in this)
             {
@@ -123,6 +128,14 @@ public sealed partial class Maze
         public bool IsValidEnd(IMazeCell cell)
         {
             return !(cell is null || cell.Equals(StartCell) || cell.Equals(EndCell));
+        }
+
+        public void GoToVisitedCell(IMazeCell cell)
+        {
+            if (!cell.HasBeenVisited) return;
+
+            Solution.Clear();
+            Solution.AddRange(_cellSequence.GetSequenceTo(cell));
         }
 
         public IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy)

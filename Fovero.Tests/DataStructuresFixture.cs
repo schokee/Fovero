@@ -6,7 +6,18 @@ namespace Fovero.Tests;
 public class DataStructuresFixture
 {
     [Test]
-    public void PredecessorSequenceTest()
+    public void PredecessorSequenceInsertTest()
+    {
+        var s = new PredecessorSequence<int>();
+
+        s.Insert([0, 1, 2, 3, 4, 5]);
+
+        Assert.That(s.GetPredecessors(5), Is.EqualTo(new[] { 4, 3, 2, 1, 0 }));
+        Assert.That(s.GetSequenceTo(5), Is.EqualTo(new[] {0, 1, 2, 3, 4, 5}));
+    }
+
+    [Test]
+    public void PredecessorSequenceInsertAfterTest()
     {
         var s = new PredecessorSequence<int>();
 
@@ -14,8 +25,20 @@ public class DataStructuresFixture
         s.InsertAfter(6, 3);
         s.InsertAfter(7, 6);
 
-        Assert.That(s.GetPredecessors(6), Is.EqualTo(new[] { 3, 2, 1, 0 }));
-        Assert.That(s.GetSequenceTo(5), Is.EqualTo(new[] { 0, 1, 2, 3, 4, 5 }));
+        Assert.That(s.GetPredecessors(7), Is.EqualTo(new[] { 6, 3, 2, 1, 0 }));
+        Assert.That(s.GetSequenceTo(7), Is.EqualTo(new[] { 0, 1, 2, 3, 6, 7 }));
+    }
+
+    [Test]
+    public void PredecessorSequenceInsertManyAfterTest()
+    {
+        var s = new PredecessorSequence<int>();
+
+        s.Insert([0, 1, 2, 3, 4, 5]);
+        s.InsertManyAfter([6, 7], 3);
+
+        Assert.That(s.GetPredecessors(7), Is.EqualTo(new[] { 6, 3, 2, 1, 0 }));
+        Assert.That(s.GetSequenceTo(7), Is.EqualTo(new[] { 0, 1, 2, 3, 6, 7 }));
     }
 
     [Test]

@@ -3,7 +3,7 @@ using MoreLinq;
 
 namespace Fovero.Model.DataStructures;
 
-public class PredecessorSequence<T> where T : IEquatable<T>
+public class PredecessorSequence<T>
 {
     private readonly Dictionary<T, T> _previous = new();
 
@@ -13,7 +13,7 @@ public class PredecessorSequence<T> where T : IEquatable<T>
 
         if (list.Count < 2)
         {
-            throw new InvalidOperationException();
+            return;
         }
 
         list.Pairwise((first, second) => (Previous: first, Item: second))
@@ -31,7 +31,7 @@ public class PredecessorSequence<T> where T : IEquatable<T>
     public IEnumerable<T> GetSequenceTo(T item)
     {
         return !_previous.ContainsKey(item)
-            ? null
+            ? []
             : GetPredecessors(item)
                 .Reverse()
                 .Append(item);
@@ -39,7 +39,16 @@ public class PredecessorSequence<T> where T : IEquatable<T>
 
     public void InsertAfter(T item, T previous)
     {
-        _previous[item] = previous;
+        _previous.TryAdd(item, previous);
+    }
+
+    public void InsertManyAfter(IEnumerable<T> items, T previous)
+    {
+        foreach (T item in items)
+        {
+            InsertAfter(item, previous);
+            previous = item;
+        }
     }
 
     public void Clear()

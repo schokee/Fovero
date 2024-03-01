@@ -23,6 +23,8 @@ public interface ITrailMap : IEnumerable<IMazeCell>
 
     bool IsValidEnd(IMazeCell cell);
 
+    void GoToVisitedCell(IMazeCell cell);
+
     IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy);
 
     void ReverseEndPoints();
