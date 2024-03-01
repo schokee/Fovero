@@ -56,6 +56,11 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
             .SelectMany(cellInitiallyHit => Observable
                 .If(AssociatedObject.CaptureMouse, Observable.Using(() => Disposable.Create(AssociatedObject.ReleaseMouseCapture), _ =>
                 {
+                    if (cellInitiallyHit.Equals(TrailMap.StartCell))
+                    {
+                        TrailMap.Reset();
+                    }
+
                     var solution = TrailMap.Solution;
 
                     var currentEnd = Observable
