@@ -10,6 +10,7 @@ public class Bootstrapper : BootstrapperBase
 
     public Bootstrapper()
     {
+        TryUpgradeSettings(Properties.Settings.Default);
         Initialize();
     }
 
@@ -54,5 +55,15 @@ public class Bootstrapper : BootstrapperBase
     protected override void BuildUp(object instance)
     {
         _container.BuildUp(instance);
+    }
+
+    private static void TryUpgradeSettings(Properties.Settings settings)
+    {
+        if (settings.UpgradeRequired)
+        {
+            settings.Upgrade();
+            settings.UpgradeRequired = false;
+            settings.Save();
+        }
     }
 }
