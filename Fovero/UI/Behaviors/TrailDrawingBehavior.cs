@@ -25,6 +25,8 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
 
     protected override void OnAttached()
     {
+        AssociatedObject.Focusable = true;
+
         var mouseDown = Observable
             .FromEventPattern<MouseButtonEventHandler, MouseButtonEventArgs>(h => AssociatedObject.MouseLeftButtonDown += h, h => AssociatedObject.MouseLeftButtonDown -= h);
 
@@ -34,18 +36,23 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
         var endCapture = Observable
             .FromEventPattern<MouseEventHandler, MouseEventArgs>(h => AssociatedObject.LostMouseCapture += h, h => AssociatedObject.LostMouseCapture -= h);
 
-        var escape = Observable
+        var escapeKeyDown = Observable
             .FromEventPattern<KeyEventHandler, KeyEventArgs>(h => AssociatedObject.KeyDown += h, h => AssociatedObject.KeyDown -= h)
             .Where(x => x.EventArgs.Key == Key.Escape);
 
-        var cancel = Observable.Merge(
+        var lostKeyboardFocus = Observable
+            .FromEventPattern<KeyboardFocusChangedEventHandler, KeyboardFocusChangedEventArgs>(h => AssociatedObject.LostKeyboardFocus += h, h => AssociatedObject.LostKeyboardFocus -= h);
+
+        var trackingCancelled = Observable.Merge(
             mouseUp.Select(x => (EventArgs)x.EventArgs),
             endCapture.Select(x => x.EventArgs),
-            escape.Select(x => x.EventArgs));
+            escapeKeyDown.Select(x => x.EventArgs),
+            lostKeyboardFocus.Select(x => x.EventArgs));
 
         var toJoin = mouseDown
             .Select(x => HitTest(x.EventArgs))
             .FirstAsync(cell => cell is not null)
+            .Do(_ => AssociatedObject.Focus())
             .SelectMany(cellInitiallyHit => Observable
                 .If(AssociatedObject.CaptureMouse, Observable.Using(() => Disposable.Create(AssociatedObject.ReleaseMouseCapture), _ =>
                 {
@@ -71,7 +78,7 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
 
                     return at.CombineLatest(currentEnd);
                 })))
-            .TakeUntil(cancel)
+            .TakeUntil(trackingCancelled)
             .Repeat();
 
         _shutdown.Disposable = toJoin
