@@ -80,7 +80,9 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
                         .StartWith(cellInitiallyHit)
                         .DistinctUntilChanged();
 
-                    return at.CombineLatest(currentEnd);
+                    return at
+                        .CombineLatest(currentEnd)
+                        .Where(t => !t.First.Equals(t.Second));
                 })))
             .TakeUntil(trackingCancelled)
             .Repeat();
@@ -109,17 +111,12 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
 
     private static void UpdateSolution(ITrailMap trailMap, IMazeCell cell, IMazeCell currentEnd)
     {
-        if (cell.Equals(currentEnd)) return;
-
-        var canAdd = currentEnd is null
-            ? cell.Equals(trailMap.StartCell)
-            : cell.AccessibleAdjacentCells.Contains(currentEnd);
-
         if (currentEnd is not null && cell.HasBeenVisited)
         {
-            trailMap.GoToVisitedCell(cell);
+            trailMap.RestorePathToVisitedCell(cell);
         }
-        else if (canAdd)
+        else if (currentEnd is null && cell.Equals(trailMap.StartCell) ||
+                 cell.AccessibleAdjacentCells.Contains(currentEnd))
         {
             trailMap.Solution.Add(cell);
         }

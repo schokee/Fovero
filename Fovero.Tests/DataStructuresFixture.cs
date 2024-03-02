@@ -6,9 +6,9 @@ namespace Fovero.Tests;
 public class DataStructuresFixture
 {
     [Test]
-    public void PredecessorSequenceInsertTest()
+    public void InvertedTreeInsertTest()
     {
-        var s = new PredecessorSequence<int>();
+        var s = new InvertedTree<int>();
 
         s.Insert([0, 1, 2, 3, 4, 5]);
 
@@ -17,9 +17,9 @@ public class DataStructuresFixture
     }
 
     [Test]
-    public void PredecessorSequenceInsertAfterTest()
+    public void InvertedTreeInsertAfterTest()
     {
-        var s = new PredecessorSequence<int>();
+        var s = new InvertedTree<int>();
 
         s.Insert([0, 1, 2, 3, 4, 5]);
         s.InsertAfter(6, 3);
@@ -30,9 +30,9 @@ public class DataStructuresFixture
     }
 
     [Test]
-    public void PredecessorSequenceInsertManyAfterTest()
+    public void InvertedTreeInsertManyAfterTest()
     {
-        var s = new PredecessorSequence<int>();
+        var s = new InvertedTree<int>();
 
         s.Insert([0, 1, 2, 3, 4, 5]);
         s.InsertManyAfter([6, 7], 3);

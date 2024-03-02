@@ -17,7 +17,7 @@ public sealed partial class Maze
         private IMazeCell _endCell;
         private IReadOnlyDictionary<ushort, Cell> Cells { get; }
 
-        private readonly PredecessorSequence<IMazeCell> _cellSequence = new();
+        private readonly InvertedTree<IMazeCell> _exploredPaths = new();
 
         public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<Wall> walls)
         {
@@ -32,7 +32,7 @@ public sealed partial class Maze
             {
                 if (args.Action == NotifyCollectionChangedAction.Add)
                 {
-                    _cellSequence.Insert(Solution);
+                    _exploredPaths.Insert(Solution);
                     foreach (IMazeCell cell in args.NewItems!)
                     {
                         cell.VisitCount++;
@@ -112,7 +112,7 @@ public sealed partial class Maze
         public void Reset()
         {
             Solution.Clear();
-            _cellSequence.Clear();
+            _exploredPaths.Clear();
 
             foreach (var cell in this)
             {
@@ -130,12 +130,12 @@ public sealed partial class Maze
             return !(cell is null || cell.Equals(StartCell) || cell.Equals(EndCell));
         }
 
-        public void GoToVisitedCell(IMazeCell cell)
+        public void RestorePathToVisitedCell(IMazeCell cell)
         {
             if (!cell.HasBeenVisited) return;
 
             Solution.Clear();
-            Solution.AddRange(_cellSequence.GetSequenceTo(cell));
+            Solution.AddRange(_exploredPaths.GetSequenceTo(cell));
         }
 
         public IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy)

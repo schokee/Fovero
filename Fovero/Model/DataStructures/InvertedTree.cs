@@ -3,18 +3,13 @@ using MoreLinq;
 
 namespace Fovero.Model.DataStructures;
 
-public class PredecessorSequence<T>
+public class InvertedTree<T>
 {
     private readonly Dictionary<T, T> _previous = new();
 
     public void Insert(IEnumerable<T> sequence)
     {
         var list = sequence.ToList();
-
-        if (list.Count < 2)
-        {
-            return;
-        }
 
         list.Pairwise((first, second) => (Previous: first, Item: second))
             .Apply(pair => InsertAfter(pair.Item, pair.Previous));
