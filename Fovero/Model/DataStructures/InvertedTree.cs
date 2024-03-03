@@ -5,49 +5,44 @@ namespace Fovero.Model.DataStructures;
 
 public class InvertedTree<T>
 {
-    private readonly Dictionary<T, T> _previous = new();
+    private readonly Dictionary<T, T> _parents = new();
 
     public void Insert(IEnumerable<T> sequence)
     {
-        var list = sequence.ToList();
-
-        list.Pairwise((first, second) => (Previous: first, Item: second))
-            .Apply(pair => InsertAfter(pair.Item, pair.Previous));
+        sequence
+            .Pairwise((first, second) => (Parent: first, Item: second))
+            .Apply(pair => InsertAfter(pair.Item, pair.Parent));
     }
 
-    public IEnumerable<T> GetPredecessors(T item)
+    public IEnumerable<T> GetAncestors(T item)
     {
-        while (_previous.TryGetValue(item, out item))
+        while (_parents.TryGetValue(item, out item))
         {
             yield return item;
         }
     }
 
-    public IEnumerable<T> GetSequenceTo(T item)
+    public IEnumerable<T> GetPathTo(T item)
     {
-        return !_previous.ContainsKey(item)
+        return !_parents.ContainsKey(item)
             ? []
-            : GetPredecessors(item)
+            : GetAncestors(item)
                 .Reverse()
                 .Append(item);
     }
 
-    public void InsertAfter(T item, T previous)
+    public void InsertAfter(T item, T parent)
     {
-        _previous.TryAdd(item, previous);
+        _parents.TryAdd(item, parent);
     }
 
-    public void InsertManyAfter(IEnumerable<T> items, T previous)
+    public void InsertManyAfter(IEnumerable<T> items, T parent)
     {
-        foreach (T item in items)
-        {
-            InsertAfter(item, previous);
-            previous = item;
-        }
+        Insert(items.Prepend(parent));
     }
 
     public void Clear()
     {
-        _previous.Clear();
+        _parents.Clear();
     }
 }
