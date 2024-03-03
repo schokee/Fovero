@@ -23,7 +23,7 @@ public interface ITrailMap : IEnumerable<IMazeCell>
 
     bool IsValidEnd(IMazeCell cell);
 
-    void RestorePathToVisitedCell(IMazeCell cell);
+    IEnumerable<IMazeCell> GetPathToVisitedCell(IMazeCell cell);
 
     IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy);
 

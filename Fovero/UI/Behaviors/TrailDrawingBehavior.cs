@@ -113,7 +113,8 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
     {
         if (currentEnd is not null && cell.HasBeenVisited)
         {
-            trailMap.RestorePathToVisitedCell(cell);
+            trailMap.Solution.Clear();
+            trailMap.Solution.AddRange(trailMap.GetPathToVisitedCell(cell));
         }
         else if (currentEnd is null && cell.Equals(trailMap.StartCell) ||
                  cell.AccessibleAdjacentCells.Contains(currentEnd))

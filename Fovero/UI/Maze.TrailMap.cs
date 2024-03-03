@@ -130,12 +130,9 @@ public sealed partial class Maze
             return !(cell is null || cell.Equals(StartCell) || cell.Equals(EndCell));
         }
 
-        public void RestorePathToVisitedCell(IMazeCell cell)
+        public IEnumerable<IMazeCell> GetPathToVisitedCell(IMazeCell cell)
         {
-            if (!cell.HasBeenVisited) return;
-
-            Solution.Clear();
-            Solution.AddRange(_exploredPaths.GetSequenceTo(cell));
+            return _exploredPaths.GetSequenceTo(cell);
         }
 
         public IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy)
