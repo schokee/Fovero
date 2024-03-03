@@ -39,4 +39,23 @@ internal static class Traverse
             }
         }
     }
+
+    public static IEnumerable<T> DepthFirst<T>(T startingFrom, Func<T, IEnumerable<T>> selectNeighbors)
+    {
+        var stack = new Stack<T>();
+
+        stack.Push(startingFrom);
+
+        while (stack.Count > 0)
+        {
+            var next = stack.Pop();
+
+            yield return next;
+
+            foreach (var neighbor in selectNeighbors(next))
+            {
+                stack.Push(neighbor);
+            }
+        }
+    }
 }
