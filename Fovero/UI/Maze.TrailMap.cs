@@ -17,7 +17,7 @@ public sealed partial class Maze
         private IMazeCell _endCell;
         private IReadOnlyDictionary<ushort, Cell> Cells { get; }
 
-        private readonly InvertedTree<IMazeCell> _exploredPaths = new();
+        private readonly InvertedTree<IMazeCell> _visitedPaths = new();
 
         public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<Wall> walls)
         {
@@ -32,7 +32,22 @@ public sealed partial class Maze
             {
                 if (args.Action == NotifyCollectionChangedAction.Add)
                 {
-                    _exploredPaths.Insert(Solution);
+                    if (args.NewStartingIndex > 0)
+                    {
+                        var parent = Solution[args.NewStartingIndex - 1];
+
+                        switch (args.NewItems!.Count)
+                        {
+                            case 1:
+                                _visitedPaths.InsertAfter(args.NewItems[0] as IMazeCell, parent);
+                                break;
+
+                            default:
+                                _visitedPaths.InsertManyAfter(args.NewItems!.Cast<IMazeCell>(), parent);
+                                break;
+                        }
+                    }
+
                     foreach (IMazeCell cell in args.NewItems!)
                     {
                         cell.VisitCount++;
@@ -112,7 +127,7 @@ public sealed partial class Maze
         public void Reset()
         {
             Solution.Clear();
-            _exploredPaths.Clear();
+            _visitedPaths.Clear();
 
             foreach (var cell in this)
             {
@@ -132,7 +147,7 @@ public sealed partial class Maze
 
         public IEnumerable<IMazeCell> GetPathToVisitedCell(IMazeCell cell)
         {
-            return _exploredPaths.GetSequenceTo(cell);
+            return _visitedPaths.GetPathTo(cell);
         }
 
         public IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy)
