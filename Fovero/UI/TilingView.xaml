@@ -196,6 +196,8 @@
 
         <Grid Margin="10" ClipToBounds="True">
             <Grid.Resources>
+                <converters:ObjectToBooleanConverter x:Key="InvertingObjectToBooleanConverter" Invert="True"/>
+
                 <SolidColorBrush x:Key="Unsolved" Color="Crimson"/>
                 <SolidColorBrush x:Key="Solved" Color="Gold"/>
 
@@ -331,38 +333,48 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl x:Name="Walls" ItemsSource="{Binding Path=Maze.Walls}" UseLayoutRounding="False">
+            <ItemsControl x:Name="Walls" ItemsSource="{Binding Path=Maze.Walls}" IsHitTestVisible="{Binding HasGenerated, Converter={StaticResource InvertingObjectToBooleanConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:Wall}">
-                        <Path Data="{Binding Geometry, Mode=OneTime}">
-                            <Path.Style>
-                                <Style TargetType="{x:Type Path}">
-                                    <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" />
-                                    <Setter Property="Stroke" Value="#F01E90FF" />
-                                    <Setter Property="StrokeStartLineCap" Value="Round" />
-                                    <Setter Property="StrokeEndLineCap" Value="Round" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsShared, Mode=OneTime}" Value="False">
-                                            <Setter Property="Stroke" Value="DimGray" />
-                                            <Setter Property="Canvas.ZIndex" Value="10" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
-                                            <Setter Property="Stroke" Value="DarkOrange" />
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard Name="FadeEffect">
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.7"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                            <DataTrigger.ExitActions>
-                                                <StopStoryboard BeginStoryboardName="FadeEffect"/>
-                                            </DataTrigger.ExitActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Path.Style>
-                        </Path>
+                        <CheckBox IsEnabled="{Binding IsShared}" IsChecked="{Binding IsLocked}" Focusable="False" IsTabStop="False">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="{x:Type CheckBox}">
+                                    <Path Data="{Binding Geometry, Mode=OneTime}">
+                                        <Path.Style>
+                                            <Style TargetType="{x:Type Path}">
+                                                <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" />
+                                                <Setter Property="Stroke" Value="#F01E90FF" />
+                                                <Setter Property="StrokeStartLineCap" Value="Round" />
+                                                <Setter Property="StrokeEndLineCap" Value="Round" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                        <Setter Property="Stroke" Value="DimGray" />
+                                                        <Setter Property="Canvas.ZIndex" Value="10" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsOpen}" Value="True">
+                                                        <Setter Property="Stroke" Value="DarkOrange" />
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard Name="FadeEffect">
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.7"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                        <DataTrigger.ExitActions>
+                                                            <StopStoryboard BeginStoryboardName="FadeEffect"/>
+                                                        </DataTrigger.ExitActions>
+                                                    </DataTrigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Stroke" Value="DimGray" />
+                                                        <Setter Property="Canvas.ZIndex" Value="10" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

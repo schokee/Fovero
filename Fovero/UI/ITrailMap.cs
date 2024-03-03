@@ -5,6 +5,8 @@ namespace Fovero.UI;
 
 public interface ITrailMap : IEnumerable<IMazeCell>
 {
+    public event EventHandler<bool> SolvedStateChanged;
+
     IMazeCell StartCell { get; set; }
 
     IMazeCell EndCell { get; set; }
