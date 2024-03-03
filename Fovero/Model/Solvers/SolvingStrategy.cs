@@ -18,14 +18,16 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
         AStarManhattan,
         BreadthFirstSearch,
         DepthFirstSearch,
-        RandomWalk
+        RandomWalk,
+        HeapWalk
     ];
 
-    public static SolvingStrategy AStarEuclidean => new("A* Euclidean", SolveUsing(TraversalPrioritisedBy(PathPrioritisation.EuclidianDistance)));
-    public static SolvingStrategy AStarManhattan => new("A* Manhattan", SolveUsing(TraversalPrioritisedBy(PathPrioritisation.ManhattanDistance)));
-    public static SolvingStrategy BreadthFirstSearch => new("BFS", SolveUsing(BreadthFirstTraversal));
-    public static SolvingStrategy DepthFirstSearch => new("DFS", SolveUsing(DepthFirstTraversal));
-    public static SolvingStrategy RandomWalk => new("Random Walk", SolveUsing(TraversalPrioritisedBy(PathPrioritisation.Random)));
+    public static SolvingStrategy AStarEuclidean => new("A* Euclidean", SolveUsing(PathPrioritisation.EuclidianDistance));
+    public static SolvingStrategy AStarManhattan => new("A* Manhattan", SolveUsing(PathPrioritisation.ManhattanDistance));
+    public static SolvingStrategy BreadthFirstSearch => new("Breadth-first Search", SolveUsing(Traverse.BreadthFirst));
+    public static SolvingStrategy DepthFirstSearch => new("Depth-first Search", SolveUsing(Traverse.DepthFirst));
+    public static SolvingStrategy RandomWalk => new("Random Walk", SolveUsing(PathPrioritisation.Random));
+    public static SolvingStrategy HeapWalk => new("Heap Walk", SolveUsing(PathPrioritisation.AllEqual));
 
     private static class PathPrioritisation
     {
@@ -36,31 +38,29 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
         public static Method EuclidianDistance => (from, to) => from.EuclidianDistanceTo(to);
 
         public static Method Random => (_, _) => System.Random.Shared.NextSingle();
+
+        public static Method AllEqual => (_, _) => 0;
     }
 
-    private delegate IEnumerable<Path<ICell>> TraversalStrategy(Path<ICell> origin, ICell goal);
+    private delegate IEnumerable<Path<ICell>> TraversalStrategy(Path<ICell> startingFrom, Func<Path<ICell>, IEnumerable<Path<ICell>>> selectNeighbors);
+
+    private static SolvingFunction SolveUsing(PathPrioritisation.Method prioritise)
+    {
+        return (startCell, endCell) =>
+        {
+            var solver = SolveUsing((startingPath, selectNeighbors) => Traverse.Prioritised(startingPath, selectNeighbors, path => prioritise(path.Last.Location, endCell.Location)));
+            return solver.Invoke(startCell, endCell);
+        };
+    }
 
     private static SolvingFunction SolveUsing(TraversalStrategy traverse)
     {
-        return (origin, goal) => traverse(new Path<ICell>(origin), goal).TakeUntil(path => path.Last.Equals(goal));
-    }
-
-    private static TraversalStrategy TraversalPrioritisedBy(PathPrioritisation.Method prioritise) => (startingFrom, goal) =>
-        Traverse.Prioritised(startingFrom, SelectUnvisitedAlternatives, path => prioritise(path.Last.Location, goal.Location));
-
-    private static TraversalStrategy BreadthFirstTraversal => (startingFrom, _) =>
-        Traverse.BreadthFirst(startingFrom, SelectUnvisitedAlternatives);
-
-    private static TraversalStrategy DepthFirstTraversal => (startingFrom, _) =>
-        Traverse.DepthFirst(startingFrom, SelectUnvisitedAlternatives);
-
-    private static Func<Path<ICell>, IEnumerable<Path<ICell>>> SelectUnvisitedAlternatives
-    {
-        get
+        return (startCell, endCell) =>
         {
             var visitedCells = new HashSet<ICell>();
-            return path => path.Last.AccessibleAdjacentCells.Where(visitedCells.Add).Select(path.To);
-        }
+
+            return traverse(new Path<ICell>(startCell), path => path.Last.AccessibleAdjacentCells.Where(visitedCells.Add).Select(path.To))
+                .TakeUntil(path => path.Last.Equals(endCell));
+        };
     }
 }
-
