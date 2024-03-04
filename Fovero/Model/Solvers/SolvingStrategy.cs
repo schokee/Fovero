@@ -57,7 +57,7 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
     {
         return (startCell, endCell) =>
         {
-            var visitedCells = new HashSet<ICell>();
+            var visitedCells = new HashSet<ICell> { startCell };
 
             return traverse(new Path<ICell>(startCell), path => path.Last.AccessibleAdjacentCells.Where(visitedCells.Add).Select(path.To))
                 .TakeUntil(path => path.Last.Equals(endCell));
