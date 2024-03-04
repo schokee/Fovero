@@ -34,18 +34,7 @@ public sealed partial class Maze
                 {
                     if (args.NewStartingIndex > 0)
                     {
-                        var parent = Solution[args.NewStartingIndex - 1];
-
-                        switch (args.NewItems!.Count)
-                        {
-                            case 1:
-                                _visitedPaths.InsertAfter(args.NewItems[0] as IMazeCell, parent);
-                                break;
-
-                            default:
-                                _visitedPaths.InsertManyAfter(args.NewItems!.Cast<IMazeCell>(), parent);
-                                break;
-                        }
+                        _visitedPaths.Insert(Solution.Skip(args.NewStartingIndex - 1));
                     }
 
                     foreach (IMazeCell cell in args.NewItems!)

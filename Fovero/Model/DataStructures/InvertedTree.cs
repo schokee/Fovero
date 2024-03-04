@@ -1,5 +1,4 @@
-﻿using Caliburn.Micro;
-using MoreLinq;
+﻿using MoreLinq;
 
 namespace Fovero.Model.DataStructures;
 
@@ -11,7 +10,7 @@ public class InvertedTree<T>
     {
         sequence
             .Pairwise((first, second) => (Parent: first, Item: second))
-            .Apply(pair => InsertAfter(pair.Item, pair.Parent));
+            .ForEach(pair => InsertAfter(pair.Item, pair.Parent));
     }
 
     public IEnumerable<T> GetAncestors(T item)
@@ -34,11 +33,6 @@ public class InvertedTree<T>
     public void InsertAfter(T item, T parent)
     {
         _parents.TryAdd(item, parent);
-    }
-
-    public void InsertManyAfter(IEnumerable<T> items, T parent)
-    {
-        Insert(items.Prepend(parent));
     }
 
     public void Clear()
