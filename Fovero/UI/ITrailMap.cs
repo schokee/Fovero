@@ -1,17 +1,18 @@
-﻿using Caliburn.Micro;
-using Fovero.Model.Solvers;
+﻿using Fovero.Model.Solvers;
 
 namespace Fovero.UI;
 
 public interface ITrailMap : IEnumerable<IMazeCell>
 {
+    event EventHandler SolutionChanged;
+
     IMazeCell StartCell { get; set; }
 
     IMazeCell EndCell { get; set; }
 
     IEnumerable<string> Markers { get; }
 
-    IObservableCollection<IMazeCell> Solution { get; }
+    IReadOnlyCollection<IMazeCell> Solution { get; }
 
     bool IsSolved { get; }
 
@@ -23,9 +24,9 @@ public interface ITrailMap : IEnumerable<IMazeCell>
 
     bool IsValidEnd(IMazeCell cell);
 
-    IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy);
+    IEnumerable<Action> EnumerateSolutionSteps(SolvingStrategy solvingStrategy);
 
     void ReverseEndPoints();
 
-    void Update(CollectionChange change);
+    bool HighlightTrailTo(IMazeCell cell);
 }

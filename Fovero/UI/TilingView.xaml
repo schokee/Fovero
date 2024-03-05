@@ -331,8 +331,8 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl x:Name="Walls" ItemsSource="{Binding Path=Maze.Walls}" UseLayoutRounding="False">
-                <ItemsControl.ItemTemplate>
+            <ItemsControl x:Name="Walls" ItemsSource="{Binding Path=Maze.Walls}">
+                <ItemsControl.Resources>
                     <DataTemplate DataType="{x:Type local:Wall}">
                         <Path Data="{Binding Geometry, Mode=OneTime}">
                             <Path.Style>
@@ -364,7 +364,7 @@
                             </Path.Style>
                         </Path>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
+                </ItemsControl.Resources>
             </ItemsControl>
 
             <!--

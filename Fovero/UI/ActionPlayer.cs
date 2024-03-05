@@ -5,9 +5,14 @@ namespace Fovero.UI;
 
 public sealed class ActionPlayer : PropertyChangedBase
 {
+    private bool _isAnimated = true;
     private int _animationSpeed = 75; // 10ms delay
 
-    public bool IsAnimated { get; set; } = true;
+    public bool IsAnimated
+    {
+        get => _isAnimated;
+        set => Set(ref _isAnimated, value);
+    }
 
     public int AnimationSpeed
     {
@@ -26,11 +31,11 @@ public sealed class ActionPlayer : PropertyChangedBase
 
     public double AnimationDelay => AnimationSpeed == MaximumSpeed ? 0 : Math.Pow(10, CalculateExponent());
 
-    public async Task Play<T>(IEnumerable<T> source, Action<T> doWork)
+    public async Task Play(IEnumerable<System.Action> script)
     {
-        foreach (T item in source)
+        foreach (var action in script)
         {
-            doWork(item);
+            action.Invoke();
 
             if (IsAnimated && AnimationDelay > 0)
             {
