@@ -4,17 +4,17 @@ public static class GeometryExtensions
 {
     public static float SmallestSize(this Size2D size)
     {
-        return Math.Min(size.Width, size.Height);
+        return MathF.Min(size.Width, size.Height);
     }
 
     public static float LargestSize(this Size2D size)
     {
-        return Math.Max(size.Width, size.Height);
+        return MathF.Max(size.Width, size.Height);
     }
 
     public static float SmallestSize(this Rectangle rectangle)
     {
-        return Math.Min(rectangle.Width, rectangle.Height);
+        return MathF.Min(rectangle.Width, rectangle.Height);
     }
 
     public static Point2D Min(this Point2D p1, Point2D p2)
@@ -40,5 +40,15 @@ public static class GeometryExtensions
     public static Rectangle ReduceBy(this Rectangle rectangle, Size2D offset)
     {
         return new Rectangle(rectangle.TopLeft + offset, rectangle.BottomRight - offset);
+    }
+
+    public static Rectangle ScaledBy(this Rectangle rectangle, float scale)
+    {
+        return new Rectangle(rectangle.Left * scale, rectangle.Top * scale, rectangle.Width * scale, rectangle.Height * scale);
+    }
+
+    public static Rectangle CenteredAt(this Rectangle rectangle, Point2D center)
+    {
+        return rectangle with { X = center.X - rectangle.Width / 2, Y = center.Y - rectangle.Height / 2 };
     }
 }

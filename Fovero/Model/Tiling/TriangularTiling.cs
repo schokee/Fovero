@@ -8,7 +8,7 @@ public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTilin
 {
     private static float CellHeight { get; } = MathF.Sqrt(3) / 2;
 
-    public override Rectangle Bounds => new(0, 0, Columns / 2f, Rows * CellHeight);
+    public override Rectangle Bounds => new Rectangle(0, 0, Columns / 2f, Rows * CellHeight).ToScaledUnits();
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -34,7 +34,7 @@ public sealed class TriangularTiling(ushort columns, ushort rows) : RegularTilin
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new(_column / 2f, _row * CellHeight, 1, CellHeight);
+        public Rectangle Bounds => new Rectangle(_column / 2f, _row * CellHeight, 1, CellHeight).ToScaledUnits();
 
         public IEnumerable<Point2D> CornerPoints
         {

@@ -14,7 +14,7 @@ public sealed class Edge : IEdge
 
     private Edge(Point2D start, Point2D end, params ITile[] neighbors)
     {
-        Id = start.MidPointTo(end).ScaledBy(1000);
+        Id = start.MidPointTo(end);
         Start = start;
         End = end;
         DrawData = $"L {end.X},{end.Y}";

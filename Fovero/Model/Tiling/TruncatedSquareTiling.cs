@@ -1,11 +1,13 @@
 ﻿using Fovero.Model.Geometry;
 using MoreLinq;
 
+using static Fovero.Model.Tiling.Scaling;
+
 namespace Fovero.Model.Tiling;
 
 public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(columns, rows)
 {
-    public override Rectangle Bounds => new(0, 0, 2 * Columns, 2 * Rows);
+    public override Rectangle Bounds => new Rectangle(0, 0, 2 * Columns, 2 * Rows).ToScaledUnits();
 
     protected override ITile CreateTile(int col, int row)
     {
@@ -35,12 +37,14 @@ public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(
         {
             get
             {
-                var c = (_column >> 1) * 4f + (_column % 2 == 0 ? 0 : 2);
-                var r = (_row >> 1) * 4f + (_row % 2 == 0 ? 0 : 2);
+                var c = (_column >> 1) * 4 + (_column % 2 == 0 ? 0 : 2);
+                var r = (_row >> 1) * 4 + (_row % 2 == 0 ? 0 : 2);
 
-                return _isSquare
-                    ? new(c + 1, r + 1, 1, 1)
-                    : new(c, r, 3, 3);
+                var bounds = _isSquare
+                    ? new Rectangle(c + 1, r + 1, 1, 1)
+                    : new Rectangle(c, r, 3, 3);
+
+                return bounds.ToScaledUnits();
             }
         }
 
@@ -59,14 +63,14 @@ public class TruncatedSquareTiling(ushort columns, ushort rows) : RegularTiling(
                 }
                 else
                 {
-                    yield return new Point2D(bounds.Left + 1, bounds.Top);
-                    yield return new Point2D(bounds.Left + 2, bounds.Top);
-                    yield return new Point2D(bounds.Right, bounds.Top + 1);
-                    yield return new Point2D(bounds.Right, bounds.Top + 2);
-                    yield return new Point2D(bounds.Left + 2, bounds.Bottom);
-                    yield return new Point2D(bounds.Left + 1, bounds.Bottom);
-                    yield return new Point2D(bounds.Left, bounds.Top + 2);
-                    yield return new Point2D(bounds.Left, bounds.Top + 1);
+                    yield return new Point2D(bounds.Left + Unit, bounds.Top);
+                    yield return new Point2D(bounds.Left + Unit * 2, bounds.Top);
+                    yield return new Point2D(bounds.Right, bounds.Top + Unit);
+                    yield return new Point2D(bounds.Right, bounds.Top + Unit * 2);
+                    yield return new Point2D(bounds.Left + Unit * 2, bounds.Bottom);
+                    yield return new Point2D(bounds.Left + Unit, bounds.Bottom);
+                    yield return new Point2D(bounds.Left, bounds.Top + Unit * 2);
+                    yield return new Point2D(bounds.Left, bounds.Top + Unit);
                 }
             }
         }

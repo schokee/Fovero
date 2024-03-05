@@ -9,7 +9,7 @@ public class PyramidTiling(ushort height) : ITiling
 
     public ushort Height { get; } = height;
 
-    public Rectangle Bounds => new(0, 0, Height, CellHeight * Height);
+    public Rectangle Bounds => new Rectangle(0, 0, Height, CellHeight * Height).ToScaledUnits();
 
     public IEnumerable<ITile> Generate()
     {
@@ -55,7 +55,7 @@ public class PyramidTiling(ushort height) : ITiling
 
         public Point2D Center => Bounds.Center;
 
-        public Rectangle Bounds => new((_format.Height - _row + _column) / 2f, _row * CellHeight, 1, CellHeight);
+        public Rectangle Bounds => new Rectangle((_format.Height - _row + _column) / 2f, _row * CellHeight, 1, CellHeight).ToScaledUnits();
 
         public IEnumerable<Point2D> CornerPoints
         {

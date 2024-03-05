@@ -15,11 +15,28 @@
 
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
     <PackageReference Include="MahApps.Metro" />
     <PackageReference Include="MahApps.Metro.IconPacks.Material" />
     <PackageReference Include="MoreLinq" />
+    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="System.Reactive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 
