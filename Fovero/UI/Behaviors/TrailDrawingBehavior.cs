@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Reactive.Disposables;
+﻿using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -63,12 +62,9 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
                     var solution = TrailMap.Solution;
 
                     var currentEnd = Observable
-                        .FromEventPattern<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
-                            h => solution.CollectionChanged += h,
-                            h => solution.CollectionChanged -= h)
-                        .Select(_ => 0)
-                        .StartWith(0)
+                        .FromEventPattern(h => TrailMap.SolutionChanged += h, h => TrailMap.SolutionChanged -= h)
                         .Select(_ => solution.LastOrDefault())
+                        .StartWith(default(IMazeCell))
                         .DistinctUntilChanged();
 
                     var at = Observable
@@ -82,14 +78,15 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
 
                     return at
                         .CombineLatest(currentEnd)
-                        .Where(t => !t.First.Equals(t.Second));
+                        .Where(pair => !pair.First.Equals(pair.Second))
+                        .Select(x => x.First);
                 })))
             .TakeUntil(trackingCancelled)
             .Repeat();
 
         _shutdown.Disposable = toJoin
             .ObserveOn(SynchronizationContext.Current!)
-            .Subscribe(x => UpdateSolution(TrailMap, x.First, x.Second));
+            .Subscribe(cell => TrailMap.HighlightTrailTo(cell));
 
         base.OnAttached();
     }
@@ -107,19 +104,5 @@ internal sealed class TrailDrawingBehavior : Behavior<Canvas>
             : null;
 
         return result;
-    }
-
-    private static void UpdateSolution(ITrailMap trailMap, IMazeCell cell, IMazeCell currentEnd)
-    {
-        if (currentEnd is not null && cell.HasBeenVisited)
-        {
-            trailMap.Solution.Clear();
-            trailMap.Solution.AddRange(trailMap.GetPathToVisitedCell(cell));
-        }
-        else if (currentEnd is null && cell.Equals(trailMap.StartCell) ||
-                 cell.AccessibleAdjacentCells.Contains(currentEnd))
-        {
-            trailMap.Solution.Add(cell);
-        }
     }
 }

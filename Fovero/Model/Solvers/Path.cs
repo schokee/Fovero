@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Solvers;
 
-internal sealed class Path<T> : IReadOnlyCollection<T>
+public sealed class Path<T> : IReadOnlyCollection<T>
 {
     private readonly Path<T> _prologue;
     private readonly Lazy<IReadOnlyCollection<T>> _collection;

@@ -1,6 +1,7 @@
 ﻿using System.Reactive.Disposables;
 using Caliburn.Micro;
 using CommunityToolkit.Mvvm.Input;
+using Fovero.Model;
 using Fovero.Model.Generators;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
@@ -215,7 +216,8 @@ public sealed partial class TilingViewModel : Screen, ICanvas
 
             await BuildingSequence.Play(SelectedBuilder
                 .SelectWallsToBeOpened(Maze.SharedWalls.ToList(), random)
-                .TakeWhile(_ => IsBusy), x => x.IsOpen = true);
+                .ToScript(wall => wall.IsOpen = true)
+                .TakeWhile(_ => IsBusy));
 
             if (!IsSeedLocked)
             {
@@ -242,8 +244,8 @@ public sealed partial class TilingViewModel : Screen, ICanvas
         using (BeginWork())
         {
             await SolutionSequence.Play(TrailMap
-                .FindSolution(SelectedSolver)
-                .TakeWhile(_ => IsBusy), TrailMap.Update);
+                .EnumerateSolutionSteps(SelectedSolver)
+                .TakeWhile(_ => IsBusy));
         }
     }
 
