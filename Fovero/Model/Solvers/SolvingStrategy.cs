@@ -3,7 +3,7 @@ using MoreLinq;
 
 namespace Fovero.Model.Solvers;
 
-public delegate IEnumerable<IReadOnlyCollection<ICell>> SolvingFunction(ICell origin, ICell goal);
+public delegate IEnumerable<Path<ICell>> SolvingFunction(ICell origin, ICell goal);
 
 public record SolvingStrategy(string Name, SolvingFunction FindPath)
 {

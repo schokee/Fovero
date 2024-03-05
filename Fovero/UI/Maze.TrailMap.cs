@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 using Caliburn.Micro;
-using Fovero.Model.DataStructures;
+using Fovero.Model;
 using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
@@ -13,11 +13,14 @@ public sealed partial class Maze
 {
     private class TrailMap : PropertyChangedBase, ITrailMap
     {
+        private readonly Dictionary<ICell, Path<ICell>> _visitedPaths = new();
+        private readonly BindableCollection<IMazeCell> _solution = new();
+
         private IMazeCell _startCell;
         private IMazeCell _endCell;
         private IReadOnlyDictionary<ushort, Cell> Cells { get; }
 
-        private readonly InvertedTree<IMazeCell> _visitedPaths = new();
+        public event EventHandler SolutionChanged;
 
         public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<Wall> walls)
         {
@@ -28,23 +31,31 @@ public sealed partial class Maze
             StartCell = Cells.Values.MinBy(x => x.Ordinal);
             EndCell = Cells.Values.MaxBy(x => x.Ordinal);
 
-            Solution.CollectionChanged += (_, args) =>
+            _solution.CollectionChanged += (_, args) =>
             {
-                if (args.Action == NotifyCollectionChangedAction.Add)
+                switch (args.Action)
                 {
-                    if (args.NewStartingIndex > 0)
+                    case NotifyCollectionChangedAction.Reset:
                     {
-                        _visitedPaths.Insert(Solution.Skip(args.NewStartingIndex - 1));
+                        _visitedPaths.Clear();
+                        break;
                     }
 
-                    foreach (IMazeCell cell in args.NewItems!)
+                    case NotifyCollectionChangedAction.Add:
                     {
-                        cell.VisitCount++;
+                        foreach (IMazeCell cell in args.NewItems!)
+                        {
+                            cell.VisitCount++;
+                        }
+
+                        break;
                     }
                 }
 
                 NotifyOfPropertyChange(nameof(IsSolved));
                 NotifyOfPropertyChange(nameof(CanReset));
+
+                SolutionChanged?.Invoke(this, EventArgs.Empty);
             };
 
             IEnumerable<Cell> SelectAdjacent(Cell cell) => walls
@@ -97,7 +108,7 @@ public sealed partial class Maze
             }
         }
 
-        public IObservableCollection<IMazeCell> Solution { get; } = new BindableCollection<IMazeCell>();
+        public IReadOnlyCollection<IMazeCell> Solution => _solution;
 
         public IEnumerator<IMazeCell> GetEnumerator()
         {
@@ -115,8 +126,7 @@ public sealed partial class Maze
 
         public void Reset()
         {
-            Solution.Clear();
-            _visitedPaths.Clear();
+            _solution.Clear();
 
             foreach (var cell in this)
             {
@@ -134,20 +144,17 @@ public sealed partial class Maze
             return !(cell is null || cell.Equals(StartCell) || cell.Equals(EndCell));
         }
 
-        public IEnumerable<IMazeCell> GetPathToVisitedCell(IMazeCell cell)
-        {
-            return _visitedPaths.GetPathTo(cell);
-        }
-
-        public IEnumerable<CollectionChange> FindSolution(SolvingStrategy solvingStrategy)
+        public IEnumerable<System.Action> EnumerateSolutionSteps(SolvingStrategy solvingStrategy)
         {
             ArgumentNullException.ThrowIfNull(solvingStrategy, nameof(solvingStrategy));
 
             return solvingStrategy
                 .FindPath(StartCell, EndCell)
-                .Prepend(Array.Empty<IMazeCell>())
+                .Pipe(AddTrail)
+                .Prepend(Path<ICell>.Empty)
                 .Pairwise((prev, next) => prev.SwitchTo(next))
-                .SelectMany(move => move);
+                .SelectMany(move => move)
+                .ToScript(Update);
         }
 
         public void ReverseEndPoints()
@@ -160,15 +167,52 @@ public sealed partial class Maze
             NotifyOfPropertyChange(nameof(Markers));
         }
 
-        public void Update(CollectionChange change)
+        public bool HighlightTrailTo(IMazeCell cell)
+        {
+            ArgumentNullException.ThrowIfNull(cell, nameof(cell));
+
+            if (cell.HasBeenVisited)
+            {
+                _solution
+                    .SwitchTo(_visitedPaths[cell])
+                    .ForEach(Update);
+
+                return true;
+            }
+
+            if (cell.Equals(StartCell))
+            {
+                _solution.Add(cell);
+                AddTrail(new Path<ICell>(cell));
+                return true;
+            }
+
+            var endOfTrail = _solution.LastOrDefault();
+
+            if (endOfTrail?.AccessibleAdjacentCells.Contains(cell) == true)
+            {
+                _solution.Add(cell);
+                AddTrail(_visitedPaths[endOfTrail].To(cell));
+                return true;
+            }
+
+            return false;
+        }
+
+        private void AddTrail(Path<ICell> path)
+        {
+            _visitedPaths.Add(path.Last, path);
+        }
+
+        private void Update(CollectionChange change)
         {
             switch (change)
             {
                 case RemoveLast:
-                    Solution.RemoveAt(Solution.Count - 1);
+                    _solution.RemoveAt(Solution.Count - 1);
                     break;
                 case Append<ICell> { Item: IMazeCell cell }:
-                    Solution.Add(cell);
+                    _solution.Add(cell);
                     break;
             }
         }
