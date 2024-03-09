@@ -1,5 +1,6 @@
 ﻿using Fovero.Model.Geometry;
 using Fovero.Model.Tiling;
+using Fovero.UI.Components;
 using JetBrains.Annotations;
 
 namespace Fovero.UI;
@@ -9,20 +10,24 @@ public sealed partial class Maze
     private Size2D Size { get; }
     private Func<TrailMap> TrailMapFactory { get; }
 
-    public Maze(ITiling tiling)
+    public Maze(ITiling tiling) : this(tiling, edge => new Door(edge))
+    {
+    }
+
+    public Maze(ITiling tiling, Func<IEdge, SharedBorder> createBorder)
     {
         var tiles = tiling
             .Generate()
             .ToDictionary(x => x.Ordinal);
 
-        Walls = tiles.Values
+        Boundaries = tiles.Values
             .SelectMany(x => x.Edges)
             .Distinct()
-            .Select(edge => new Wall(edge))
+            .Select(edge => (Boundary)(edge.IsShared ? createBorder(edge) : new Wall(edge)))
             .ToList();
 
         Size = tiling.Bounds.Size;
-        TrailMapFactory = () => new TrailMap(tiles.Values, Walls);
+        TrailMapFactory = () => new TrailMap(tiles.Values, SharedBorders.ToList());
     }
 
     [UsedImplicitly]
@@ -31,15 +36,19 @@ public sealed partial class Maze
     [UsedImplicitly]
     public float Height => Size.Height;
 
-    public IReadOnlyList<Wall> Walls { get; }
+    public bool AreBoundariesVisible { get; set; } = true;
 
-    public IEnumerable<Wall> SharedWalls => Walls.Where(x => x.IsShared);
+    public IReadOnlyList<Boundary> VisibleBoundaries => AreBoundariesVisible ? Boundaries : [];
 
-    public void ResetWalls()
+    public IReadOnlyList<Boundary> Boundaries { get; }
+
+    public IEnumerable<SharedBorder> SharedBorders => Boundaries.OfType<SharedBorder>();
+
+    public void ResetBorders()
     {
-        foreach (var wall in SharedWalls)
+        foreach (var border in SharedBorders)
         {
-            wall.IsOpen = false;
+            border.IsOpen = false;
         }
     }
 

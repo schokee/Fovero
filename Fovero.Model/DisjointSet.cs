@@ -37,11 +37,11 @@ public sealed class DisjointSet<T> : IEnumerable<T> where T : IEquatable<T>
 
     public bool Merge(T itemA, T itemB)
     {
-        var representativeA = _nodes.TryGetValue(itemA, out NodeInfo nodeA)
+        var representativeA = _nodes.TryGetValue(itemA, out NodeInfo? nodeA)
             ? nodeA.Representative
             : throw new KeyNotFoundException($"Key {itemA} not found");
 
-        var representativeB = _nodes.TryGetValue(itemB, out NodeInfo nodeB)
+        var representativeB = _nodes.TryGetValue(itemB, out NodeInfo? nodeB)
             ? nodeB.Representative
             : throw new KeyNotFoundException($"Key {itemB} not found");
 

@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Tiling
 {
-    internal static class Scaling
+    public static class Scaling
     {
         public const float Unit = 100;
 

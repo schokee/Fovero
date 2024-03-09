@@ -1,12 +1,12 @@
-﻿namespace Fovero.Model.Solvers;
+﻿namespace Fovero.Model;
 
 internal static class Traverse
 {
-    public static IEnumerable<T> Prioritised<T, TPriority>(T startingFrom, Func<T, IEnumerable<T>> selectNeighbors, Func<T, TPriority> prioritise)
+    public static IEnumerable<T> Prioritised<T, TPriority>(T startingFrom, TPriority startPriority, Func<T, IEnumerable<T>> selectNeighbors, Func<T, TPriority> prioritise)
     {
         var queue = new PriorityQueue<T, TPriority>();
 
-        queue.Enqueue(startingFrom, default);
+        queue.Enqueue(startingFrom, startPriority);
 
         while (queue.Count > 0)
         {

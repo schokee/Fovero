@@ -13,8 +13,8 @@ public sealed partial class Maze
 {
     private class TrailMap : PropertyChangedBase, ITrailMap
     {
-        private readonly Dictionary<ICell, Path<ICell>> _visitedPaths = new();
-        private readonly BindableCollection<IMazeCell> _solution = new();
+        private readonly Dictionary<INode, Path<INode>> _visitedPaths = [];
+        private readonly BindableCollection<IMazeCell> _solution = [];
 
         private IMazeCell _startCell;
         private IMazeCell _endCell;
@@ -22,10 +22,10 @@ public sealed partial class Maze
 
         public event EventHandler SolutionChanged;
 
-        public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<Wall> walls)
+        public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<ISharedBorder> borders)
         {
             Cells = tiles
-                .Select(tile => new Cell(tile, SelectAdjacent))
+                .Select(tile => new Cell(tile, SelectAccessibleNeighbors))
                 .ToDictionary(x => x.Ordinal);
 
             StartCell = Cells.Values.MinBy(x => x.Ordinal);
@@ -45,7 +45,7 @@ public sealed partial class Maze
                     {
                         foreach (IMazeCell cell in args.NewItems!)
                         {
-                            cell.VisitCount++;
+                            ++cell.VisitCount;
                         }
 
                         break;
@@ -58,9 +58,9 @@ public sealed partial class Maze
                 SolutionChanged?.Invoke(this, EventArgs.Empty);
             };
 
-            IEnumerable<Cell> SelectAdjacent(Cell cell) => walls
-                .Where(wall => wall.IsOpen)
-                .SelectMany(wall => wall.SelectPathwaysFrom(cell, n => Cells[n]))
+            IEnumerable<Cell> SelectAccessibleNeighbors(Cell cell) => borders
+                .Where(border => border.IsOpen)
+                .SelectMany(border => border.SelectPathwaysFrom(cell, n => Cells[n]))
                 .Select(x => x.To);
         }
 
@@ -151,7 +151,7 @@ public sealed partial class Maze
             return solvingStrategy
                 .FindPath(StartCell, EndCell)
                 .Pipe(AddTrail)
-                .Prepend(Path<ICell>.Empty)
+                .Prepend(Path<INode>.Empty)
                 .Pairwise((prev, next) => prev.SwitchTo(next))
                 .SelectMany(move => move)
                 .ToScript(Update);
@@ -183,13 +183,13 @@ public sealed partial class Maze
             if (cell.Equals(StartCell))
             {
                 _solution.Add(cell);
-                AddTrail(new Path<ICell>(cell));
+                AddTrail(new Path<INode>(cell));
                 return true;
             }
 
             var endOfTrail = _solution.LastOrDefault();
 
-            if (endOfTrail?.AccessibleAdjacentCells.Contains(cell) == true)
+            if (endOfTrail?.Neighbors.Contains(cell) == true)
             {
                 _solution.Add(cell);
                 AddTrail(_visitedPaths[endOfTrail].To(cell));
@@ -199,7 +199,7 @@ public sealed partial class Maze
             return false;
         }
 
-        private void AddTrail(Path<ICell> path)
+        private void AddTrail(Path<INode> path)
         {
             _visitedPaths.Add(path.Last, path);
         }
@@ -211,7 +211,7 @@ public sealed partial class Maze
                 case RemoveLast:
                     _solution.RemoveAt(Solution.Count - 1);
                     break;
-                case Append<ICell> { Item: IMazeCell cell }:
+                case Append<INode> { Item: IMazeCell cell }:
                     _solution.Add(cell);
                     break;
             }

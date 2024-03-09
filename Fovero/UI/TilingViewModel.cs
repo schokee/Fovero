@@ -5,6 +5,7 @@ using Fovero.Model;
 using Fovero.Model.Generators;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
+using Fovero.UI.Components;
 using Fovero.UI.Editors;
 using JetBrains.Annotations;
 
@@ -12,9 +13,9 @@ namespace Fovero.UI;
 
 public sealed partial class TilingViewModel : Screen, ICanvas
 {
-    private BuildingStrategy<Wall> _selectedBuilder;
+    private BuildingStrategy<SharedBorder> _selectedBuilder;
     private SolvingStrategy _selectedSolver;
-    private ITilingEditor _selectedTiling;
+    private IFormatEditor _selectedFormat;
     private Maze _maze;
     private ITrailMap _trailMap;
     private bool _isBusy;
@@ -28,23 +29,24 @@ public sealed partial class TilingViewModel : Screen, ICanvas
 
         DisplayName = "Tiling";
 
-        Builders = BuildingStrategy<Wall>.All;
+        Builders = BuildingStrategy<SharedBorder>.All;
         SelectedBuilder = Builders[0];
 
         Solvers = SolvingStrategy.All;
         SelectedSolver = Solvers[0];
 
-        AvailableTilings =
+        AvailableFormats =
         [
-            new RegularTilingEditor("Square", (c, r) => new SquareTiling(c, r)) { Columns = 32, Rows = 16 },
-            new RegularTilingEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
-            new RegularTilingEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
-            new PyramidTilingEditor(),
-            new RegularTilingEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 },
-            new CircularTilingEditor()
+            new RegularFormatEditor("Square", (c, r) => new SquareTiling(c, r)) { Columns = 32, Rows = 16 },
+            new PalazzoFormatEditor { Columns = 10, Rows = 10 },
+            new RegularFormatEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
+            new RegularFormatEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
+            new PyramidFormatEditor(),
+            new RegularFormatEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 },
+            new CircularFormatEditor()
         ];
 
-        SelectedTiling = AvailableTilings[0];
+        SelectedFormat = AvailableFormats[0];
     }
 
     public bool IsIdle => !IsBusy;
@@ -114,25 +116,25 @@ public sealed partial class TilingViewModel : Screen, ICanvas
 
     #endregion
 
-    public IReadOnlyList<ITilingEditor> AvailableTilings { get; }
+    public IReadOnlyList<IFormatEditor> AvailableFormats { get; }
 
-    public ITilingEditor SelectedTiling
+    public IFormatEditor SelectedFormat
     {
-        get => _selectedTiling;
+        get => _selectedFormat;
         set
         {
-            if (Set(ref _selectedTiling, value))
+            if (Set(ref _selectedFormat, value))
             {
-                if (_selectedTiling is not null)
+                if (_selectedFormat is not null)
                 {
-                    _selectedTiling.FormatChanged -= OnFormatChanged;
+                    _selectedFormat.FormatChanged -= OnFormatChanged;
                 }
 
-                _selectedTiling = value;
+                _selectedFormat = value;
 
-                if (_selectedTiling is not null)
+                if (_selectedFormat is not null)
                 {
-                    _selectedTiling.FormatChanged += OnFormatChanged;
+                    _selectedFormat.FormatChanged += OnFormatChanged;
                 }
 
                 OnFormatChanged();
@@ -140,9 +142,9 @@ public sealed partial class TilingViewModel : Screen, ICanvas
         }
     }
 
-    public IReadOnlyList<BuildingStrategy<Wall>> Builders { get; }
+    public IReadOnlyList<BuildingStrategy<SharedBorder>> Builders { get; }
 
-    public BuildingStrategy<Wall> SelectedBuilder
+    public BuildingStrategy<SharedBorder> SelectedBuilder
     {
         get => _selectedBuilder;
         set => Set(ref _selectedBuilder, value);
@@ -187,7 +189,7 @@ public sealed partial class TilingViewModel : Screen, ICanvas
     {
         Clear();
 
-        Maze?.ResetWalls();
+        Maze?.ResetBorders();
         HasGenerated = false;
     }
 
@@ -215,8 +217,8 @@ public sealed partial class TilingViewModel : Screen, ICanvas
             var random = new Random(Seed);
 
             await BuildingSequence.Play(SelectedBuilder
-                .SelectWallsToBeOpened(Maze.SharedWalls.ToList(), random)
-                .ToScript(wall => wall.IsOpen = true)
+                .SelectBordersToBeOpened(Maze.SharedBorders.ToList(), random)
+                .ToScript(border => border.IsOpen = true)
                 .TakeWhile(_ => IsBusy));
 
             if (!IsSeedLocked)
@@ -286,6 +288,6 @@ public sealed partial class TilingViewModel : Screen, ICanvas
     private void OnFormatChanged()
     {
         Reset();
-        Maze = SelectedTiling is null ? null : new Maze(SelectedTiling.CreateTiling());
+        Maze = SelectedFormat?.CreateLayout();
     }
 }

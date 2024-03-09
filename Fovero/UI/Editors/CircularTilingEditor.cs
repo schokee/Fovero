@@ -2,7 +2,7 @@
 
 namespace Fovero.UI.Editors;
 
-public class CircularTilingEditor() : TilingEditor("Circular")
+public class CircularFormatEditor() : FormatEditor("Circular")
 {
     private int _rings = 20;
     private int _segments = 16;
@@ -33,10 +33,10 @@ public class CircularTilingEditor() : TilingEditor("Circular")
         set => SetFormat(ref _adaptive, value);
     }
 
-    public override ITiling CreateTiling()
+    public override Maze CreateLayout()
     {
-        return Adaptive
+        return new Maze(Adaptive
             ? new AdaptiveCircularTiling((ushort)Rings, (ushort)Segments, Curved)
-            : new SlicedCircularTiling((ushort)Rings, (ushort)Segments, Curved);
+            : new SlicedCircularTiling((ushort)Rings, (ushort)Segments, Curved));
     }
 }

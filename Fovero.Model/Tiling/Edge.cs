@@ -14,7 +14,7 @@ public sealed class Edge : IEdge
 
     private Edge(Point2D start, Point2D end, params ITile[] neighbors)
     {
-        Id = start.MidPointTo(end);
+        Id = neighbors.Length == 2 ? neighbors[0].Center.MidPointTo(neighbors[1].Center) : start.MidPointTo(end);
         Start = start;
         End = end;
         DrawData = $"L {end.X},{end.Y}";
@@ -33,12 +33,12 @@ public sealed class Edge : IEdge
 
     public IReadOnlyList<ITile> Neighbors { get; }
 
-    public bool Equals(Edge other)
+    public bool Equals(Edge? other)
     {
         return Id == other?.Id;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return Equals(obj as Edge);
     }

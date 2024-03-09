@@ -11,7 +11,7 @@ public partial record BuildingStrategy<T>
 
         ICell End { get; }
 
-        T Wall { get; }
+        T Border { get; }
     }
 
     private interface ICell
@@ -34,20 +34,20 @@ public partial record BuildingStrategy<T>
         private readonly ILookup<ushort, IStep> _pathToNeighbor;
         private readonly HashSet<ushort> _unvisitedCells;
 
-        public MazeLayout(IReadOnlyCollection<T> allWalls, Random random)
+        public MazeLayout(IReadOnlyCollection<T> allBorders, Random random)
         {
-            if (allWalls.Count == 0)
+            if (allBorders.Count == 0)
             {
-                throw new ArgumentException(nameof(allWalls));
+                throw new ArgumentException(nameof(allBorders));
             }
 
             _random = random;
-            _pathToNeighbor = allWalls
+            _pathToNeighbor = allBorders
                 .Shuffle(random)
-                .SelectMany(sharedWall => new[]
+                .SelectMany(sharedBorder => new[]
                 {
-                    new Step(this, sharedWall.NeighborA, sharedWall.NeighborB, sharedWall),
-                    new Step(this, sharedWall.NeighborB, sharedWall.NeighborA, sharedWall)
+                    new Step(this, sharedBorder.NeighborA, sharedBorder.NeighborB, sharedBorder),
+                    new Step(this, sharedBorder.NeighborB, sharedBorder.NeighborA, sharedBorder)
                 })
                 .Distinct()
                 .ToLookup(x => x.Cell, x => (IStep)x);
@@ -76,13 +76,13 @@ public partial record BuildingStrategy<T>
             return GetEnumerator();
         }
 
-        private record Step(MazeLayout Layout, ushort Cell, ushort Neighbor, T Wall) : IStep
+        private record Step(MazeLayout Layout, ushort Cell, ushort Neighbor, T Border) : IStep
         {
             public ICell Start => Layout._cells[Cell];
 
             public ICell End => Layout._cells[Neighbor];
 
-            public T Wall { get; } = Wall;
+            public T Border { get; } = Border;
         }
 
         private sealed class Cell(MazeLayout layout, ushort ordinal) : ICell
@@ -116,7 +116,7 @@ public partial record BuildingStrategy<T>
                 return _ordinal.ToString();
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 return ReferenceEquals(this, obj) || obj is Cell other && other._ordinal == _ordinal;
             }

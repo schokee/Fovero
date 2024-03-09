@@ -1,10 +1,8 @@
-﻿using Fovero.Model.Tiling;
+﻿namespace Fovero.UI;
 
-namespace Fovero.UI;
-
-public interface ITilingEditor
+public interface IFormatEditor
 {
     event Action FormatChanged;
 
-    ITiling CreateTiling();
+    Maze CreateLayout();
 }

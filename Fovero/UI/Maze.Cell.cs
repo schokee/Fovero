@@ -1,6 +1,6 @@
 ﻿using Caliburn.Micro;
+using Fovero.Model;
 using Fovero.Model.Geometry;
-using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using JetBrains.Annotations;
 
@@ -18,7 +18,7 @@ public sealed partial class Maze
 
         public Rectangle Bounds => tile.Bounds;
 
-        public IEnumerable<ICell> AccessibleAdjacentCells => selectAdjacent(this);
+        public IEnumerable<INode> Neighbors => selectAdjacent(this);
 
         [UsedImplicitly]
         public string PathData

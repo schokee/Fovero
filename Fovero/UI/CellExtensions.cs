@@ -1,4 +1,4 @@
-﻿namespace Fovero.Model.Solvers;
+﻿namespace Fovero.UI;
 
 internal static class CellExtensions
 {

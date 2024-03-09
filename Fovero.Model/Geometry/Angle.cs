@@ -48,7 +48,7 @@ public readonly struct Angle(AngleUnitOfMeasure unitOfMeasure, float value) : IE
         return Degrees.Equals(other.Degrees);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Angle other && Equals(other);
     }

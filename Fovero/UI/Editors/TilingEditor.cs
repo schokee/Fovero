@@ -1,16 +1,15 @@
 ﻿using System.Runtime.CompilerServices;
 using Caliburn.Micro;
-using Fovero.Model.Tiling;
 
 namespace Fovero.UI.Editors;
 
-public abstract class TilingEditor(string name) : PropertyChangedBase, ITilingEditor
+public abstract class FormatEditor(string name) : PropertyChangedBase, IFormatEditor
 {
     public event System.Action FormatChanged;
 
     public string Name { get; } = name;
 
-    public abstract ITiling CreateTiling();
+    public abstract Maze CreateLayout();
 
     public override string ToString()
     {

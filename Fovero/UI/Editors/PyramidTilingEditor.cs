@@ -2,7 +2,7 @@
 
 namespace Fovero.UI.Editors;
 
-public class PyramidTilingEditor() : TilingEditor("Pyramid")
+public class PyramidFormatEditor() : FormatEditor("Pyramid")
 {
     private int _rows = 10;
 
@@ -12,8 +12,8 @@ public class PyramidTilingEditor() : TilingEditor("Pyramid")
         set => SetFormat(ref _rows, value);
     }
 
-    public override ITiling CreateTiling()
+    public override Maze CreateLayout()
     {
-        return new PyramidTiling((ushort)Rows);
+        return new Maze(new PyramidTiling((ushort)Rows));
     }
 }

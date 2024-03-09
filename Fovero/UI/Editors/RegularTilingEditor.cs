@@ -2,7 +2,7 @@
 
 namespace Fovero.UI.Editors;
 
-public class RegularTilingEditor(string name, Func<ushort, ushort, ITiling> createTiling) : TilingEditor(name)
+public class RegularFormatEditor(string name, Func<ushort, ushort, ITiling> createTiling) : FormatEditor(name)
 {
     private int _columns;
     private int _rows;
@@ -21,8 +21,8 @@ public class RegularTilingEditor(string name, Func<ushort, ushort, ITiling> crea
         set => SetFormat(ref _rows, value);
     }
 
-    public override ITiling CreateTiling()
+    public override Maze CreateLayout()
     {
-        return TilingMethod((ushort)Columns, (ushort)Rows);
+        return new Maze(TilingMethod((ushort)Columns, (ushort)Rows));
     }
 }

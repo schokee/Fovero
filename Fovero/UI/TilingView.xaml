@@ -6,9 +6,10 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:solvers="clr-namespace:Fovero.Model.Solvers"
+             xmlns:model="clr-namespace:Fovero.Model;assembly=Fovero.Model"
              xmlns:local="clr-namespace:Fovero.UI"
              xmlns:behaviors="clr-namespace:Fovero.UI.Behaviors"
+             xmlns:components="clr-namespace:Fovero.UI.Components"
              xmlns:converters="clr-namespace:Fovero.UI.Converters"
              xmlns:editors="clr-namespace:Fovero.UI.Editors"
              mc:Ignorable="d"
@@ -86,7 +87,7 @@
                     </StackPanel>
                 </DataTemplate>
 
-                <DataTemplate DataType="{x:Type editors:RegularTilingEditor}">
+                <DataTemplate DataType="{x:Type editors:RegularFormatEditor}">
                     <StackPanel Orientation="Vertical">
                         <HeaderedContentControl Header="Columns" HorizontalContentAlignment="Left">
                             <mah:NumericUpDown Value="{Binding Columns, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
@@ -97,7 +98,19 @@
                     </StackPanel>
                 </DataTemplate>
 
-                <DataTemplate DataType="{x:Type editors:CircularTilingEditor}">
+                <DataTemplate DataType="{x:Type editors:PalazzoFormatEditor}">
+                    <StackPanel Orientation="Vertical">
+                        <HeaderedContentControl Header="Columns" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Columns, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
+                            <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
+                        </HeaderedContentControl>
+                        <CheckBox Content="Has Voids" IsChecked="{Binding HasVoids}" />
+                    </StackPanel>
+                </DataTemplate>
+
+                <DataTemplate DataType="{x:Type editors:CircularFormatEditor}">
                     <StackPanel Orientation="Vertical">
                         <HeaderedContentControl Header="Rings" HorizontalContentAlignment="Left">
                             <mah:NumericUpDown Value="{Binding Rings, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
@@ -110,7 +123,7 @@
                     </StackPanel>
                 </DataTemplate>
 
-                <DataTemplate DataType="{x:Type editors:PyramidTilingEditor}">
+                <DataTemplate DataType="{x:Type editors:PyramidFormatEditor}">
                     <HeaderedContentControl Header="Rows" HorizontalContentAlignment="Left">
                         <mah:NumericUpDown Value="{Binding Rows, Delay=200}" Minimum="2" Maximum="40" MaxWidth="80" />
                     </HeaderedContentControl>
@@ -164,11 +177,11 @@
             -->
 
             <HeaderedContentControl Header="Format">
-                <ComboBox ItemsSource="{Binding AvailableTilings}" SelectedItem="{Binding SelectedTiling}" DisplayMemberPath="Name" />
+                <ComboBox ItemsSource="{Binding AvailableFormats}" SelectedItem="{Binding SelectedFormat}" DisplayMemberPath="Name" />
             </HeaderedContentControl>
 
             <HeaderedContentControl>
-                <ContentControl Content="{Binding SelectedTiling}" VerticalContentAlignment="Center"
+                <ContentControl Content="{Binding SelectedFormat}" VerticalContentAlignment="Center"
                                 Focusable="False" IsTabStop="False"/>
             </HeaderedContentControl>
 
@@ -199,6 +212,8 @@
                 <SolidColorBrush x:Key="Unsolved" Color="Crimson"/>
                 <SolidColorBrush x:Key="Solved" Color="Gold"/>
 
+                <converters:CountToHeatBrushConverter x:Key="CountToHeatBrushConverter" />
+
                 <Style TargetType="{x:Type ItemsControl}">
                     <Setter Property="Focusable" Value="False" />
                     <Setter Property="IsHitTestVisible" Value="False"/>
@@ -225,9 +240,6 @@
 
             <ItemsControl x:Name="TrailMap" ItemsSource="{Binding TrailMap}" IsHitTestVisible="True"
                           Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ItemsControl.Resources>
-                    <converters:CountToHeatBrushConverter x:Key="CountToHeatBrushConverter" />
-                </ItemsControl.Resources>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas IsItemsHost="True" >
@@ -257,6 +269,9 @@
                                 <Style TargetType="{x:Type Path}">
                                     <Setter Property="Fill" Value="Transparent" />
                                     <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=Boundaries, Path=DataContext.Maze.AreBoundariesVisible}" Value="False">
+                                            <Setter Property="Fill" Value="Whitesmoke" />
+                                        </DataTrigger>
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding HasBeenVisited}" Value="True" />
@@ -302,50 +317,27 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl x:Name="Solution" ItemsSource="{Binding Path=TrailMap.Solution}"
-                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type solvers:ICell}">
-                        <Line X1="{Binding Path=Location.X, Mode=OneTime}"
-                              Y1="{Binding Path=Location.Y, Mode=OneTime}"
-                              X2="{Binding Path=Location.X, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
-                              Y2="{Binding Path=Location.Y, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
-                              StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round"
-                              StrokeThickness="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" >
-                            <Line.Style>
-                                <Style TargetType="{x:Type Line}">
-                                    <Setter Property="Stroke" Value="{StaticResource Unsolved}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Hidden" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}" Value="True">
-                                            <Setter Property="Stroke" Value="{StaticResource Solved}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Line.Style>
-                        </Line>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <ItemsControl x:Name="Walls" ItemsSource="{Binding Path=Maze.Walls}">
+            <ItemsControl x:Name="Boundaries" ItemsSource="{Binding Path=Maze.VisibleBoundaries}" UseLayoutRounding="True">
                 <ItemsControl.Resources>
-                    <DataTemplate DataType="{x:Type local:Wall}">
+                    <Style x:Key="PathStyle" TargetType="{x:Type Path}">
+                        <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=Boundaries}" />
+                        <Setter Property="Stroke" Value="DimGray" />
+                        <Setter Property="StrokeStartLineCap" Value="Round" />
+                        <Setter Property="StrokeEndLineCap" Value="Round" />
+                        <Setter Property="Canvas.ZIndex" Value="10" />
+                    </Style>
+
+                    <DataTemplate DataType="{x:Type components:Wall}">
+                        <Path Data="{Binding Geometry, Mode=OneTime}" Style="{StaticResource PathStyle}" />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="{x:Type components:Door}">
                         <Path Data="{Binding Geometry, Mode=OneTime}">
                             <Path.Style>
-                                <Style TargetType="{x:Type Path}">
-                                    <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=Walls}" />
-                                    <Setter Property="Stroke" Value="#F01E90FF" />
-                                    <Setter Property="StrokeStartLineCap" Value="Round" />
-                                    <Setter Property="StrokeEndLineCap" Value="Round" />
+                                <Style TargetType="{x:Type Path}" BasedOn="{StaticResource PathStyle}">
+                                    <Setter Property="Canvas.ZIndex" Value="0" />
+                                    <Setter Property="Stroke" Value="{Binding Color, Mode=OneTime}" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsShared, Mode=OneTime}" Value="False">
-                                            <Setter Property="Stroke" Value="DimGray" />
-                                            <Setter Property="Canvas.ZIndex" Value="10" />
-                                        </DataTrigger>
                                         <DataTrigger Binding="{Binding IsOpen}" Value="True">
                                             <Setter Property="Stroke" Value="DarkOrange" />
                                             <DataTrigger.EnterActions>
@@ -365,6 +357,35 @@
                         </Path>
                     </DataTemplate>
                 </ItemsControl.Resources>
+            </ItemsControl>
+
+            <ItemsControl x:Name="Solution" ItemsSource="{Binding Path=TrailMap.Solution}"
+                          Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type model:INode}">
+                        <Line X1="{Binding Path=Location.X, Mode=OneTime}"
+                              Y1="{Binding Path=Location.Y, Mode=OneTime}"
+                              X2="{Binding Path=Location.X, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
+                              Y2="{Binding Path=Location.Y, Mode=OneTime, RelativeSource={RelativeSource PreviousData}}"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              StrokeThickness="{Binding Path=DataContext.StrokeThickness, ElementName=Boundaries}">
+                            <Line.Style>
+                                <Style TargetType="{x:Type Line}">
+                                    <Setter Property="Stroke" Value="{StaticResource Unsolved}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource PreviousData}}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Hidden" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ElementName=Solution, Path=DataContext.TrailMap.IsSolved}" Value="True">
+                                            <Setter Property="Stroke" Value="{StaticResource Solved}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Line.Style>
+                        </Line>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
             </ItemsControl>
 
             <!--

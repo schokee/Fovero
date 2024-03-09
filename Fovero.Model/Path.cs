@@ -1,19 +1,21 @@
 ﻿using System.Collections;
 
-namespace Fovero.Model.Solvers;
+namespace Fovero.Model;
 
 public sealed class Path<T> : IReadOnlyCollection<T>
 {
-    private readonly Path<T> _prologue;
+    private readonly Path<T>? _prologue;
     private readonly Lazy<IReadOnlyCollection<T>> _collection;
 
+#pragma warning disable CS8604 // Possible null reference argument.
     public static Path<T> Empty { get; } = new(default);
+#pragma warning restore CS8604 // Possible null reference argument.
 
     public Path(T last) : this(Empty, last)
     {
     }
 
-    private Path(Path<T> prologue, T last)
+    private Path(Path<T>? prologue, T last)
     {
         _prologue = prologue;
         _collection = new Lazy<IReadOnlyCollection<T>>(ToArray);

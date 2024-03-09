@@ -61,7 +61,7 @@ public readonly struct Circle : IEquatable<Circle>
         return Radius.Equals(other.Radius) && Center.Equals(other.Center);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Circle other && Equals(other);
     }

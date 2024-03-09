@@ -2,7 +2,7 @@
 
 namespace Fovero.Model.Generators;
 
-public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IEnumerable<T>> SelectWallsToBeOpened) where T : ISharedWall
+public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Random, IEnumerable<T>> SelectBordersToBeOpened) where T : ISharedBorder
 {
     public override string ToString()
     {
@@ -26,15 +26,15 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         {
             return new BuildingStrategy<T>("Kruskal's Algorithm", Build);
 
-            IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
+            IEnumerable<T> Build(IReadOnlyList<T> allBorders, Random random)
             {
-                var shuffledWalls = allWalls.Shuffle(random).ToList();
-                var sets = new DisjointSet<ushort>(shuffledWalls.SelectMany(wall => wall.Neighbors));
+                var shuffledBorders = allBorders.Shuffle(random).ToList();
+                var sets = new DisjointSet<ushort>(shuffledBorders.SelectMany(border => border.Neighbors));
 
-                foreach (var wall in shuffledWalls.Where(x => sets.AreDisjoint(x.NeighborA, x.NeighborB)))
+                foreach (var border in shuffledBorders.Where(x => sets.AreDisjoint(x.NeighborA, x.NeighborB)))
                 {
-                    sets.Merge(wall.NeighborA, wall.NeighborB);
-                    yield return wall;
+                    sets.Merge(border.NeighborA, border.NeighborB);
+                    yield return border;
                 }
             }
         }
@@ -46,9 +46,9 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         {
             return new BuildingStrategy<T>("Hunt and Kill", Build);
 
-            static IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
+            static IEnumerable<T> Build(IReadOnlyList<T> allBorders, Random random)
             {
-                var layout = new MazeLayout(allWalls, random);
+                var layout = new MazeLayout(allBorders, random);
 
                 var cell = layout.RandomUnvisited;
 
@@ -63,7 +63,7 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
                     cell = stepToNeighbor.End;  // Unvisited neighbor
                     cell.HasBeenVisited = true;
 
-                    yield return stepToNeighbor.Wall;
+                    yield return stepToNeighbor.Border;
                 }
             }
         }
@@ -71,22 +71,22 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
 
     public static BuildingStrategy<T> Prim
     {
-        get => new("Prim's", (allWalls, random) => GrowingTree(allWalls, random, x => x.SelectRandom(random)));
+        get => new("Prim's", (allBorders, random) => GrowingTree(allBorders, random, x => x.SelectRandom(random)));
     }
 
     public static BuildingStrategy<T> PrimMixed
     {
-        get => new("Prim's (Mixed)", (allWalls, random) => GrowingTree(allWalls, random, x => random.Next(2) > 0 ? x.SelectRandom(random) : x.Last()));
+        get => new("Prim's (Mixed)", (allBorders, random) => GrowingTree(allBorders, random, x => random.Next(2) > 0 ? x.SelectRandom(random) : x.Last()));
     }
 
     public static BuildingStrategy<T> PrimOldest
     {
-        get => new("Prim's (Oldest)", (allWalls, random) => GrowingTree(allWalls, random, x => x.First()));
+        get => new("Prim's (Oldest)", (allBorders, random) => GrowingTree(allBorders, random, x => x.First()));
     }
 
-    private static IEnumerable<T> GrowingTree(IReadOnlyCollection<T> allWalls, Random random, Func<IReadOnlyCollection<ICell>, ICell> selectCell)
+    private static IEnumerable<T> GrowingTree(IReadOnlyCollection<T> allBorders, Random random, Func<IReadOnlyCollection<ICell>, ICell> selectCell)
     {
-        var layout = new MazeLayout(allWalls, random);
+        var layout = new MazeLayout(allBorders, random);
 
         var pool = new HashSet<ICell>();
         Visit(layout.RandomUnvisited);
@@ -103,7 +103,7 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
             }
 
             Visit(stepToNeighbor.End);
-            yield return stepToNeighbor.Wall;
+            yield return stepToNeighbor.Border;
         }
 
         void Visit(ICell cell)
@@ -119,9 +119,9 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         {
             return new BuildingStrategy<T>("Recursive Backtracker", Build);
 
-            static IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
+            static IEnumerable<T> Build(IReadOnlyList<T> allBorders, Random random)
             {
-                var layout = new MazeLayout(allWalls, random);
+                var layout = new MazeLayout(allBorders, random);
 
                 var stack = new Stack<ICell>();
                 Visit(layout.RandomUnvisited);
@@ -138,7 +138,7 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
                     }
 
                     Visit(stepToNeighbor.End);
-                    yield return stepToNeighbor.Wall;
+                    yield return stepToNeighbor.Border;
                 }
 
                 void Visit(ICell cell)
@@ -156,9 +156,9 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
         {
             return new BuildingStrategy<T>("Wilson's", Build);
 
-            static IEnumerable<T> Build(IReadOnlyList<T> allWalls, Random random)
+            static IEnumerable<T> Build(IReadOnlyList<T> allBorders, Random random)
             {
-                var layout = new MazeLayout(allWalls, random)
+                var layout = new MazeLayout(allBorders, random)
                 {
                     RandomUnvisited = { HasBeenVisited = true }
                 };
@@ -190,7 +190,7 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
                     foreach (var step in path.Pairwise((cell, neighbor) => cell.Neighbors.First(x => Equals(neighbor, x.End))))
                     {
                         step.Start.HasBeenVisited = true;
-                        yield return step.Wall;
+                        yield return step.Border;
                     }
                 }
             }

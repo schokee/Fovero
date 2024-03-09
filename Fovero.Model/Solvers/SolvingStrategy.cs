@@ -3,8 +3,6 @@ using MoreLinq;
 
 namespace Fovero.Model.Solvers;
 
-public delegate IEnumerable<Path<ICell>> SolvingFunction(ICell origin, ICell goal);
-
 public record SolvingStrategy(string Name, SolvingFunction FindPath)
 {
     public override string ToString()
@@ -42,25 +40,25 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
         public static Method AllEqual => (_, _) => 0;
     }
 
-    private delegate IEnumerable<Path<ICell>> TraversalStrategy(Path<ICell> startingFrom, Func<Path<ICell>, IEnumerable<Path<ICell>>> selectNeighbors);
+    private delegate IEnumerable<Path<INode>> TraversalStrategy(Path<INode> startingFrom, Func<Path<INode>, IEnumerable<Path<INode>>> selectNeighbors);
 
     private static SolvingFunction SolveUsing(PathPrioritisation.Method prioritise)
     {
-        return (startCell, endCell) =>
+        return (startNode, endNode) =>
         {
-            var solver = SolveUsing((startingPath, selectNeighbors) => Traverse.Prioritised(startingPath, selectNeighbors, path => prioritise(path.Last.Location, endCell.Location)));
-            return solver.Invoke(startCell, endCell);
+            var solver = SolveUsing((startingPath, selectNeighbors) => Traverse.Prioritised(startingPath, 0, selectNeighbors, path => prioritise(path.Last.Location, endNode.Location)));
+            return solver.Invoke(startNode, endNode);
         };
     }
 
     private static SolvingFunction SolveUsing(TraversalStrategy traverse)
     {
-        return (startCell, endCell) =>
+        return (startNode, endNode) =>
         {
-            var visitedCells = new HashSet<ICell> { startCell };
+            var visitedNodes = new HashSet<INode> { startNode };
 
-            return traverse(new Path<ICell>(startCell), path => path.Last.AccessibleAdjacentCells.Where(visitedCells.Add).Select(path.To))
-                .TakeUntil(path => path.Last.Equals(endCell));
+            return traverse(new Path<INode>(startNode), path => path.Last.Neighbors.Where(visitedNodes.Add).Select(path.To))
+                .TakeUntil(path => path.Last.Equals(endNode));
         };
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Fovero.Model.Solvers;
+﻿namespace Fovero.UI;
 
 public abstract class CollectionChange;
 
