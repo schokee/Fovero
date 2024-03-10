@@ -1,7 +1,6 @@
-﻿using Fovero.Model;
-using Fovero.Model.Tiling;
+﻿using Fovero.Model.Tiling;
 
-namespace Fovero.UI.Components;
+namespace Fovero.Model.Presentation;
 
 public abstract class SharedBorder : Boundary, ISharedBorder
 {

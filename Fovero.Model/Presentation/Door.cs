@@ -1,6 +1,6 @@
 ﻿using Fovero.Model.Tiling;
 
-namespace Fovero.UI.Components;
+namespace Fovero.Model.Presentation;
 
 public sealed class Door(IEdge edge) : SharedBorder(edge)
 {

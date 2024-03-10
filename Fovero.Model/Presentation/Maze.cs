@@ -1,9 +1,8 @@
 ﻿using Fovero.Model.Geometry;
 using Fovero.Model.Tiling;
-using Fovero.UI.Components;
 using JetBrains.Annotations;
 
-namespace Fovero.UI;
+namespace Fovero.Model.Presentation;
 
 public sealed partial class Maze
 {

@@ -1,26 +1,25 @@
 ﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Caliburn.Micro;
-using Fovero.Model;
 using Fovero.Model.Geometry;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
 using MoreLinq;
 
-namespace Fovero.UI;
+namespace Fovero.Model.Presentation;
 
 public sealed partial class Maze
 {
-    private class TrailMap : PropertyChangedBase, ITrailMap
+    private class TrailMap : Bindable, ITrailMap
     {
         private readonly Dictionary<INode, Path<INode>> _visitedPaths = [];
-        private readonly BindableCollection<IMazeCell> _solution = [];
+        private readonly ObservableCollection<IMazeCell> _solution = [];
 
         private IMazeCell _startCell;
         private IMazeCell _endCell;
         private IReadOnlyDictionary<ushort, Cell> Cells { get; }
 
-        public event EventHandler SolutionChanged;
+        public event EventHandler? SolutionChanged;
 
         public TrailMap(IEnumerable<ITile> tiles, IReadOnlyList<ISharedBorder> borders)
         {
@@ -28,8 +27,8 @@ public sealed partial class Maze
                 .Select(tile => new Cell(tile, SelectAccessibleNeighbors))
                 .ToDictionary(x => x.Ordinal);
 
-            StartCell = Cells.Values.MinBy(x => x.Ordinal);
-            EndCell = Cells.Values.MaxBy(x => x.Ordinal);
+            _startCell = Cells.Values.MinBy(x => x.Ordinal)!;
+            _endCell = Cells.Values.MaxBy(x => x.Ordinal)!;
 
             _solution.CollectionChanged += (_, args) =>
             {
@@ -60,7 +59,7 @@ public sealed partial class Maze
 
             IEnumerable<Cell> SelectAccessibleNeighbors(Cell cell) => borders
                 .Where(border => border.IsOpen)
-                .SelectMany(border => border.SelectPathwaysFrom(cell, n => Cells[n]))
+                .SelectMany(border => border.SelectPathwaysFrom(cell, n => Cells![n]))
                 .Select(x => x.To);
         }
 
@@ -134,17 +133,17 @@ public sealed partial class Maze
             }
         }
 
-        public bool IsValidStart(IMazeCell cell)
+        public bool IsValidStart(IMazeCell? cell)
         {
             return !(cell is null || cell.Equals(StartCell) || cell.Equals(EndCell));
         }
 
-        public bool IsValidEnd(IMazeCell cell)
+        public bool IsValidEnd(IMazeCell? cell)
         {
             return !(cell is null || cell.Equals(StartCell) || cell.Equals(EndCell));
         }
 
-        public IEnumerable<System.Action> EnumerateSolutionSteps(SolvingStrategy solvingStrategy)
+        public IEnumerable<Action> EnumerateSolutionSteps(SolvingStrategy solvingStrategy)
         {
             ArgumentNullException.ThrowIfNull(solvingStrategy, nameof(solvingStrategy));
 

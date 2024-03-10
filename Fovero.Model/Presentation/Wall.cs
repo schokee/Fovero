@@ -1,5 +1,5 @@
 ﻿using Fovero.Model.Tiling;
 
-namespace Fovero.UI.Components;
+namespace Fovero.Model.Presentation;
 
 public sealed class Wall(IEdge edge) : Boundary(edge);

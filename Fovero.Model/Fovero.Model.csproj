@@ -16,12 +16,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="maze.png" Pack="true" PackagePath=""/>
-    <None Include="README.md" Pack="true" PackagePath=""/>
+    <None Include="maze.png" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" PrivateAssets="All" />
     <PackageReference Include="morelinq" />
   </ItemGroup>
 

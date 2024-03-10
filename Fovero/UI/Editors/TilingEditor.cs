@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Caliburn.Micro;
+using Fovero.Model.Presentation;
 
 namespace Fovero.UI.Editors;
 

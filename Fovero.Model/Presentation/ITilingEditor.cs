@@ -1,4 +1,4 @@
-﻿namespace Fovero.UI;
+﻿namespace Fovero.Model.Presentation;
 
 public interface IFormatEditor
 {

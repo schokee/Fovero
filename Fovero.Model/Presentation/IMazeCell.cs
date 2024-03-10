@@ -1,7 +1,6 @@
-﻿using Fovero.Model;
-using Fovero.Model.Geometry;
+﻿using Fovero.Model.Geometry;
 
-namespace Fovero.UI;
+namespace Fovero.Model.Presentation;
 
 public interface IMazeCell : INode, IVisitable
 {

@@ -1,14 +1,12 @@
-﻿using Caliburn.Micro;
-using Fovero.Model;
-using Fovero.Model.Geometry;
+﻿using Fovero.Model.Geometry;
 using Fovero.Model.Tiling;
 using JetBrains.Annotations;
 
-namespace Fovero.UI;
+namespace Fovero.Model.Presentation;
 
 public sealed partial class Maze
 {
-    private sealed class Cell(ITile tile, Func<Cell, IEnumerable<Cell>> selectAdjacent) : PropertyChangedBase, IMazeCell
+    private sealed class Cell(ITile tile, Func<Cell, IEnumerable<Cell>> selectAdjacent) : Bindable, IMazeCell
     {
         private uint _visitCount;
 
@@ -44,7 +42,7 @@ public sealed partial class Maze
 
         public bool HasBeenVisited => VisitCount > 0;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is IMazeCell cell && Ordinal == cell.Ordinal;
         }

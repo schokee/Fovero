@@ -1,5 +1,5 @@
-﻿using Fovero.Model.Tiling;
-using Fovero.UI.Components;
+﻿using Fovero.Model.Presentation;
+using Fovero.Model.Tiling;
 
 namespace Fovero.UI.Editors;
 

@@ -3,9 +3,9 @@ using Caliburn.Micro;
 using CommunityToolkit.Mvvm.Input;
 using Fovero.Model;
 using Fovero.Model.Generators;
+using Fovero.Model.Presentation;
 using Fovero.Model.Solvers;
 using Fovero.Model.Tiling;
-using Fovero.UI.Components;
 using Fovero.UI.Editors;
 using JetBrains.Annotations;
 

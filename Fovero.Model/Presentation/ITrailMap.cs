@@ -1,6 +1,6 @@
 ﻿using Fovero.Model.Solvers;
 
-namespace Fovero.UI;
+namespace Fovero.Model.Presentation;
 
 public interface ITrailMap : IEnumerable<IMazeCell>
 {

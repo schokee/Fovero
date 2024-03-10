@@ -1,4 +1,4 @@
-﻿namespace Fovero.UI;
+﻿namespace Fovero.Model.Presentation;
 
 internal static class CellExtensions
 {

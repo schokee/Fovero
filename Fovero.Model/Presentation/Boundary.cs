@@ -1,9 +1,8 @@
-﻿using Caliburn.Micro;
-using Fovero.Model.Tiling;
+﻿using Fovero.Model.Tiling;
 
-namespace Fovero.UI.Components;
+namespace Fovero.Model.Presentation;
 
-public abstract class Boundary : PropertyChangedBase
+public abstract class Boundary : Bindable
 {
     protected Boundary(IEdge edge)
     {
