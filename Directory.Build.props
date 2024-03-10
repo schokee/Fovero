@@ -10,6 +10,7 @@
     <LangVersion>latest</LangVersion>
     <NoWarn>1701;1702;NU1702;IDE0290</NoWarn>
     <WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <Choose>
