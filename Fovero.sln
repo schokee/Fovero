@@ -9,13 +9,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fovero", "Fovero\Fovero.csproj", "{2C90A8F9-D63E-4C9F-ADA7-07DBDE3A6152}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fovero.Tests", "Fovero.Tests\Fovero.Tests.csproj", "{2CF64FD1-976B-4DFF-883B-D93743C72475}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fovero.Model", "Fovero.Model\Fovero.Model.csproj", "{3FBA613D-90EF-48D2-8589-ABA5743BA888}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fovero.Model", "Fovero.Model\Fovero.Model.csproj", "{3FBA613D-90EF-48D2-8589-ABA5743BA888}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,9 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageTags>maze, library</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All" />
     <PackageReference Include="morelinq" />
   </ItemGroup>
 
