@@ -43,11 +43,6 @@ public sealed class Path<T> : IReadOnlyCollection<T>
         return GetEnumerator();
     }
 
-    public static implicit operator Path<T>(T item)
-    {
-        return new Path<T>(item);
-    }
-
     private T[] ToArray()
     {
         var result = new T[Count];
