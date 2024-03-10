@@ -1,10 +1,10 @@
 ﻿namespace Fovero.Model.Presentation;
 
-public abstract class CollectionChange;
+internal abstract class CollectionChange;
 
-public sealed class RemoveLast : CollectionChange;
+internal sealed class RemoveLast : CollectionChange;
 
-public sealed class Append<T>(T item) : CollectionChange
+internal sealed class Append<T>(T item) : CollectionChange
 {
     public T Item { get; } = item;
 }
