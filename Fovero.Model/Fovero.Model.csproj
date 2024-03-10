@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <EnablePackageValidation>true</EnablePackageValidation>
     <Authors>TonyT; StefanoP</Authors>
-    <Description>A long description to explain the package</Description>
+    <Description>.Net routines for maze generation and maze solving</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>maze.png</PackageIcon>
     <PackageTags>maze, library</PackageTags>
