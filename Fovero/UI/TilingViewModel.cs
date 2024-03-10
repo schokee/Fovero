@@ -159,6 +159,7 @@ public sealed partial class TilingViewModel : Screen, ICanvas
         {
             if (Set(ref _selectedSolver, value))
             {
+                Clear();
                 NotifyOfPropertyChange(nameof(CanSolve));
             }
         }
