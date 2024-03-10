@@ -7,6 +7,7 @@
     <EnablePackageValidation>true</EnablePackageValidation>
     <Authors>TonyT; StefanoP</Authors>
     <Description>A long description to explain the package</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>maze.png</PackageIcon>
     <PackageTags>maze, library</PackageTags>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -16,6 +17,7 @@
 
   <ItemGroup>
     <None Include="maze.png" Pack="true" PackagePath=""/>
+    <None Include="README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
