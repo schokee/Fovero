@@ -77,10 +77,6 @@ jobs:
         fetch-depth: 0 # Get all history to allow automatic versioning
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
-      with:
-        versionSpec: '5.x'
     - name: Run tests
       run: dotnet test --configuration Release
 
