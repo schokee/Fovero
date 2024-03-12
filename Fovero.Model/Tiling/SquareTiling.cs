@@ -32,7 +32,7 @@ public sealed class SquareTiling : ITiling
 
         foreach (var location in allLocations)
         {
-            lookup.Add(location, new Tile(this, ordinal++, location, lookup));
+            lookup.Add(location, new Tile(ordinal++, location, lookup));
         }
 
         return lookup.Values;
@@ -50,7 +50,7 @@ public sealed class SquareTiling : ITiling
         private readonly Location _location;
         private readonly IReadOnlyDictionary<Location, ITile> _lookup;
 
-        public Tile(SquareTiling format, ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
+        public Tile(ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
         {
             _location = location;
             _lookup = lookup;

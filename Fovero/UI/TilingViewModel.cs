@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 
 namespace Fovero.UI;
 
-public sealed partial class TilingViewModel : Screen, ICanvas
+public sealed partial class TilingViewModel : Screen
 {
     private BuildingStrategy<SharedBorder> _selectedBuilder;
     private SolvingStrategy _selectedSolver;
