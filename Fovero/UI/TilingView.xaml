@@ -199,11 +199,15 @@
             </HeaderedContentControl>
 
             <HeaderedContentControl>
-                <Button x:Name="Solve" Content ="Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" Margin="0,4,0,0" IsEnabled="{Binding CanSolve}"/>
-            </HeaderedContentControl>
-
-            <HeaderedContentControl>
-                <Button x:Name="Clear" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="80" />
+                        <ColumnDefinition Width="6" />
+                        <ColumnDefinition MinWidth="80" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="Solve" Content ="Solve" Style="{StaticResource MahApps.Styles.Button.Flat}" IsEnabled="{Binding CanSolve}"/>
+                    <Button x:Name="Clear" Grid.Column="2" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" />
+                </Grid>
             </HeaderedContentControl>
         </StackPanel>
 
@@ -298,7 +302,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <ItemsControl ItemsSource="{Binding Path=TrailMap.Markers}">
+            <ItemsControl ItemsSource="{Binding Path=TrailMap.Markers}" Visibility="{Binding HasGenerated, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Path Data="{Binding}">

@@ -38,12 +38,12 @@ public sealed partial class TilingViewModel : Screen
         AvailableFormats =
         [
             new RegularFormatEditor("Square", (c, r) => new SquareTiling(c, r)) { Columns = 32, Rows = 16 },
-            new PalazzoFormatEditor { Columns = 10, Rows = 10 },
+            new PalazzoFormatEditor { Columns = 16, Rows = 10 },
             new RegularFormatEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
             new RegularFormatEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
-            new PyramidFormatEditor(),
-            new RegularFormatEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 17, Rows = 17 },
-            new CircularFormatEditor()
+            new PyramidFormatEditor { Rows = 20 },
+            new RegularFormatEditor("Triangular", (c, r) => new TriangularTiling(c, r)) { Columns = 43, Rows = 20 },
+            new CircularFormatEditor { Rings = 14 }
         ];
 
         SelectedFormat = AvailableFormats[0];

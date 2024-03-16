@@ -21,13 +21,13 @@
 
 ### Generation Algorithms
 
-- [Hunt and Kill](https://weblog.jamisbuck.org/2011/1/24/maze-generation-hunt-and-kill-algorithm)
-- [Kruskal's](https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm)
-- [Prim's](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking)
+- [Hunt and Kill](https://weblog.jamisbuck.org/2011/1/24/maze-generation-hunt-and-kill-algorithm){:target="_blank"}
+- [Kruskal's](https://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm){:target="_blank"}
+- [Prim's](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking){:target="_blank"}
 - Prim's (Mixed)
 - Prim's (Oldest)
-- [Recursive Backtracker](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking)
-- [Wilson's](https://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm)
+- [Recursive Backtracker](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking){:target="_blank"}
+- [Wilson's](https://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm){:target="_blank"}
 
 ### Solver Algorithms
 
