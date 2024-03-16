@@ -6,7 +6,7 @@ public sealed class MainViewModel : Screen
 {
     public MainViewModel(TilingViewModel tiling)
     {
-        DisplayName = "Fovero v" + GitVersionInformation.SemVer;
+        DisplayName = "Fovero v" + GitVersionInformation.MajorMinorPatch;
         Workspace = tiling;
     }
 

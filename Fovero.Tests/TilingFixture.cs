@@ -53,6 +53,7 @@ public sealed class TilingFixture
             const int size = 32;
 
             yield return new TestCaseData(new PyramidTiling(size));
+            yield return new TestCaseData(new PalazzoTiling(size, size));
             yield return new TestCaseData(new SquareTiling(size, size));
             yield return new TestCaseData(new HexagonalTiling(size, size));
             yield return new TestCaseData(new TriangularTiling(size, size));

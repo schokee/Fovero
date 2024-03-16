@@ -4,11 +4,13 @@
     <Product>Fovero</Product>
     <RepositoryUrl>https://github.com/schokee/Fovero</RepositoryUrl>
     <PackageProjectUrl>https://github.com/schokee/Fovero</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright © $([System.DateTime]::Now.Year) $(Company)</Copyright>
     <TargetFramework>net80</TargetFramework>
     <LangVersion>latest</LangVersion>
     <NoWarn>1701;1702;NU1702;IDE0290</NoWarn>
     <WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <Choose>
