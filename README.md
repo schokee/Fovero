@@ -42,4 +42,5 @@ https://github.com/schokee/Fovero/blob/4f5ab8522e8883af4876e1336994bfea0a5e440c/
 
 ## Additional References
 [Maze Generation Algorithms - An Exploration](https://professor-l.github.io/mazes/)
+
 [Fundamentals of Maze Generation](https://www.cs.cmu.edu/~15112-f22/notes/student-tp-guides/Mazes.pdf)
