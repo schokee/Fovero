@@ -1,7 +1,7 @@
 ﻿# Fovero
 .Net tools for maze generation and solving.
 
-https://github.com/schokee/Fovero/blob/4f5ab8522e8883af4876e1336994bfea0a5e440c/images/Fovero%20v0.1.0.webm
+https://github.com/schokee/Fovero/assets/94783963/24e91d68-b8b9-42a4-a35c-25889ef7dea0
 
 ## Features
 
