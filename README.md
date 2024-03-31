@@ -9,6 +9,7 @@ https://github.com/schokee/Fovero/assets/94783963/24e91d68-b8b9-42a4-a35c-25889e
 
 - Rectangular
 - Truncated Square
+- Dijon
 - Palazzo
 - Pyramid
 - Hexagons
