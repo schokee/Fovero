@@ -7,6 +7,7 @@
 
 - Rectangular
 - Truncated Square
+- Dijon
 - Palazzo
 - Pyramid
 - Hexagons
