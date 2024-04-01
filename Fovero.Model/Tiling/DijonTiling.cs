@@ -16,7 +16,7 @@ public sealed class DijonTiling(ushort columns, ushort rows, float spacing = 0.7
                 : new VerticalTile(this, ordinal, location, lookup)
             : evenRow
                 ? new HorizontalTile(this, ordinal, location, lookup)
-                : new QuadrilateralTile(this, ordinal, location, lookup);
+                : new RectangleTile(this, ordinal, location, lookup);
     }
 
     private sealed class VerticalTile : Tile
@@ -48,7 +48,7 @@ public sealed class DijonTiling(ushort columns, ushort rows, float spacing = 0.7
                             3 => new Location(Location.Column + 1, Location.Row + 1),
                             4 => new Location(Location.Column - 1, Location.Row + 1),
                             5 => Location with { Column = Location.Column - 1 },
-                            _ => Location
+                            _ => Location.None
                         };
 
                         return CreateEdge(neighbor, segment.Start, segment.End);
