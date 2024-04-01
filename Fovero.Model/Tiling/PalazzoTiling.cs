@@ -5,6 +5,6 @@ public sealed class PalazzoTiling(ushort columns, ushort rows, float spacing = 0
 {
     protected override ITile CreateTile(ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
     {
-        return new QuadrilateralTile(this, ordinal, location, lookup);
+        return new RectangleTile(this, ordinal, location, lookup);
     }
 }

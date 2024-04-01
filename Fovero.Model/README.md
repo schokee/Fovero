@@ -9,6 +9,7 @@
 - Truncated Square
 - Dijon
 - Palazzo
+- Lattice
 - Pyramid
 - Hexagons
 - Circular
