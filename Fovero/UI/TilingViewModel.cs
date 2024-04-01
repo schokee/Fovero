@@ -40,6 +40,7 @@ public sealed partial class TilingViewModel : Screen
             new RegularFormatEditor("Square", (c, r) => new SquareTiling(c, r)) { Columns = 32, Rows = 16 },
             new DijonFormatEditor { Columns = 16, Rows = 10 },
             new PalazzoFormatEditor { Columns = 16, Rows = 10 },
+            new LatticeFormatEditor { Columns = 16, Rows = 12 },
             new RegularFormatEditor("Truncated Square Tile", (c, r) => new TruncatedSquareTiling(c, r)) { Columns = 17, Rows = 17 },
             new RegularFormatEditor("Hexagonal", (c, r) => new HexagonalTiling(c, r)) { Columns = 23, Rows = 23 },
             new PyramidFormatEditor { Rows = 20 },

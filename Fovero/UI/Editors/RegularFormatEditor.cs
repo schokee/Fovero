@@ -3,12 +3,21 @@ using Fovero.Model.Tiling;
 
 namespace Fovero.UI.Editors;
 
-public class RegularFormatEditor(string name, Func<ushort, ushort, ITiling> createTiling) : FormatEditor(name)
+public class RegularFormatEditor : FormatEditor
 {
     private int _columns;
     private int _rows;
 
-    private Func<ushort, ushort, ITiling> TilingMethod { get; } = createTiling;
+    public RegularFormatEditor(string name, Func<ushort, ushort, ITiling> createTiling) : this(name)
+    {
+        TilingMethod = createTiling;
+    }
+
+    protected RegularFormatEditor(string name) : base(name)
+    {
+    }
+
+    protected Func<ushort, ushort, ITiling> TilingMethod { get; init; }
 
     public int Columns
     {
