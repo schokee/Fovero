@@ -23,7 +23,7 @@ public sealed class DijonTiling(ushort columns, ushort rows, float spacing = 0.7
     {
         private readonly float _midPoint;
 
-        public VerticalTile(MultiShapeTiling format, ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
+        public VerticalTile(GridTiling format, ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
             : base(format, ordinal, location, lookup)
         {
             _midPoint = Bounds.Width / 2;
@@ -74,7 +74,7 @@ public sealed class DijonTiling(ushort columns, ushort rows, float spacing = 0.7
     {
         private readonly float _midPoint;
 
-        public HorizontalTile(MultiShapeTiling format, ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
+        public HorizontalTile(GridTiling format, ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup)
             : base(format, ordinal, location, lookup)
         {
             _midPoint = Bounds.Height / 2;
