@@ -18,7 +18,7 @@ public readonly struct Point2D(float x, float y)
         return MathF.Abs(dx) + MathF.Abs(dy);
     }
 
-    public float EuclidianDistanceTo(Point2D other)
+    public float EuclideanDistanceTo(Point2D other)
     {
         return MathF.Sqrt(SquaredDistanceTo(other));
     }

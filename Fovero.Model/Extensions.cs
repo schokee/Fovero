@@ -11,21 +11,4 @@ public static class Extensions
     {
         return source.ElementAt(random.Next(source.Count));
     }
-
-    //public static bool RemoveAllAfter<T>(this IList<T> source, T element)
-    //{
-    //    var endIndex = source.IndexOf(element);
-
-    //    if (endIndex < 0)
-    //    {
-    //        return false;
-    //    }
-
-    //    for (var i = source.Count; --i > endIndex;)
-    //    {
-    //        source.RemoveAt(i);
-    //    }
-
-    //    return true;
-    //}
 }

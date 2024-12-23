@@ -14,8 +14,6 @@ public sealed partial class Maze
 
         public Point2D Location => tile.Center;
 
-        public Rectangle Bounds => tile.Bounds;
-
         public IEnumerable<INode> Neighbors => selectAdjacent(this);
 
         [UsedImplicitly]

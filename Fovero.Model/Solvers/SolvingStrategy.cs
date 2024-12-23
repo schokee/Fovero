@@ -20,7 +20,7 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
         HeapWalk
     ];
 
-    public static SolvingStrategy AStarEuclidean => new("A* Euclidean", SolveUsing(PathPrioritisation.EuclidianDistance));
+    public static SolvingStrategy AStarEuclidean => new("A* Euclidean", SolveUsing(PathPrioritisation.EuclideanDistance));
     public static SolvingStrategy AStarManhattan => new("A* Manhattan", SolveUsing(PathPrioritisation.ManhattanDistance));
     public static SolvingStrategy BreadthFirstSearch => new("Breadth-first Search", SolveUsing(Traverse.BreadthFirst));
     public static SolvingStrategy DepthFirstSearch => new("Depth-first Search", SolveUsing(Traverse.DepthFirst));
@@ -33,7 +33,7 @@ public record SolvingStrategy(string Name, SolvingFunction FindPath)
 
         public static Method ManhattanDistance => (from, to) => from.ManhattanDistanceTo(to);
 
-        public static Method EuclidianDistance => (from, to) => from.EuclidianDistanceTo(to);
+        public static Method EuclideanDistance => (from, to) => from.EuclideanDistanceTo(to);
 
         public static Method Random => (_, _) => System.Random.Shared.NextSingle();
 

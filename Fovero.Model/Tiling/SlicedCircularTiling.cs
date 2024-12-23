@@ -48,7 +48,7 @@ public sealed class SlicedCircularTiling(ushort rings, ushort segments, bool cur
 
         public Rectangle Bounds { get; }
 
-        public IEnumerable<Point2D> CornerPoints
+        private IEnumerable<Point2D> CornerPoints
         {
             get
             {

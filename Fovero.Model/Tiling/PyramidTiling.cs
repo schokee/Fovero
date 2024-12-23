@@ -57,7 +57,7 @@ public class PyramidTiling(ushort height) : ITiling
 
         public Rectangle Bounds => new Rectangle((_format.Height - _row + _column) / 2f, _row * CellHeight, 1, CellHeight).ToScaledUnits();
 
-        public IEnumerable<Point2D> CornerPoints
+        private IEnumerable<Point2D> CornerPoints
         {
             get
             {

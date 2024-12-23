@@ -35,7 +35,7 @@ public class HexagonalTiling(ushort columns, ushort rows) : RegularTiling(column
 
         public Rectangle Bounds => new Rectangle(_column * 1.5f, _row * CellHeight + (_isEvenColumn ? 0 : CellHeight / 2), 2, CellHeight).ToScaledUnits();
 
-        public IEnumerable<Point2D> CornerPoints
+        private IEnumerable<Point2D> CornerPoints
         {
             get
             {
