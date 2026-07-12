@@ -166,6 +166,8 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
             yield return stepToNeighbor.Border;
         }
 
+        yield break;
+
         void Visit(ICell cell)
         {
             pool.Add(cell);
@@ -207,6 +209,8 @@ public partial record BuildingStrategy<T>(string Name, Func<IReadOnlyList<T>, Ra
                     Visit(stepToNeighbor.End);
                     yield return stepToNeighbor.Border;
                 }
+
+                yield break;
 
                 void Visit(ICell cell)
                 {

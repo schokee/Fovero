@@ -5,9 +5,6 @@ namespace Fovero.UI.Editors;
 
 public class RegularFormatEditor : FormatEditor
 {
-    private int _columns;
-    private int _rows;
-
     public RegularFormatEditor(string name, Func<ushort, ushort, ITiling> createTiling) : this(name)
     {
         TilingMethod = createTiling;
@@ -21,14 +18,14 @@ public class RegularFormatEditor : FormatEditor
 
     public int Columns
     {
-        get => _columns;
-        set => SetFormat(ref  _columns, value);
+        get;
+        set => SetFormat(ref field, value);
     }
 
     public int Rows
     {
-        get => _rows;
-        set => SetFormat(ref _rows, value);
+        get;
+        set => SetFormat(ref field, value);
     }
 
     public override Maze CreateLayout()
