@@ -4,8 +4,6 @@ namespace Fovero.Model.Presentation;
 
 public abstract class SharedBorder : Boundary, ISharedBorder
 {
-    private bool _isOpen;
-
     protected SharedBorder(IEdge edge) : base(edge)
     {
         if (!edge.IsShared)
@@ -16,10 +14,10 @@ public abstract class SharedBorder : Boundary, ISharedBorder
 
     public bool IsOpen
     {
-        get => _isOpen;
+        get;
         set
         {
-            if (Set(ref _isOpen, value))
+            if (Set(ref field, value))
             {
                 OnStateChanged();
             }

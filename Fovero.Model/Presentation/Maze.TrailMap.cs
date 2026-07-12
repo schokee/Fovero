@@ -57,6 +57,8 @@ public sealed partial class Maze
                 SolutionChanged?.Invoke(this, EventArgs.Empty);
             };
 
+            return;
+
             IEnumerable<Cell> SelectAccessibleNeighbors(Cell cell) => borders
                 .Where(border => border.IsOpen)
                 .SelectMany(border => border.SelectPathwaysFrom(cell, n => Cells![n]))
@@ -145,7 +147,7 @@ public sealed partial class Maze
 
         public IEnumerable<Action> EnumerateSolutionSteps(SolvingStrategy solvingStrategy)
         {
-            ArgumentNullException.ThrowIfNull(solvingStrategy, nameof(solvingStrategy));
+            ArgumentNullException.ThrowIfNull(solvingStrategy);
 
             return solvingStrategy
                 .FindPath(StartCell, EndCell)
@@ -168,7 +170,7 @@ public sealed partial class Maze
 
         public bool HighlightTrailTo(IMazeCell cell)
         {
-            ArgumentNullException.ThrowIfNull(cell, nameof(cell));
+            ArgumentNullException.ThrowIfNull(cell);
 
             if (cell.HasBeenVisited)
             {

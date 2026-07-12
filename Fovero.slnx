@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Fovero.Model/Fovero.Model.csproj" />
+  <Project Path="Fovero.Tests/Fovero.Tests.csproj" />
+  <Project Path="Fovero/Fovero.csproj" />
+</Solution>

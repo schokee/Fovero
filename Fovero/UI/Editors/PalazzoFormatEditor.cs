@@ -5,13 +5,11 @@ namespace Fovero.UI.Editors;
 
 public class PalazzoFormatEditor() : RegularFormatEditor("Palazzo")
 {
-    private bool _hasVoids = true;
-
     public bool HasVoids
     {
-        get => _hasVoids;
-        set => SetFormat(ref _hasVoids, value);
-    }
+        get;
+        set => SetFormat(ref field, value);
+    } = true;
 
     public override Maze CreateLayout()
     {

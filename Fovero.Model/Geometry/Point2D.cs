@@ -1,14 +1,10 @@
 ﻿namespace Fovero.Model.Geometry;
 
-public readonly struct Point2D(float x, float y)
+public readonly record struct Point2D(float X, float Y)
 {
     public Point2D() : this(0, 0)
     {
     }
-
-    public float X { get; init; } = x;
-
-    public float Y { get; init; } = y;
 
     public float ManhattanDistanceTo(Point2D other)
     {

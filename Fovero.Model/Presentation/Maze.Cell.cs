@@ -8,8 +8,6 @@ public sealed partial class Maze
 {
     private sealed class Cell(ITile tile, Func<Cell, IEnumerable<Cell>> selectAdjacent) : Bindable, IMazeCell
     {
-        private uint _visitCount;
-
         public ushort Ordinal => tile.Ordinal;
 
         public Point2D Location => tile.Center;
@@ -28,10 +26,10 @@ public sealed partial class Maze
 
         public uint VisitCount
         {
-            get => _visitCount;
+            get;
             set
             {
-                if (Set(ref _visitCount, value))
+                if (Set(ref field, value))
                 {
                     NotifyOfPropertyChange(nameof(HasBeenVisited));
                 }

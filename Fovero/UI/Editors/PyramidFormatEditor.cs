@@ -5,13 +5,11 @@ namespace Fovero.UI.Editors;
 
 public class PyramidFormatEditor() : FormatEditor("Pyramid")
 {
-    private int _rows = 10;
-
     public int Rows
     {
-        get => _rows;
-        set => SetFormat(ref _rows, value);
-    }
+        get;
+        set => SetFormat(ref field, value);
+    } = 10;
 
     public override Maze CreateLayout()
     {

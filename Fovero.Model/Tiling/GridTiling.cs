@@ -53,13 +53,9 @@ public abstract class GridTiling(ushort columns, ushort rows) : ITiling
         return new Point2D(OffsetAt(location.Column), OffsetAt(location.Row));
     }
 
-    protected readonly struct Location(int column, int row)
+    protected readonly record struct Location(int Column, int Row)
     {
         public static Location None { get; } = new(int.MinValue, int.MinValue);
-
-        public int Column { get; init; } = column;
-
-        public int Row { get; init; } = row;
     }
 
     protected abstract class Tile(GridTiling format, ushort ordinal, Location location, IReadOnlyDictionary<Location, ITile> lookup) : ITile

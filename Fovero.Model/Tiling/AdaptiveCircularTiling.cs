@@ -79,21 +79,21 @@ public sealed class AdaptiveCircularTiling : CircularTiling
                         var locationOfNeighbor = isOuterEdgeSplit
                             ? edge switch
                             {
-                                0 => location with { Ring = (ushort)(Ring + 1), Segment = Segment * 2 },
-                                1 => location with { Ring = (ushort)(Ring + 1), Segment = Segment * 2 + 1 },
-                                2 => location with { Segment = NextSegment },
-                                3 when isInnerEdgeSplit => location with { Ring = (ushort)(Ring - 1), Segment = Segment / 2 },
-                                3 => location with { Ring = (ushort)(Ring - 1) },
-                                4 => location with { Segment = PreviousSegment },
+                                0 => new Location(Ring: (ushort)(Ring + 1), Segment: Segment * 2),
+                                1 => new Location(Ring: (ushort)(Ring + 1), Segment: Segment * 2 + 1),
+                                2 => new Location(Ring: Ring, Segment: NextSegment),
+                                3 when isInnerEdgeSplit => new Location(Ring: (ushort)(Ring - 1), Segment: Segment / 2),
+                                3 => new Location(Ring: (ushort)(Ring - 1), Segment: Segment),
+                                4 => new Location(Ring: Ring, Segment: PreviousSegment),
                                 _ => location
                             }
                             : edge switch
                             {
-                                0 => location with { Ring = (ushort)(Ring + 1) },
-                                1 => location with { Segment = NextSegment },
-                                2 when isInnerEdgeSplit => location with { Ring = (ushort)(Ring - 1), Segment = Segment / 2 },
-                                2 => location with { Ring = (ushort)(Ring - 1) },
-                                3 => location with { Segment = PreviousSegment },
+                                0 => new Location(Ring: (ushort)(Ring + 1), Segment: Segment),
+                                1 => new Location(Ring: Ring, Segment: NextSegment),
+                                2 when isInnerEdgeSplit => new Location(Ring: (ushort)(Ring - 1), Segment: Segment / 2),
+                                2 => new Location(Ring: (ushort)(Ring - 1), Segment: Segment),
+                                3 => new Location(Ring: Ring, Segment: PreviousSegment),
                                 _ => location
                             };
 

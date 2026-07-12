@@ -6,7 +6,7 @@ public abstract class Boundary : Bindable
 {
     protected Boundary(IEdge edge)
     {
-        ArgumentNullException.ThrowIfNull(edge, nameof(edge));
+        ArgumentNullException.ThrowIfNull(edge);
         Edge = edge;
     }
 

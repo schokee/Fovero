@@ -20,11 +20,7 @@ public abstract class CircularTiling(ushort rings, ushort segments, bool curved)
 
     protected Point2D TopLeftPointOf(ushort ring, ushort segment) => CircleAt(ring).PointAt(SegmentSweep * segment);
 
-    protected readonly struct Location(int ring, int segment)
-    {
-        public int Ring { get; init; } = ring;
-        public int Segment { get; init; } = segment;
-    }
+    protected readonly record struct Location(int Ring, int Segment);
 
     protected static string ArcMarkup(int ring, Point2D end, bool clockwiseSweep)
     {

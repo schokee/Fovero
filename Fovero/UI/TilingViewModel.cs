@@ -13,15 +13,7 @@ namespace Fovero.UI;
 
 public sealed partial class TilingViewModel : Screen
 {
-    private BuildingStrategy<SharedBorder> _selectedBuilder;
-    private SolvingStrategy _selectedSolver;
-    private IFormatEditor _selectedFormat;
-    private Maze _maze;
-    private ITrailMap _trailMap;
-    private bool _isBusy;
-    private bool _hasGenerated;
     private int _seed;
-    private int _zoom = 22;
 
     public TilingViewModel()
     {
@@ -55,10 +47,10 @@ public sealed partial class TilingViewModel : Screen
 
     public bool IsBusy
     {
-        get => _isBusy;
+        get;
         private set
         {
-            if (Set(ref _isBusy, value))
+            if (Set(ref field, value))
             {
                 NotifyOfPropertyChange(nameof(IsIdle));
                 NotifyOfPropertyChange(nameof(CanGenerate));
@@ -69,10 +61,10 @@ public sealed partial class TilingViewModel : Screen
 
     public bool HasGenerated
     {
-        get => _hasGenerated;
+        get;
         private set
         {
-            if (Set(ref _hasGenerated, value))
+            if (Set(ref field, value))
             {
                 NotifyOfPropertyChange(nameof(CanSolve));
             }
@@ -99,16 +91,16 @@ public sealed partial class TilingViewModel : Screen
 
     public int Zoom
     {
-        get => _zoom;
+        get;
         set
         {
-            if (Set(ref _zoom, value))
+            if (Set(ref field, value))
             {
                 NotifyOfPropertyChange(nameof(Scaling));
                 NotifyOfPropertyChange(nameof(StrokeThickness));
             }
         }
-    }
+    } = 22;
 
     #region ICanvas
 
@@ -122,21 +114,21 @@ public sealed partial class TilingViewModel : Screen
 
     public IFormatEditor SelectedFormat
     {
-        get => _selectedFormat;
+        get;
         set
         {
-            if (Set(ref _selectedFormat, value))
+            if (Set(ref field, value))
             {
-                if (_selectedFormat is not null)
+                if (field is not null)
                 {
-                    _selectedFormat.FormatChanged -= OnFormatChanged;
+                    field.FormatChanged -= OnFormatChanged;
                 }
 
-                _selectedFormat = value;
+                field = value;
 
-                if (_selectedFormat is not null)
+                if (field is not null)
                 {
-                    _selectedFormat.FormatChanged += OnFormatChanged;
+                    field.FormatChanged += OnFormatChanged;
                 }
 
                 OnFormatChanged();
@@ -148,18 +140,18 @@ public sealed partial class TilingViewModel : Screen
 
     public BuildingStrategy<SharedBorder> SelectedBuilder
     {
-        get => _selectedBuilder;
-        set => Set(ref _selectedBuilder, value);
+        get;
+        set => Set(ref field, value);
     }
 
     public IReadOnlyList<SolvingStrategy> Solvers { get; }
 
     public SolvingStrategy SelectedSolver
     {
-        get => _selectedSolver;
+        get;
         set
         {
-            if (Set(ref _selectedSolver, value))
+            if (Set(ref field, value))
             {
                 Clear();
                 NotifyOfPropertyChange(nameof(CanSolve));
@@ -169,10 +161,10 @@ public sealed partial class TilingViewModel : Screen
 
     public Maze Maze
     {
-        get => _maze;
+        get;
         private set
         {
-            if (Set(ref _maze, value))
+            if (Set(ref field, value))
             {
                 TrailMap = Maze?.CreateTrailMap();
                 HasGenerated = false;
@@ -183,8 +175,8 @@ public sealed partial class TilingViewModel : Screen
 
     public ITrailMap TrailMap
     {
-        get => _trailMap;
-        private set => Set(ref _trailMap, value);
+        get;
+        private set => Set(ref field, value);
     }
 
     [UsedImplicitly]

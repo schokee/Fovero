@@ -5,12 +5,10 @@ namespace Fovero.UI.Editors;
 
 public class DijonFormatEditor() : RegularFormatEditor("Dijon")
 {
-    private bool _hasVoids;
-
     public bool HasVoids
     {
-        get => _hasVoids;
-        set => SetFormat(ref _hasVoids, value);
+        get;
+        set => SetFormat(ref field, value);
     }
 
     public override Maze CreateLayout()
