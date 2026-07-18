@@ -58,6 +58,7 @@ public sealed class TilingFixture
             yield return new TestCaseData(new LatticeTiling(size, size));
             yield return new TestCaseData(new SquareTiling(size, size));
             yield return new TestCaseData(new HexagonalTiling(size, size));
+            yield return new TestCaseData(new QuarteredHexTiling(size, size));
             yield return new TestCaseData(new TriangularTiling(size, size));
             yield return new TestCaseData(new TruncatedSquareTiling(size, size));
             yield return new TestCaseData(new SlicedCircularTiling(size, size, true));
