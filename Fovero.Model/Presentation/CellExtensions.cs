@@ -10,7 +10,7 @@ internal static class CellExtensions
             .Count();
 
         return Enumerable
-            .Repeat((CollectionChange)new RemoveLast(), from.Count - branchedAt)
+            .Repeat<CollectionChange>(new RemoveLast(), from.Count - branchedAt)
             .Concat(to.Skip(branchedAt).Select(item => new Append<T>(item)));
     }
 }
