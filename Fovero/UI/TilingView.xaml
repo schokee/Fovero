@@ -8,9 +8,9 @@
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:model="clr-namespace:Fovero.Model;assembly=Fovero.Model"
              xmlns:components="clr-namespace:Fovero.Model.Presentation;assembly=Fovero.Model"
-             xmlns:local="clr-namespace:Fovero.UI"
              xmlns:behaviors="clr-namespace:Fovero.UI.Behaviors"
              xmlns:converters="clr-namespace:Fovero.UI.Converters"
+             xmlns:local="clr-namespace:Fovero.UI"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance {x:Type local:TilingViewModel}, IsDesignTimeCreatable=False}">
@@ -171,9 +171,47 @@
                     <Button x:Name="Clear" Grid.Column="2" Content ="Clear" Style="{StaticResource MahApps.Styles.Button.Flat}" />
                 </Grid>
             </HeaderedContentControl>
+
+            <Separator />
+
+            <Button Content="{iconPacks:Material Kind=CameraOutline}" Style="{StaticResource MahApps.Styles.Button.Flat}" ToolTip="Capture">
+                <b:Interaction.Behaviors>
+                    <behaviors:CaptureBehavior Source="{Binding ElementName=Viewer}" Command="{Binding Capture}" />
+                </b:Interaction.Behaviors>
+            </Button>
         </StackPanel>
 
-        <Grid Margin="10" ClipToBounds="True">
+        <DockPanel DockPanel.Dock="Right" Width="200"
+                   Visibility="{Binding HasItems, ElementName=Snapshots, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked="True">
+                <Button Command="{Binding ShowAll}" Content="{iconPacks:Material Kind=TableLarge}" ToolTip="Show All" />
+                <Separator />
+                <Button x:Name="Delete" Content="{iconPacks:Material Kind=TrashCanOutline}" ToolTip="Delete Selection" />
+            </ToolBar>
+            <ListBox x:Name="Snapshots" ItemsSource="{Binding Snapshots}"
+                     Focusable="False" IsTabStop="False" SelectionMode="Multiple"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="Padding" Value="1" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="3" Height="180" BorderThickness="1" BorderBrush="{StaticResource MahApps.Brushes.Accent}">
+                            <Grid>
+                                <Image Source="{Binding Item, Mode=OneTime}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <CheckBox HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsSelected}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <Grid x:Name="Viewer" Margin="10" ClipToBounds="True">
             <Grid.Resources>
                 <SolidColorBrush x:Key="Unsolved" Color="Crimson"/>
                 <SolidColorBrush x:Key="Solved" Color="Gold"/>
