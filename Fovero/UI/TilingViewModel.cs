@@ -1,4 +1,7 @@
-﻿using System.Reactive.Disposables;
+﻿using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using Caliburn.Micro;
 using CommunityToolkit.Mvvm.Input;
 using Fovero.Model;
@@ -15,7 +18,7 @@ public sealed partial class TilingViewModel : Screen
 {
     private int _seed;
 
-    public TilingViewModel()
+    public TilingViewModel(IWindowManager windowManager)
     {
         _seed = Random.Shared.Next();
 
@@ -43,6 +46,9 @@ public sealed partial class TilingViewModel : Screen
         ];
 
         SelectedFormat = AvailableFormats[0];
+
+        Capture = new RelayCommand<BitmapSource>(bitmap => Snapshots.Add(new Selectable<BitmapSource>(bitmap)));
+        ShowAll = new AsyncRelayCommand(() => windowManager.ShowDialogAsync(new ReviewViewModel(SelectedSnapshots.Select(x => x.Item).ToList())));
     }
 
     public bool IsIdle => !IsBusy;
@@ -103,6 +109,27 @@ public sealed partial class TilingViewModel : Screen
             }
         }
     } = 22;
+
+    #region Snapshots
+
+    public ObservableCollection<Selectable<BitmapSource>> Snapshots { get; } = new();
+
+    public ICommand Capture { get; }
+
+    public ICommand ShowAll { get; }
+
+    public IEnumerable<Selectable<BitmapSource>> SelectedSnapshots => Snapshots.Where(x => x.IsSelected);
+
+    [UsedImplicitly]
+    public void Delete()
+    {
+        foreach (var selectable in SelectedSnapshots.ToList())
+        {
+            Snapshots.Remove(selectable);
+        }
+    }
+
+    #endregion
 
     #region ICanvas
 

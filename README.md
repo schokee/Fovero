@@ -14,11 +14,14 @@ https://github.com/schokee/Fovero/assets/94783963/b66441fa-57b1-4efc-96ab-777745
 - Dijon
 - Palazzo
 - Lattice
+- Voronoi
 - Pyramid
 - Hexagons
 - Quartered Hexagons
 - Triangular
 - Circular
+
+![image](examples.png)
 
 ### Generation Algorithms
 
